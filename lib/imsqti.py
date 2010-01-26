@@ -111,6 +111,85 @@ class QTIMetadata:
 			f.write('\n<'+ns+'toolVendor>'+XMLString(self.toolVendor)+'</'+ns+'toolVendor>')
 		f.write('\n</'+ns+'qtiMetadata>')
 			
+        
+class AssessmentTest:
+	def __init__ (self):
+		self.identifier=""
+		self.title=""
+		self.label=None
+		self.language=None
+		self.adaptive=0
+		self.timeDependent=0
+		self.toolName=None
+		self.toolVersion=None
+		self.variables={}
+		self.itemBody=None
+		self.responseProcessing=None
+		self.modalFeedback=[]
+		
+	def SetIdentifier (self,identifier):
+		self.identifier=identifier
+		
+	def SetTitle (self,title):
+		self.title=title
+
+	def SetLabel (self,label):
+		self.label=label
+		
+	def SetLanguage (self,language):
+		self.language=language
+	
+	def WriteXML (self,f):
+		f.write('<assessmentTest')
+		f.write('\n\txmlns="http://www.imsglobal.org/xsd/imsqti_v2p1"')
+		f.write('\n\txmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+		f.write('\n\txsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"')
+		f.write(' identifier="'+XMLString(self.identifier)+'"')
+		f.write('\n title="'+XMLString(self.title)+'"')
+		if self.label:
+			f.write('\n label="'+XMLString(self.label)+'"')
+		if self.language:
+			f.write('\n xml:lang="'+XMLString(self.language)+'"')
+		if self.adaptive:
+			f.write('\n adaptive="true"')
+		else:
+			f.write('\n adaptive="false"')
+		if self.timeDependent:
+			f.write('\n timeDependent="true"')
+		else:
+			f.write('\n timeDependent="false"')
+		if self.toolName:
+			f.write('\n toolName="'+XMLString(self.toolName)+'"')
+		if self.toolVersion:
+			f.write('\n toolVersion="'+XMLString(self.toolVersion)+'"')
+		f.write('>')
+		vars=self.variables.keys()
+		vars.sort()
+		for var in vars:
+			varDeclaration=self.variables[var]
+			if isinstance(varDeclaration,ResponseDeclaration):
+				varDeclaration.WriteXML(f)
+		for var in vars:
+			varDeclaration=self.variables[var]
+			if isinstance(varDeclaration,OutcomeDeclaration):
+				varDeclaration.WriteXML(f)
+		# templateDeclarations
+		# templateProcessing
+		if self.itemBody:
+			self.itemBody.WriteXML(f)
+		if self.responseProcessing:
+			self.responseProcessing.WriteXML(f)
+		for feedback in self.modalFeedback:
+			feedback.WriteXML(f)
+		f.write('\n</assessmentTest>\n')
+    
+    
+class TestPart:
+    pass
+    
+class AssessmentSection:
+    pass
+        
 class AssessmentItem:
 	def __init__ (self):
 		self.identifier=""

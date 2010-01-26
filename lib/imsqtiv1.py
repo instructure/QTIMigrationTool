@@ -445,17 +445,74 @@ class QTIAssessment(QTIMetadataContainer):
 						   xml:lang CDATA  #IMPLIED >
 	"""
 	def __init__(self,name,attrs,parent):
-		QTIObjectV1.__init__(self,name,attrs,parent)
-		self.PrintWarning('Warning: assessment not supported, looking inside for items')
+		#QTIObjectV1.__init__(self,name,attrs,parent)
+		self.parent=parent
+		self.parser=self.GetParser()
+		self.assessment=AssessmentTest()
+		print "***Item: %s" % self.assessment
+		# This is the manifest object
+		self.resource=CPResource()
+		self.resource.SetType("imsqti_item_xmlv2p0")
+		self.educationalMetadata=None
+		self.variables={'FEEDBACK':None}
+		self.declareFeedback=0
+		self.responses={}
+		self.outcomes={}
+		self.max=None
+		self.interactions={}
+		if attrs.has_key('ident'):
+			print '-- Converting item id="'+attrs['ident']+'" --'
+		self.warnings={}
+		self.msg=""
+		self.ParseAttributes(attrs)
+		if not self.assessment.language and self.parser.options.lang:
+			self.assessment.SetLanguage(self.parser.options.lang)
+		# Set the name of the file
+		cp=self.GetRoot().cp
+		# Reserve space for our preferred file name
+		self.fName=cp.GetUniqueFileName("assmnt_"+self.resource.id+".xml")
+		self.files={}
 		
-	def SetAttribute_ident (self,id):
-		pass
-	
-	def SetAttribute_title (self,title):
-		pass
+	def SetAttribute_ident (self,value):
+		self.assessment.SetIdentifier(value);
+		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
+		if ':' in value:
+			print "Warning: item identifier with colon: replaced with hyphen when making resource identifier."
+			value=string.join(string.split(value,':'),'-')
+		self.resource.SetIdentifier(value);
+
+	def SetAttribute_title (self,value):
+		self.assessment.SetTitle(value)
 	
 	def SetAttribute_xml_lang (self,lang):
-		pass
+		self.assessment.SetLanguage(value)
+		
+	def GenerateQTIMetadata(self):
+		qtiMD=self.resource.GetQTIMD()
+		qtiMD.SetItemTemplate(0)
+		qtiMD.SetComposite(len(self.responses.keys())>1)
+	
+	def CloseObject (self):
+		# Fix up the title
+		print "****closing assessment"
+		if self.assessment.title:
+			self.resource.GetLOM().GetGeneral().SetTitle(LOMLangString(self.assessment.title,self.assessment.language))
+		self.GenerateQTIMetadata()
+		# Add the resource to the root thing - and therefore the content package
+		self.GetRoot().AddResource(self.resource)
+		# Adding a resource to a cp may cause it to change identifier, but we don't mind.
+		f=StringIO.StringIO()
+		f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+		if not self.parser.options.noComment:
+			f.write('<!--\n')
+			f.write(EncodeComment(self.msg))
+			f.write('\t-->\n\n')
+		self.assessment.WriteXML(f)
+		cpf=CPFile()
+		cpf.SetHREF(self.fName)
+		cpf.SetData(f.getvalue())
+		f.close()
+		self.resource.AddFile(cpf,1)
 	
 	
 # QTISection
