@@ -127,7 +127,7 @@ def convert_duration_to_seconds(duration):
 		return duration
 	else:
 		return None
-        
+
 class AssessmentTest:
 	def __init__ (self):
 		self.identifier=""
@@ -137,7 +137,7 @@ class AssessmentTest:
 		self.toolVersion=None
 		self.timeLimit=None
 		self.variables={}
-		#todo: create TestPart
+		self.parts = [TestPart()]
 		
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
@@ -157,6 +157,12 @@ class AssessmentTest:
 	def SetToolVersion (self, tool_version):
 		self.toolVersion = tool_version
 	
+	def AddSection(self, section, part_index=0):
+		self.parts[part_index].AddSection(section)
+		
+	def AddPart(self, section):
+		self.parts.append(section)
+	
 	def WriteXML (self,f):
 		f.write('<assessmentTest')
 		f.write('\n\txmlns="http://www.imsglobal.org/xsd/imsqti_v2p1"')
@@ -173,40 +179,105 @@ class AssessmentTest:
 		f.write('>')
 		if self.timeLimit:
 			f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
-		vars=self.variables.keys()
-		vars.sort()
-#		for var in vars:
-#			varDeclaration=self.variables[var]
-#			if isinstance(varDeclaration,ResponseDeclaration):
-#				varDeclaration.WriteXML(f)
-#		for var in vars:
-#			varDeclaration=self.variables[var]
-#			if isinstance(varDeclaration,OutcomeDeclaration):
-#				varDeclaration.WriteXML(f)
+		
+		for part in self.parts:
+			part.WriteXML(f)
+		
 		f.write('\n</assessmentTest>\n')
-    
-    
+
+
 class TestPart:
 	def __init__ (self):
-		self.identifier=""
-		self.title=""
-		self.variables={}
+		self.identifier="BaseTestPart"
 		self.timeLimit=None
-		
-	def SetTimeLimit (self,timeLimit):
-		self.timeLimit=convert_duration_to_seconds(timeLimit)
-    
-class AssessmentSection:
-	def __init__ (self):
-		self.identifier=""
-		self.title=""
-		self.variables={}
+		self.navigationMode=None
+		self.submissionMode=None
+		self.sections = []
 		
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
 		
+	def SetNavigationMode (self,navigationMode):
+		self.navigationMode=navigationMode
+		
+	def SetSubmissionMode (self,submissionMode):
+		self.submissionMode=submissionMode
+		
+	def SetTimeLimit (self,timeLimit):
+		self.timeLimit=convert_duration_to_seconds(timeLimit)
+	
+	def AddSection(self, section):
+		self.sections.append(section)
+		
+	def WriteXML (self,f):
+		f.write('\n<testPart')
+		f.write(' identifier="'+XMLString(self.identifier)+'"')
+		if self.navigationMode: f.write('\n navigationMode="'+XMLString(self.navigationMode)+'"')
+		if self.submissionMode: f.write('\n submissionMode="'+XMLString(self.submissionMode)+'"')
+		f.write('>')
+		if self.timeLimit: f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
+		
+		for sections in self.sections:
+			sections.WriteXML(f)
+		
+		f.write('\n</testPart>')
+
+class AssessmentSection:
+	def __init__ (self):
+		self.identifier=""
+		self.title=""
+		self.visible=None
+		self.required=None
+		self.fixed=None
+		self.keepTogether=None
+		self.timeLimit=None
+		self.sections = []
+		self.refs=[]
+		
+	def SetIdentifier (self,identifier):
+		self.identifier=identifier
+	
 	def SetTitle (self,title):
 		self.title=title
+		
+	def SetVisible (self,visible):
+		self.visible=visible
+		
+	def SetRequired (self,required):
+		self.required=required
+		
+	def SetFixed (self,fixed):
+		self.fixed=fixed
+		
+	def SetKeepTogether (self,keepTogether):
+		self.keepTogether=keepTogether
+	
+	def SetTimeLimit (self,timeLimit):
+		self.timeLimit=convert_duration_to_seconds(timeLimit)
+		
+	def AddSection(self, section):
+		self.sections.append(section)
+	
+	def AddItemReference(self, reference):
+		self.refs.append(reference)
+		
+	def WriteXML (self,f):
+		f.write('\n<assessmentSection')
+		f.write(' identifier="'+XMLString(self.identifier)+'"')
+		if self.title: f.write('\n title="'+XMLString(self.title)+'"')
+		if self.visible: f.write('\n visible="'+XMLString(self.visible)+'"')
+		if self.required: f.write('\n required="'+XMLString(self.required)+'"')
+		if self.fixed: f.write('\n fixed="'+XMLString(self.fixed)+'"')
+		if self.keepTogether: f.write('\n keepTogether="'+XMLString(self.keepTogether)+'"')
+		f.write('>')
+		if self.timeLimit: f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
+		
+		for sections in self.sections:
+			sections.WriteXML(f)
+		for ref in self.refs:
+			ref.WriteXML(f)
+		
+		f.write('\n</assessmentSection>')
 
 class AssessmentItem:
 	def __init__ (self):

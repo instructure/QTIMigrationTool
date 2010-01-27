@@ -486,6 +486,9 @@ class QTIAssessment(QTIMetadataContainer):
 		
 	def SetDuration(self, duration):
 		self.assessment.SetTimeLimit(duration)
+		
+	def AddSection(self, section):
+		self.assessment.AddSection(section)
 	
 	def CloseObject (self):
 		# Fix up the title
@@ -522,26 +525,26 @@ class QTISection(QTIMetadataContainer):
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
+		assert isinstance(self.parent,(QTIAssessment,QTISection)),QTIException(eInvalidStructure,"<section>")
 		self.parser=self.GetParser()
 		self.section=AssessmentSection()
+		self.ParseAttributes(attrs)
 		
 	def SetAttribute_ident (self,value):
 		self.section.SetIdentifier(value);
-		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
-		if ':' in value:
-			print "Warning: assessment identifier with colon: replaced with hyphen when making resource identifier."
-			value=string.join(string.split(value,':'),'-')
-		self.resource.SetIdentifier(value);
 
 	def SetAttribute_title (self,value):
 		self.section.SetTitle(value)
 	
-	def GenerateQTIMetadata(self):
-		qtiMD=self.resource.GetQTIMD()
-	
 	def SetDuration(self, duration):
 		#todo: if it's a testPart it can be set...
 		pass
+	
+	def AddSection(self, section):
+		self.section.AddSection(section)
+	
+	def CloseObject (self):
+		self.parent.AddSection(self.section)
 
 			
 # QTIItem
