@@ -59,6 +59,7 @@ HELP_TEXT=[
 	"  --nogui           : run in batch mode only",
 	"  --help            : display this message (implies --nogui)",
 	"  --version         : display version information only (implies --nogui)"
+	"  --overwrite		 : If the files already exist overwrite them"
 ]
 
 
@@ -76,18 +77,11 @@ if __name__ == '__main__':
 				
 	options=imsqtiv1.QTIParserV1Options()
 	fileNames=[]
+	OVERWRITE=False
 	for x in sys.argv[1:]:
 		# check for options here
 		if x[:8].lower()=="--cpout=":
 			options.cpPath=os.path.abspath(x[8:])
-			if os.path.exists(options.cpPath):
-				if os.path.isdir(options.cpPath):
-					reply=raw_input("Warning: CP Directory already exists, overwrite? (Yes/No)>")
-					if reply.lower()!="yes":
-						options.cpPath=''
-				else:
-					SPLASH_LOG.append("Warning: --cpout points to file, ignoring")
-					options.cpPath=''
 		elif x.lower()=="--ucvars":
 			options.ucVars=1
 		elif x.lower()=="--qmdextensions":
@@ -112,8 +106,22 @@ if __name__ == '__main__':
 			break
 		elif x.lower()=="--nogui":
 			NO_GUI=1
+		elif x.lower()=="--overwrite":
+			OVERWRITE=1
 		else:
 			fileNames.append(x)
+	
+	if options.cpPath and os.path.exists(options.cpPath):
+		if os.path.isdir(options.cpPath):
+			if OVERWRITE:
+				SPLASH_LOG.append("Warning: CP Directory already exists, overwriting.")
+			else:
+				reply=raw_input("Warning: CP Directory already exists, overwrite? (Yes/No)>")
+				if reply.lower()!="yes":
+					options.cpPath=''
+		else:
+			SPLASH_LOG.append("Warning: --cpout points to file, ignoring")
+			options.cpPath=''
 
 	if not NO_GUI:
 		try:
