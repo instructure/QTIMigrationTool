@@ -110,22 +110,97 @@ class QTIMetadata:
 		if self.toolVendor:
 			f.write('\n<'+ns+'toolVendor>'+XMLString(self.toolVendor)+'</'+ns+'toolVendor>')
 		f.write('\n</'+ns+'qtiMetadata>')
-			
+
+def convert_duration_to_seconds(duration):
+	"""The duration is in the ISO 8601 format: PnYnMnDTnHnMnS
+	This function converts that to seconds.
+	The format that it is actually in however is: HnMnSn
+	"""
+	import re
+	hours, minutes, seconds = re.search('(?:H([\\d]*))?(?:M([\\d]*))?(?:S([\\d]*))?', duration).group(1,2,3)
+	duration = 0
+	if seconds: duration += int(seconds)
+	if minutes: duration += int(minutes) * 60
+	if hours: duration += int(hours) * 60 * 60
+	
+	if duration > 0:
+		return duration
+	else:
+		return None
         
 class AssessmentTest:
 	def __init__ (self):
 		self.identifier=""
 		self.title=""
-		self.label=None
 		self.language=None
-		self.adaptive=0
-		self.timeDependent=0
 		self.toolName=None
 		self.toolVersion=None
+		self.timeLimit=None
 		self.variables={}
-		self.itemBody=None
-		self.responseProcessing=None
-		self.modalFeedback=[]
+		#todo: create TestPart
+		
+	def SetIdentifier (self,identifier):
+		self.identifier=identifier
+		
+	def SetTitle (self,title):
+		self.title=title
+		
+	def SetTimeLimit (self,timeLimit):
+		self.timeLimit=convert_duration_to_seconds(timeLimit)
+
+	def SetLanguage (self,language):
+		self.language=language
+	
+	def SetToolName (self, tool_name):
+		self.toolName = tool_name
+	
+	def SetToolVersion (self, tool_version):
+		self.toolVersion = tool_version
+	
+	def WriteXML (self,f):
+		f.write('<assessmentTest')
+		f.write('\n\txmlns="http://www.imsglobal.org/xsd/imsqti_v2p1"')
+		f.write('\n\txmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+		f.write('\n\txsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"')
+		f.write('\n identifier="'+XMLString(self.identifier)+'"')
+		f.write('\n title="'+XMLString(self.title)+'"')
+		if self.language:
+			f.write('\n xml:lang="'+XMLString(self.language)+'"')
+		if self.toolName:
+			f.write('\n toolName="'+XMLString(self.toolName)+'"')
+		if self.toolVersion:
+			f.write('\n toolVersion="'+XMLString(self.toolVersion)+'"')
+		f.write('>')
+		if self.timeLimit:
+			f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
+		vars=self.variables.keys()
+		vars.sort()
+#		for var in vars:
+#			varDeclaration=self.variables[var]
+#			if isinstance(varDeclaration,ResponseDeclaration):
+#				varDeclaration.WriteXML(f)
+#		for var in vars:
+#			varDeclaration=self.variables[var]
+#			if isinstance(varDeclaration,OutcomeDeclaration):
+#				varDeclaration.WriteXML(f)
+		f.write('\n</assessmentTest>\n')
+    
+    
+class TestPart:
+	def __init__ (self):
+		self.identifier=""
+		self.title=""
+		self.variables={}
+		self.timeLimit=None
+		
+	def SetTimeLimit (self,timeLimit):
+		self.timeLimit=convert_duration_to_seconds(timeLimit)
+    
+class AssessmentSection:
+	def __init__ (self):
+		self.identifier=""
+		self.title=""
+		self.variables={}
 		
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
@@ -133,63 +208,6 @@ class AssessmentTest:
 	def SetTitle (self,title):
 		self.title=title
 
-	def SetLabel (self,label):
-		self.label=label
-		
-	def SetLanguage (self,language):
-		self.language=language
-	
-	def WriteXML (self,f):
-		f.write('<assessmentTest')
-		f.write('\n\txmlns="http://www.imsglobal.org/xsd/imsqti_v2p1"')
-		f.write('\n\txmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
-		f.write('\n\txsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"')
-		f.write(' identifier="'+XMLString(self.identifier)+'"')
-		f.write('\n title="'+XMLString(self.title)+'"')
-		if self.label:
-			f.write('\n label="'+XMLString(self.label)+'"')
-		if self.language:
-			f.write('\n xml:lang="'+XMLString(self.language)+'"')
-		if self.adaptive:
-			f.write('\n adaptive="true"')
-		else:
-			f.write('\n adaptive="false"')
-		if self.timeDependent:
-			f.write('\n timeDependent="true"')
-		else:
-			f.write('\n timeDependent="false"')
-		if self.toolName:
-			f.write('\n toolName="'+XMLString(self.toolName)+'"')
-		if self.toolVersion:
-			f.write('\n toolVersion="'+XMLString(self.toolVersion)+'"')
-		f.write('>')
-		vars=self.variables.keys()
-		vars.sort()
-		for var in vars:
-			varDeclaration=self.variables[var]
-			if isinstance(varDeclaration,ResponseDeclaration):
-				varDeclaration.WriteXML(f)
-		for var in vars:
-			varDeclaration=self.variables[var]
-			if isinstance(varDeclaration,OutcomeDeclaration):
-				varDeclaration.WriteXML(f)
-		# templateDeclarations
-		# templateProcessing
-		if self.itemBody:
-			self.itemBody.WriteXML(f)
-		if self.responseProcessing:
-			self.responseProcessing.WriteXML(f)
-		for feedback in self.modalFeedback:
-			feedback.WriteXML(f)
-		f.write('\n</assessmentTest>\n')
-    
-    
-class TestPart:
-    pass
-    
-class AssessmentSection:
-    pass
-        
 class AssessmentItem:
 	def __init__ (self):
 		self.identifier=""

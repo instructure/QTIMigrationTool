@@ -449,17 +449,11 @@ class QTIAssessment(QTIMetadataContainer):
 		self.parent=parent
 		self.parser=self.GetParser()
 		self.assessment=AssessmentTest()
-		print "***Item: %s" % self.assessment
 		# This is the manifest object
 		self.resource=CPResource()
 		self.resource.SetType("imsqti_item_xmlv2p0")
 		self.educationalMetadata=None
 		self.variables={'FEEDBACK':None}
-		self.declareFeedback=0
-		self.responses={}
-		self.outcomes={}
-		self.max=None
-		self.interactions={}
 		if attrs.has_key('ident'):
 			print '-- Converting item id="'+attrs['ident']+'" --'
 		self.warnings={}
@@ -477,7 +471,7 @@ class QTIAssessment(QTIMetadataContainer):
 		self.assessment.SetIdentifier(value);
 		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
 		if ':' in value:
-			print "Warning: item identifier with colon: replaced with hyphen when making resource identifier."
+			print "Warning: assessment identifier with colon: replaced with hyphen when making resource identifier."
 			value=string.join(string.split(value,':'),'-')
 		self.resource.SetIdentifier(value);
 
@@ -489,12 +483,12 @@ class QTIAssessment(QTIMetadataContainer):
 		
 	def GenerateQTIMetadata(self):
 		qtiMD=self.resource.GetQTIMD()
-		qtiMD.SetItemTemplate(0)
-		qtiMD.SetComposite(len(self.responses.keys())>1)
+		
+	def SetDuration(self, duration):
+		self.assessment.SetTimeLimit(duration)
 	
 	def CloseObject (self):
 		# Fix up the title
-		print "****closing assessment"
 		if self.assessment.title:
 			self.resource.GetLOM().GetGeneral().SetTitle(LOMLangString(self.assessment.title,self.assessment.language))
 		self.GenerateQTIMetadata()
@@ -527,19 +521,28 @@ class QTISection(QTIMetadataContainer):
 			xml:lang CDATA  #IMPLIED >
 	"""
 	def __init__(self,name,attrs,parent):
-		QTIObjectV1.__init__(self,name,attrs,parent)
-		self.PrintWarning('Warning: section not supported, looking inside for items')
+		self.parent=parent
+		self.parser=self.GetParser()
+		self.section=AssessmentSection()
 		
-	def SetAttribute_ident (self,id):
+	def SetAttribute_ident (self,value):
+		self.section.SetIdentifier(value);
+		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
+		if ':' in value:
+			print "Warning: assessment identifier with colon: replaced with hyphen when making resource identifier."
+			value=string.join(string.split(value,':'),'-')
+		self.resource.SetIdentifier(value);
+
+	def SetAttribute_title (self,value):
+		self.section.SetTitle(value)
+	
+	def GenerateQTIMetadata(self):
+		qtiMD=self.resource.GetQTIMD()
+	
+	def SetDuration(self, duration):
+		#todo: if it's a testPart it can be set...
 		pass
-	
-	def SetAttribute_title (self,title):
-		pass
-	
-	def SetAttribute_xml_lang (self,lang):
-		pass
-	
-	
+
 			
 # QTIItem
 # -------
@@ -784,6 +787,10 @@ class QTIItem(QTIMetadataContainer):
 
 	def SetToolVendor(self,vendor):
 		self.resource.GetQTIMD().SetToolVendor(vendor)
+		
+	def SetDuration(self, duration):
+		#todo: add comment warning
+		pass
 		
 	def SetStatus(self,source,value):
 		source=LOMLangString(source,'x-none')
@@ -1420,8 +1427,7 @@ class Duration(QTIObjectV1):
 	
 	def CloseObject (self):
 		self.data=self.data.strip()
-		self.PrintWarning("Warning: duration is currently outside the scope of version 2: ignored "+self.data)
-
+		self.parent.SetDuration(self.data)
 
 				
 # ItemControl
