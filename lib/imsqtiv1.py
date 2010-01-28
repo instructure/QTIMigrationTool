@@ -436,7 +436,7 @@ class QTIObjectBank(QTIMetadataContainer):
 # QTIAssessment
 # -------------
 #
-class QTIAssessment(QTIMetadataContainer):
+class QTIAssessment(QTIObjectV1):
 	"""
 	<!ELEMENT assessment (qticomment? , duration? , qtimetadata* , objectives* , assessmentcontrol* , rubric* , presentation_material? , outcomes_processing* , assessproc_extension? , assessfeedback* , selection_ordering? , reference? , (sectionref | section)+)>
 	
@@ -494,7 +494,14 @@ class QTIAssessment(QTIMetadataContainer):
 		return self
 	
 	def DeclareOutcome (self,decvar):
-		print "***Outcome declared on section: %s: %s" % (decvar.identifier,decvar.data)
+		self.PrintWarning("***Warning: Outcomes not supported on sections: %s: %s" % (decvar.identifier,decvar.data))
+		
+	def PrintWarning (self,warning,force=0):
+		if not self.warnings.has_key(warning):
+			self.msg=self.msg+warning+'\n'
+			self.warnings[warning]=1
+		if force:
+			self.parent.PrintWarning(warning,1)
 	
 	def CloseObject (self):
 		# Fix up the title
@@ -521,7 +528,7 @@ class QTIAssessment(QTIMetadataContainer):
 # QTISection
 # ----------
 #
-class QTISection(QTIMetadataContainer):
+class QTISection(QTIObjectV1):
 	"""
 	<!ELEMENT section (qticomment? , duration? , qtimetadata* , objectives* , sectioncontrol* , sectionprecondition* , sectionpostcondition* , rubric* , presentation_material? , outcomes_processing* , sectionproc_extension? , sectionfeedback* , selection_ordering? , reference? , (itemref | item | sectionref | section)*)>
 	
@@ -568,7 +575,7 @@ class QTISection(QTIMetadataContainer):
 		return self
 	
 	def DeclareOutcome (self,decvar):
-		print "***Outcome declared on section: %s: %s" % (decvar.identifier,decvar.data)
+		print "Outcome declared on section: %s: %s" % (decvar.identifier,decvar.data)
 	
 	def CloseObject (self):
 		self.section.ProcessReferences()
@@ -589,7 +596,7 @@ class SelectionOrdering(QTIObjectV1):
 			self.process=True
 			self.ParseAttributes(attrs)
 		else:
-			print "Warning: selection/ordering on assessment not supported."
+			self.PrintWarning("Warning: selection/ordering on assessment not supported.")
 			self.process=False
 
 	def AddData (self,data):
