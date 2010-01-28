@@ -489,6 +489,12 @@ class QTIAssessment(QTIMetadataContainer):
 		
 	def AddSection(self, section):
 		self.assessment.AddSection(section)
+		
+	def GetItemV1 (self):
+		return self
+	
+	def DeclareOutcome (self,decvar):
+		print "***Outcome declared on section: %s: %s" % (decvar.identifier,decvar.data)
 	
 	def CloseObject (self):
 		# Fix up the title
@@ -555,26 +561,17 @@ class QTISection(QTIMetadataContainer):
 	def SetOutcomeWeights(self, weights):
 		self.section.SetOutcomeWeights(weights)
 		
+	def AddItemReference(self, ref, fName):
+		self.section.AddItemReference(ref, fName)
+		
 	def GetItemV1 (self):
 		return self
 	
 	def DeclareOutcome (self,decvar):
-		print "***Outcome declared on assessment: %s" % (decvar.identifier,)
-#		if self.outcomes.has_key(decvar.identifier):
-#			raise QTIException(eDuplicateVariable,decvar.identifier)
-#		if self.variables.has_key(decvar.identifier):
-#			print 'Warning: duplicate variable name, renaming outcome "'+decvar.identifier+'"'
-#			self.outcomes[decvar.identifier]=self.UniqueVarName(decvar.identifier)
-#		else:
-#			self.outcomes[decvar.identifier]=decvar.identifier
-#		declaration=OutcomeDeclaration(self.outcomes[decvar.identifier],'single',decvar.baseType)
-#		if decvar.default:
-#			declaration.SetDefaultValue(DefaultValue(decvar.default))
-#		self.item.DeclareVariable(declaration)
-#		self.variables[self.outcomes[decvar.identifier]]=(declaration,decvar)
-		pass
+		print "***Outcome declared on section: %s: %s" % (decvar.identifier,decvar.data)
 	
 	def CloseObject (self):
+		self.section.ProcessReferences()
 		self.parent.AddSection(self.section)
 
 # SelectionOrdering
@@ -587,20 +584,25 @@ class SelectionOrdering(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(QTISection)),QTIException(eInvalidStructure,"<selection_ordering>")
-		self.ParseAttributes(attrs)
+		assert isinstance(self.parent,(QTISection, QTIAssessment)),QTIException(eInvalidStructure,"<selection_ordering>")
+		if isinstance(self.parent,QTISection):
+			self.process=True
+			self.ParseAttributes(attrs)
+		else:
+			print "Warning: selection/ordering on assessment not supported."
+			self.process=False
 
 	def AddData (self,data):
 		self.data=self.data+data
 	
 	def SetOrderType (self,value):
-		self.parent.SetOrderType(value)
+		if self.process: self.parent.SetOrderType(value)
 	
 	def SetSelectionNumber(self, value):
-		self.parent.SetSelectionNumber(value)
+		if self.process: self.parent.SetSelectionNumber(value)
 	
 	def SetSequenceType(self, value):
-		self.parent.SetSequenceType(value)
+		if self.process: self.parent.SetSequenceType(value)
 		
 	def SetAttribute_sequence_type (self,value):
 		self.SetSequenceType(value)
@@ -682,7 +684,7 @@ class OutcomesProcessing(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(QTISection)),QTIException(eInvalidStructure,"<outcomes_processing>")
+		assert isinstance(self.parent,(QTISection, QTIAssessment)),QTIException(eInvalidStructure,"<outcomes_processing>")
 		self.outcome_weights={}
 
 	def AddData (self,data):
@@ -692,7 +694,8 @@ class OutcomesProcessing(QTIObjectV1):
 		self.outcome_weights[id] = weight
 		
 	def CloseObject (self):
-		self.parent.SetOutcomeWeights(self.outcome_weights)
+		if isinstance(self.parent, QTISection):
+			self.parent.SetOutcomeWeights(self.outcome_weights)
 
 # ObjectsCondition
 # --------
@@ -778,7 +781,41 @@ class ObjectsParameter(QTIObjectV1):
 		if self.pname and self.pname.lower() == "qmd_weighting":
 			self.parent.SetItemWeight(self.data)
 		
-			
+# ItemRef
+# --------
+#
+class ItemRef(QTIObjectV1):
+	"""
+	<!ELEMENT itemref (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.linkrefid=None
+		self.clean_linkrefid=None
+		assert isinstance(self.parent,(QTISection)),QTIException(eInvalidStructure,"<itemref>")
+		self.ParseAttributes(attrs)
+		# Set the name of the file
+		cp=self.GetRoot().cp
+		# Reserve space for our preferred file name
+		self.fName=cp.GetUniqueFileName(self.clean_linkrefid+".xml", dont_save=True)
+
+	def AddData (self,data):
+		self.data=self.data+data
+		
+	def SetAttribute_linkrefid (self,value):
+		self.linkrefid = value
+		if ':' in value:
+			print "Warning: item identifier with colon: replaced with hyphen when making resource identifier."
+			value=string.join(string.split(value,':'),'-')
+		self.clean_linkrefid = value
+		
+	def CloseObject(self):
+		self.data=self.data.strip()
+		if self.clean_linkrefid:
+			self.parent.AddItemReference(self.clean_linkrefid, self.fName)
+
+
 # QTIItem
 # -------
 #
@@ -1058,6 +1095,10 @@ class QTIItem(QTIMetadataContainer):
 		return cpLocation
 
 	def CloseObject (self):
+		#Add reference to parent if it's a section
+		if isinstance(self.parent,QTISection):
+			self.parent.AddItemReference(self.resource.id, self.fName)
+			
 		# Check devvar min/max constraints
 		rp=self.item.GetResponseProcessing()
 		for outcome in self.outcomes.keys():
@@ -4306,7 +4347,7 @@ QTIASI_ELEMENTS={
         'itempostcondition':Unsupported,
         'itemprecondition':Unsupported,
         'itemproc_extension':Unsupported,
-        'itemref':Unsupported,
+        'itemref':ItemRef,
         'itemrubric':Unsupported,
         'map_output':Unsupported,
         'mat_extension':Unsupported,

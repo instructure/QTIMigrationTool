@@ -234,9 +234,9 @@ class AssessmentSection:
 		self.randomOrdering=None
 		self.selectNumber=None
 		self.withReplacement=None
-		self.sections = []
+		self.items = []
 		self.outcomeWeights=None
-		self.refs=[]
+		self.references={}
 		
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
@@ -260,14 +260,16 @@ class AssessmentSection:
 		self.timeLimit=convert_duration_to_seconds(timeLimit)
 		
 	def AddSection(self, section):
-		self.sections.append(section)
+		self.items.append(section)
 	
-	def AddItemReference(self, reference):
-		self.refs.append(reference)
+	def AddItemReference(self, reference, fName):
+		ref = AssessmentItemRef(reference, fName)
+		self.items.append(ref)
+		self.references[reference] = ref
 		
 	def SetOutcomeWeights(self, weights):
 		self.outcomeWeights = weights
-	
+		
 	def SetOrderType (self,value):
 		""" The type will be one of: fixed, sequential, random
 		http://www.imsglobal.org/question/qtiv1p2/imsqti_asi_saov1p2.html#1404826
@@ -283,6 +285,12 @@ class AssessmentSection:
 		"""Possible values: repeat, normal"""
 		if value.lower() == "repeat":
 			self.withReplacement = True
+			
+	def ProcessReferences(self):
+		if self.outcomeWeights:
+			for id, weight in self.outcomeWeights.items():
+				if self.references.has_key(id):
+					self.references[id].SetWeight(weight)
 		
 	def WriteXML (self,f):
 		f.write('\n<assessmentSection')
@@ -301,12 +309,37 @@ class AssessmentSection:
 			if self.withReplacement: f.write(' withReplacement="%s"' % self.withReplacement)
 			f.write(' />')
 		
-		for sections in self.sections:
-			sections.WriteXML(f)
-		for ref in self.refs:
-			ref.WriteXML(f)
+		for item in self.items:
+			item.WriteXML(f)
 		
 		f.write('\n</assessmentSection>')
+		
+class AssessmentItemRef:
+	def __init__(self, iden, href):
+		self.identifier=iden
+		self.weight=None
+		self.href=href
+	
+	def SetIdentifier(self, value):
+		self.identifier=value
+	
+	def SetWeight(self, weight):
+		self.weight=weight
+		
+	def SetHREF(self, href):
+		self.href = href
+	
+	def WriteXML(self,f):
+		#<assessmentItemRef identifier="set01" href="rtest01-set01.xml"/>
+		f.write('\n<assessmentItemRef')
+		f.write(' identifier="'+XMLString(self.identifier)+'"')
+		f.write(' href="'+XMLString(self.href)+'"')
+		if self.weight:
+			f.write(">")
+			f.write('\n<weight identifier="%s" value="%s"/>' % (0, self.weight))
+			f.write('\n</assessmentItemRef>')
+		else:
+			f.write('/>')
 
 class AssessmentItem:
 	def __init__ (self):

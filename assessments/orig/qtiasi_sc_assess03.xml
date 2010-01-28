@@ -1,0 +1,1665 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<!-- Date: 20th January, 2002    					-->
+
+<!-- Version: 	1.2 Results Reporting Example			 		-->
+
+<!-- Author:	Colin Smythe (IMS)						-->
+
+<!-- Topic:  Advanced example of results reporting.	-->
+<questestinterop>
+	<assessment ident = "IMS_QTIV1p2_A_SAO_01">
+		<outcomes_processing scoremodel = "SumofScores">
+			<outcomes>
+				<decvar vartype = "Integer" varname = "SCORE" defaultval = "0" minvalue = "0" maxvalue = "18" cutvalue = "14"/>
+			</outcomes>
+			<outcomes_feedback_test title = "Pass test.">
+				<test_variable>
+					<variable_test testoperator = "GTE" varname = "SCORE">14</variable_test>
+				</test_variable>
+				<displayfeedback linkrefid = "Pass" feedbacktype = "Response"/>
+			</outcomes_feedback_test>
+			<outcomes_feedback_test title = "Fail test.">
+				<test_variable>
+					<variable_test testoperator = "LT" varname = "SCORE">14</variable_test>
+				</test_variable>
+				<displayfeedback linkrefid = "Fail" feedbacktype = "Response"/>
+			</outcomes_feedback_test>
+		</outcomes_processing>
+		<outcomes_processing scoremodel = "NumberCorrect">
+			<outcomes>
+				<decvar varname = "CORRECT" vartype = "Integer" defaultval = "0" minvalue = "0" maxvalue = "18" cutvalue = "14"/>
+			</outcomes>
+			<outcomes_feedback_test title = "Pass test.">
+				<test_variable>
+					<variable_test testoperator = "GTE" varname = "SCORE">14</variable_test>
+				</test_variable>
+				<displayfeedback linkrefid = "Pass" feedbacktype = "Response"/>
+			</outcomes_feedback_test>
+			<outcomes_feedback_test title = "Fail test.">
+				<test_variable>
+					<variable_test testoperator = "LT" varname = "SCORE">14</variable_test>
+				</test_variable>
+				<displayfeedback linkrefid = "Fail" feedbacktype = "Response"/>
+			</outcomes_feedback_test>
+		</outcomes_processing>
+		<assessfeedback ident = "Pass" view = "All">
+			<flow_mat>
+				<material>
+					<mattext>Well done.  You have passed this test.</mattext>
+				</material>
+			</flow_mat>
+		</assessfeedback>
+		<assessfeedback ident = "Fail" view = "All">
+			<flow_mat>
+				<material>
+					<mattext>Sorry,  You have failed this test.</mattext>
+				</material>
+			</flow_mat>
+		</assessfeedback>
+		<selection_ordering>
+			<selection>
+				<selection_number>1</selection_number>
+			</selection>
+			<order order_type = "Random"/>
+		</selection_ordering>
+		<section ident = "IMS_QTIV1p2_S_SAO_11">
+			<outcomes_processing scoremodel = "SumofScores">
+				<outcomes>
+					<decvar vartype = "Integer" varname = "SCORE" defaultval = "0" minvalue = "0" maxvalue = "10" cutvalue = "8"/>
+				</outcomes>
+			</outcomes_processing>
+			<outcomes_processing scoremodel = "NumberCorrect">
+				<outcomes>
+					<decvar varname = "CORRECT" vartype = "Integer" defaultval = "0" minvalue = "0" maxvalue = "10" cutvalue = "8"/>
+				</outcomes>
+			</outcomes_processing>
+			<selection_ordering>
+				<selection>
+					<selection_metadata mdname = "qmd_numberofitems" mdoperator = "GTE">4</selection_metadata>
+				</selection>
+				<order order_type = "Sequential"/>
+			</selection_ordering>
+			<section title = "IMSQTI_Selection&amp;OrderingTest_S11p1" ident = "IMS_QTIV1p2_S_SAO_11p1">
+				<qticomment>Set of True/false questions</qticomment>
+				<qtimetadata>
+					<qtimetadatafield>
+						<fieldlabel>qmd_numberofitems</fieldlabel>
+						<fieldentry>4</fieldentry>
+					</qtimetadatafield>
+				</qtimetadata>
+				<outcomes_processing scoremodel = "SumofScores">
+					<outcomes>
+						<decvar vartype = "Integer" varname = "SCORE" defaultval = "0" minvalue = "0" maxvalue = "4" cutvalue = "3"/>
+					</outcomes>
+				</outcomes_processing>
+				<outcomes_processing scoremodel = "NumberCorrect">
+					<outcomes>
+						<decvar varname = "CORRECT" vartype = "Integer" defaultval = "0" minvalue = "0" maxvalue = "4" cutvalue = "3"/>
+					</outcomes>
+				</outcomes_processing>
+				<selection_ordering>
+					<selection/>
+					<order order_type = "Random"/>
+				</selection_ordering>
+				<item ident = "IMS_QTIV1p2_I_SAO_02" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>basic</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">The QTI specification supports the exchange of which data structures ?</mattext>
+							</material>
+							<response_lid ident = "LID02" rcardinality = "Multiple" rtiming = "No">
+								<render_choice shuffle = "Yes" minnumber = "1" maxnumber = "2">
+									<flow_label class = "Block">
+										<response_label ident = "A" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Response</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "B" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Question</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "C" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Item</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "D" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Assessment</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<qticomment xml:lang = "en-US">Correct response detection</qticomment>
+							<conditionvar>
+								<varequal respident = "LID02" case = "No">A</varequal>
+								<varequal respident = "LID02" case = "No">B</varequal>
+								<not>
+									<varequal respident = "LID02" case = "No">C</varequal>
+								</not>
+								<not>
+									<varequal respident = "LID02" case = "No">D</varequal>
+								</not>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<conditionvar>
+								<not>
+									<and>
+										<varequal respident = "LID02" case = "No">A</varequal>
+										<varequal respident = "LID02" case = "No">B</varequal>
+										<not>
+											<varequal respident = "LID02" case = "No">C</varequal>
+										</not>
+										<not>
+											<varequal respident = "LID02" case = "No">D</varequal>
+										</not>
+									</and>
+								</not>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct.  Items and Assessment.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">No.  The correct answers are Item and Assessment.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_08" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>basic</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Time-based responses are supported by the QTI specification.</mattext>
+							</material>
+							<response_lid ident = "TF02" rcardinality = "Single" rtiming = "No">
+								<render_choice shuffle = "Yes">
+									<flow_label class = "Block">
+										<response_label ident = "T" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">True</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "F" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">False</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<qticomment xml:lang = "en-US">Processing for the correct answer.</qticomment>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF02" case = "No">T</varequal>
+							</conditionvar>
+							<setvar action = "Set" varname = "SCORE">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF02" case = "No">F</varequal>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct answer.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Sorry, you are wrong.  Time-based reponses ARE supported by the specification.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_09" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>advanced</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Items defined according to QTI V1.0 are not compatible with Items from QTI V1.2.</mattext>
+							</material>
+							<response_lid ident = "TF03" rcardinality = "Single" rtiming = "No">
+								<render_choice shuffle = "Yes">
+									<flow_label class = "Block">
+										<response_label ident = "T" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">True</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "F" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">False</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<qticomment xml:lang = "en-US">Processing for the correct answer.</qticomment>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF03" case = "No">F</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF03" case = "No">T</varequal>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct answer.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Sorry, you are wrong.  V1.0 Items ARE compatible with the V1.2 specification.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_10" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>advanced</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">The QTI specification is used within the ADL SCORM.</mattext>
+							</material>
+							<response_lid ident = "TF04" rcardinality = "Single" rtiming = "No">
+								<render_choice shuffle = "Yes">
+									<flow_label class = "Block">
+										<response_label ident = "T" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">True</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "F" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">False</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<qticomment xml:lang = "en-US">Processing for the correct answer.</qticomment>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF04" case = "No">T</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF04" case = "No">F</varequal>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct answer.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Sorry, you are wrong.  The QTI specification is NOT used within ADL SCORM.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+			</section>
+			<section title = "IMSQTI_Selection&amp;OrderingTest_S11p2" ident = "IMS_QTIV1p2_S_SAO_11p2">
+				<qticomment>Set of multiple-choice/multiple-response questions</qticomment>
+				<qtimetadata>
+					<qtimetadatafield>
+						<fieldlabel>qmd_numberofitems</fieldlabel>
+						<fieldentry>4</fieldentry>
+					</qtimetadatafield>
+				</qtimetadata>
+				<outcomes_processing scoremodel = "SumofScores">
+					<outcomes>
+						<decvar vartype = "Integer" varname = "SCORE" defaultval = "0" minvalue = "0" maxvalue = "6" cutvalue = "5"/>
+					</outcomes>
+				</outcomes_processing>
+				<outcomes_processing scoremodel = "NumberCorrect">
+					<outcomes>
+						<decvar varname = "CORRECT" vartype = "Integer" defaultval = "0" minvalue = "0" maxvalue = "6" cutvalue = "5"/>
+					</outcomes>
+				</outcomes_processing>
+				<selection_ordering>
+					<selection/>
+					<order order_type = "Random"/>
+				</selection_ordering>
+				<item ident = "IMS_QTIV1p2_I_SAO_01" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>advanced</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Which of the following statements are true about the QTI specification ?</mattext>
+							</material>
+							<response_lid ident = "LID01" rcardinality = "Multiple" rtiming = "No">
+								<render_choice shuffle = "Yes" minnumber = "1" maxnumber = "5">
+									<flow_label class = "Block">
+										<response_label ident = "A" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">It is independent of pedagogy</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "B" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">It cannot be extended to support proprietary features</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "C" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">It contains many unnecesary features</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "D" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">It provides different content views for different types of participants</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "E" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">It is based on a well established framework</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<qticomment xml:lang = "en-US"/>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "Yes">
+							<qticomment xml:lang = "en-US">To detect if the correct answer has been supplied.</qticomment>
+							<conditionvar>
+								<varequal respident = "LID01" case = "No">A</varequal>
+								<not>
+									<varequal respident = "LID01" case = "No">B</varequal>
+								</not>
+								<not>
+									<varequal respident = "LID01" case = "No">C</varequal>
+								</not>
+								<varequal respident = "LID01" case = "No">D</varequal>
+								<varequal respident = "LID01" case = "No">E</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<qticomment e-dtype = "string" xml:lang = "en-US">To detect if the incorrect answer is supplied.</qticomment>
+							<conditionvar>
+								<not>
+									<and>
+										<varequal respident = "LID01" case = "No">A</varequal>
+										<not>
+											<varequal respident = "LID01" case = "No">B</varequal>
+										</not>
+										<not>
+											<varequal respident = "LID01" case = "No">C</varequal>
+										</not>
+										<varequal respident = "LID01" case = "No">D</varequal>
+										<varequal respident = "LID01" case = "No">E</varequal>
+									</and>
+								</not>
+							</conditionvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "InCorrect"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct answer is A, D, E.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "" charset = "">Answers B and C are incorrect.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_03" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>basic</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Multiple Assessments cannot be contained in a single QTI ASI XML instance.</mattext>
+							</material>
+							<response_lid ident = "TF01" rcardinality = "Single" rtiming = "No">
+								<render_choice shuffle = "Yes">
+									<flow_label class = "Block">
+										<response_label ident = "T" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">True</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "F" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">False</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<qticomment xml:lang = "en-US">Processing for the incorrect answer.</qticomment>
+						<outcomes>
+							<decvar minvalue = "0" maxvalue = "1" defaultval = "0" vartype = "Integer" varname = "SCORE"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF01" case = "No">T</varequal>
+							</conditionvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "Incorrect"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF01" case = "No">F</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct answer.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Sorry, you are wrong.  A QTI-XML instance CAN contain multiple Asssessments.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_04" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>advanced</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Which one of the following data structures is used to provide hierarchically structured assessments ?</mattext>
+							</material>
+							<response_lid ident = "LID03" rcardinality = "Single" rtiming = "No">
+								<render_choice shuffle = "Yes">
+									<flow_label class = "Block">
+										<response_label ident = "A" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Assessment</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "B" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Section</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "C" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Item</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "D" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Question</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<qticomment xml:lang = "en-US">Correct response check</qticomment>
+							<conditionvar>
+								<varequal respident = "LID03" case = "No">B</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<conditionvar>
+								<not>
+									<varequal respident = "LID03" case = "No">B</varequal>
+								</not>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">No.  Only Sections support hierachical Assessments.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_05" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>basic</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Which versions of the QTI specifications support results reporting ?</mattext>
+							</material>
+							<response_lid ident = "LID04" rcardinality = "Multiple" rtiming = "No">
+								<render_choice shuffle = "No" minnumber = "1" maxnumber = "4">
+									<flow_label class = "Block">
+										<response_label ident = "A" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">V1.0</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "B" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">V1.01</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "C" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">V1.1</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "D" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">V1.2</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<outcomes>
+							<decvar varname = "SCORE" defaultval = "0" minvalue = "0" maxvalue = "1" vartype = "Integer"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<qticomment xml:lang = "en-US">Correct response processing</qticomment>
+							<conditionvar>
+								<not>
+									<varequal respident = "LID04" case = "No">A</varequal>
+								</not>
+								<not>
+									<varequal respident = "LID04" case = "No">B</varequal>
+								</not>
+								<not>
+									<varequal respident = "LID04" case = "No">C</varequal>
+								</not>
+								<varequal respident = "LID04" case = "No">D</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+						</respcondition>
+						<respcondition continue = "Yes">
+							<qticomment xml:lang = "en-US">Incorrect response processing</qticomment>
+							<conditionvar>
+								<not>
+									<and>
+										<not>
+											<varequal respident = "LID04" case = "No">A</varequal>
+										</not>
+										<not>
+											<varequal respident = "LID04" case = "No">B</varequal>
+										</not>
+										<not>
+											<varequal respident = "LID04" case = "No">C</varequal>
+										</not>
+										<varequal respident = "LID04" case = "No">D</varequal>
+									</and>
+								</not>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Yes.  Only V1.2 supports results reporting.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">No.  Only V1.2 supports results reporting.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_06" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>basic</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Which question types are supported by the full QTI specification ?</mattext>
+							</material>
+							<response_lid ident = "LID03" rcardinality = "Multiple" rtiming = "No">
+								<render_choice shuffle = "Yes" minnumber = "1" maxnumber = "1">
+									<flow_label class = "Block">
+										<response_label ident = "A" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">True/False</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "B" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Multiple choice with images</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "C" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Multiple response</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "D" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Fill-in-the-blank (integers)</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "D" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Fill-in-the-blank (essay)</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "D" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Image hot spot (multiple)</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<qticomment e-dtype = "string" xml:lang = "en-US">Correct response processing</qticomment>
+							<conditionvar>
+								<varequal respident = "LID03" case = "No">A</varequal>
+								<varequal respident = "LID03" case = "No">B</varequal>
+								<varequal respident = "LID03" case = "No">C</varequal>
+								<varequal respident = "LID03" case = "No">D</varequal>
+								<varequal respident = "LID03" case = "No">E</varequal>
+								<varequal respident = "LID03" case = "No">F</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<qticomment xml:lang = "en-US">Incorrect answer response processing</qticomment>
+							<conditionvar>
+								<not>
+									<and>
+										<varequal respident = "LID03" case = "No">A</varequal>
+										<varequal respident = "LID03" case = "No">B</varequal>
+										<varequal respident = "LID03" case = "No">C</varequal>
+										<varequal respident = "LID03" case = "No">D</varequal>
+										<varequal respident = "LID03" case = "No">E</varequal>
+										<varequal respident = "LID03" case = "No">F</varequal>
+									</and>
+								</not>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct.  All of those question types are supported.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">No.  All of those question types are supported.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_07" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>basic</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Which question types are supported by the QTILite specification ?</mattext>
+							</material>
+							<response_lid ident = "LID03" rcardinality = "Multiple" rtiming = "No">
+								<render_choice shuffle = "Yes" minnumber = "1" maxnumber = "4">
+									<flow_label class = "Block">
+										<response_label ident = "A" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">True/False</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "B" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Multiple choice</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "C" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Multiple response</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "D" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Fill-in-the-blank</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" defaultval = "0" minvalue = "0" maxvalue = "1"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<qticomment xml:lang = "en-US">Correct answer response processing.</qticomment>
+							<conditionvar>
+								<varequal respident = "LID03" case = "No">A</varequal>
+								<varequal respident = "LID03" case = "No">B</varequal>
+								<not>
+									<varequal respident = "LID03" case = "No">C</varequal>
+								</not>
+								<not>
+									<varequal respident = "LID03" case = "No">D</varequal>
+								</not>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<qticomment xml:lang = "en-US">Incorrect answer response processing.</qticomment>
+							<conditionvar>
+								<not>
+									<and>
+										<varequal respident = "LID03" case = "No">A</varequal>
+										<varequal respident = "LID03" case = "No">B</varequal>
+										<not>
+											<varequal respident = "LID03" case = "No">C</varequal>
+										</not>
+										<not>
+											<varequal respident = "LID03" case = "No">D</varequal>
+										</not>
+									</and>
+								</not>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct.  True/False and Multple-choice only.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">No.  Only True/False and Multiple-choice are supported.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+			</section>
+		</section>
+		<section ident = "IMS_QTIV1p2_S_SAO_12">
+			<outcomes_processing scoremodel = "SumofScores">
+				<outcomes>
+					<decvar vartype = "Integer" varname = "SCORE" defaultval = "0" minvalue = "0" maxvalue = "8" cutvalue = "6"/>
+				</outcomes>
+			</outcomes_processing>
+			<outcomes_processing scoremodel = "NumberCorrect">
+				<outcomes>
+					<decvar varname = "CORRECT" vartype = "Integer" defaultval = "0" minvalue = "0" maxvalue = "8" cutvalue = "6"/>
+				</outcomes>
+			</outcomes_processing>
+			<selection_ordering>
+				<selection/>
+				<order order_type = "Random"/>
+			</selection_ordering>
+			<section title = "IMSQTI_Selection&amp;OrderingTest_S12p1" ident = "IMS_QTIV1p2_S_SAO_12p1">
+				<qticomment>Set of True/false questions</qticomment>
+				<outcomes_processing scoremodel = "SumofScores">
+					<outcomes>
+						<decvar vartype = "Integer" varname = "SCORE" defaultval = "0" minvalue = "0" maxvalue = "4" cutvalue = "3"/>
+					</outcomes>
+				</outcomes_processing>
+				<outcomes_processing scoremodel = "NumberCorrect">
+					<outcomes>
+						<decvar varname = "CORRECT" vartype = "Integer" defaultval = "0" minvalue = "0" maxvalue = "4" cutvalue = "3"/>
+					</outcomes>
+				</outcomes_processing>
+				<selection_ordering>
+					<selection/>
+					<order order_type = "Random"/>
+				</selection_ordering>
+				<item ident = "IMS_QTIV1p2_I_SAO_02" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>basic</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">The QTI specification supports the exchange of which data structures ?</mattext>
+							</material>
+							<response_lid ident = "LID02" rcardinality = "Multiple" rtiming = "No">
+								<render_choice shuffle = "Yes" minnumber = "1" maxnumber = "2">
+									<flow_label class = "Block">
+										<response_label ident = "A" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Response</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "B" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Question</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "C" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Item</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "D" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Assessment</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<qticomment xml:lang = "en-US">Correct response detection</qticomment>
+							<conditionvar>
+								<varequal respident = "LID02" case = "No">A</varequal>
+								<varequal respident = "LID02" case = "No">B</varequal>
+								<not>
+									<varequal respident = "LID02" case = "No">C</varequal>
+								</not>
+								<not>
+									<varequal respident = "LID02" case = "No">D</varequal>
+								</not>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<conditionvar>
+								<not>
+									<and>
+										<varequal respident = "LID02" case = "No">A</varequal>
+										<varequal respident = "LID02" case = "No">B</varequal>
+										<not>
+											<varequal respident = "LID02" case = "No">C</varequal>
+										</not>
+										<not>
+											<varequal respident = "LID02" case = "No">D</varequal>
+										</not>
+									</and>
+								</not>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct.  Items and Assessment.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">No.  The correct answers are Item and Assessment.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_08" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>basic</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Time-based responses are supported by the QTI specification.</mattext>
+							</material>
+							<response_lid ident = "TF02" rcardinality = "Single" rtiming = "No">
+								<render_choice shuffle = "Yes">
+									<flow_label class = "Block">
+										<response_label ident = "T" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">True</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "F" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">False</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<qticomment xml:lang = "en-US">Processing for the correct answer.</qticomment>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF02" case = "No">T</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF02" case = "No">F</varequal>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct answer.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Sorry, you are wrong.  Time-based reponses ARE supported by the specification.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_09" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>advanced</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Items defined according to QTI V1.0 are not compatible with Items from QTI V1.2.</mattext>
+							</material>
+							<response_lid ident = "TF03" rcardinality = "Single" rtiming = "No">
+								<render_choice shuffle = "Yes">
+									<flow_label class = "Block">
+										<response_label ident = "T" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">True</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "F" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">False</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<qticomment xml:lang = "en-US">Processing for the correct answer.</qticomment>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF03" case = "No">F</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF03" case = "No">T</varequal>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct answer.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Sorry, you are wrong.  V1.0 Items ARE compatible with the V1.2 specification.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_10" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>advanced</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow class = "Block">
+							<material>
+								<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">The QTI specification is used within the ADL SCORM.</mattext>
+							</material>
+							<response_lid ident = "TF04" rcardinality = "Single" rtiming = "No">
+								<render_choice shuffle = "Yes">
+									<flow_label class = "Block">
+										<response_label ident = "T" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">True</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label class = "Block">
+										<response_label ident = "F" rarea = "Ellipse" rshuffle = "Yes" rrange = "Exact">
+											<material>
+												<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">False</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<qticomment xml:lang = "en-US">Processing for the correct answer.</qticomment>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF04" case = "No">T</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">1</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF04" case = "No">F</varequal>
+							</conditionvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Correct answer.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "text/plain" charset = "ascii-us">Sorry, you are wrong.  The QTI specification is NOT used within ADL SCORM.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+			</section>
+			<section title = "IMSQTI_Selection&amp;OrderingTest_S12p2" ident = "IMS_QTIV1p2_S_SAO_12p2">
+				<qticomment>Set of multiple-choice/multiple-response questions</qticomment>
+				<outcomes_processing scoremodel = "SumofScores">
+					<outcomes>
+						<decvar vartype = "Integer" varname = "SCORE" defaultval = "0" minvalue = "0" maxvalue = "4" cutvalue = "3"/>
+					</outcomes>
+				</outcomes_processing>
+				<outcomes_processing scoremodel = "NumberCorrect">
+					<outcomes>
+						<decvar varname = "CORRECT" vartype = "Integer" defaultval = "0" minvalue = "0" maxvalue = "4" cutvalue = "3"/>
+					</outcomes>
+				</outcomes_processing>
+				<selection_ordering>
+					<sequence_parameter pname = "maxscorepossible">4</sequence_parameter>
+					<selection/>
+					<order order_type = "Random"/>
+				</selection_ordering>
+				<item ident = "IMS_QTIV1p2_I_SAO_01" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>advanced</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow>
+							<material>
+								<mattext>Which of the following statements are true about the QTI specification ?</mattext>
+							</material>
+							<response_lid ident = "LID01" rcardinality = "Multiple" rtiming = "No">
+								<render_choice shuffle = "Yes" minnumber = "1" maxnumber = "5">
+									<flow_label>
+										<response_label ident = "A">
+											<material>
+												<mattext>It is independent of pedagogy</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label>
+										<response_label ident = "B">
+											<material>
+												<mattext>It cannot be extended to support proprietary features</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label>
+										<response_label ident = "C">
+											<material>
+												<mattext>It contains many unnecesary features</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label>
+										<response_label ident = "D">
+											<material>
+												<mattext>It provides different content views for different types of participants</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label>
+										<response_label ident = "E">
+											<material>
+												<mattext>It is based on a well established framework</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<qticomment/>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "2" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<qticomment>To detect if the correct answer has been supplied.</qticomment>
+							<conditionvar>
+								<varequal respident = "LID01">A</varequal>
+								<not>
+									<varequal respident = "LID01" case = "No">B</varequal>
+								</not>
+								<not>
+									<varequal respident = "LID01" case = "No">C</varequal>
+								</not>
+								<varequal respident = "LID01">D</varequal>
+								<varequal respident = "LID01">E</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">2</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<qticomment xml:lang = "en-US">To detect if the incorrect answer is supplied.</qticomment>
+							<conditionvar>
+								<not>
+									<and>
+										<varequal respident = "LID01" case = "No">A</varequal>
+										<not>
+											<varequal respident = "LID01" case = "No">B</varequal>
+										</not>
+										<not>
+											<varequal respident = "LID01" case = "No">C</varequal>
+										</not>
+										<varequal respident = "LID01">D</varequal>
+										<varequal respident = "LID01">E</varequal>
+									</and>
+								</not>
+							</conditionvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "InCorrect"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct">
+						<material>
+							<mattext>Correct answer is A, D, E.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext xml:lang = "en-US" xml:space = "default" texttype = "" charset = "">Answers B and C are incorrect.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_03" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>basic</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow>
+							<material>
+								<mattext>Multiple Assessments cannot be contained in a single QTI ASI XML instance.</mattext>
+							</material>
+							<response_lid ident = "TF01" rcardinality = "Single" rtiming = "No">
+								<render_choice shuffle = "Yes">
+									<flow_label>
+										<response_label ident = "T">
+											<material>
+												<mattext>True</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label>
+										<response_label ident = "F">
+											<material>
+												<mattext>False</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<qticomment>Processing for the incorrect answer.</qticomment>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "2" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF01">T</varequal>
+							</conditionvar>
+							<displayfeedback feedbacktype = "Response" linkrefid = "Incorrect"/>
+						</respcondition>
+						<respcondition continue = "No">
+							<conditionvar>
+								<varequal respident = "TF01" case = "No">F</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">2</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct">
+						<material>
+							<mattext>Correct answer.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect">
+						<material>
+							<mattext>Sorry, you are wrong.  A QTI-XML instance CAN contain multiple Asssessments.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+				<item ident = "IMS_QTIV1p2_I_SAO_04" maxattempts = "2">
+					<itemmetadata>
+						<qtimetadata>
+							<qtimetadatafield>
+								<fieldlabel>qmd_levelofdifficulty</fieldlabel>
+								<fieldentry>advanced</fieldentry>
+							</qtimetadatafield>
+							<qtimetadatafield>
+								<fieldlabel>qmd_topic</fieldlabel>
+								<fieldentry>qtiv1p2test</fieldentry>
+							</qtimetadatafield>
+						</qtimetadata>
+					</itemmetadata>
+					<presentation>
+						<flow>
+							<material>
+								<mattext>Which one of the following data structures is used to provide hierarchically structured assessments ?</mattext>
+							</material>
+							<response_lid ident = "LID03" rcardinality = "Single" rtiming = "No">
+								<render_choice shuffle = "Yes">
+									<flow_label>
+										<response_label ident = "A">
+											<material>
+												<mattext>Assessment</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label>
+										<response_label ident = "B">
+											<material>
+												<mattext>Section</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label>
+										<response_label ident = "C">
+											<material>
+												<mattext>Item</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+									<flow_label>
+										<response_label ident = "D">
+											<material>
+												<mattext>Question</mattext>
+											</material>
+										</response_label>
+									</flow_label>
+								</render_choice>
+							</response_lid>
+						</flow>
+					</presentation>
+					<resprocessing>
+						<outcomes>
+							<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "2" defaultval = "0"/>
+							<decvar varname = "CORRECT" vartype = "Boolean" defaultval = "False"/>
+						</outcomes>
+						<respcondition continue = "No">
+							<qticomment>Correct response check</qticomment>
+							<conditionvar>
+								<varequal respident = "LID03" case = "No">B</varequal>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">2</setvar>
+							<setvar varname = "CORRECT" action = "Set">True</setvar>
+							<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+						</respcondition>
+						<respcondition>
+							<conditionvar>
+								<not>
+									<varequal respident = "LID03" case = "No">B</varequal>
+								</not>
+							</conditionvar>
+							<setvar varname = "SCORE" action = "Set">0</setvar>
+							<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+						</respcondition>
+					</resprocessing>
+					<itemfeedback ident = "Correct" view = "All">
+						<material>
+							<mattext>Correct.</mattext>
+						</material>
+					</itemfeedback>
+					<itemfeedback ident = "Incorrect" view = "All">
+						<material>
+							<mattext>No.  Only Sections support hierachical Assessments.</mattext>
+						</material>
+					</itemfeedback>
+				</item>
+			</section>
+		</section>
+	</assessment>
+</questestinterop>

@@ -1,0 +1,782 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<!-- Date: 22nd January, 2002    					-->
+
+<!-- Version: 	1.2 Results Reporting source ASI Test Example			 		-->
+
+<!-- Author:	Colin Smythe (IMS)						-->
+
+<!-- Topic:  Results reporting Assessment example.	-->
+<questestinterop>
+	<assessment ident = "IMS_QTIV1p2_A_ResReport_02">
+		<outcomes_processing scoremodel = "SumofScores">
+			<outcomes>
+				<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "6" cutvalue = "4"/>
+			</outcomes>
+			<outcomes_feedback_test>
+				<test_variable>
+					<variable_test testoperator = "GTE">4</variable_test>
+				</test_variable>
+				<displayfeedback linkrefid = "Test_Passed"/>
+			</outcomes_feedback_test>
+			<outcomes_feedback_test>
+				<test_variable>
+					<variable_test testoperator = "LT">4</variable_test>
+				</test_variable>
+				<displayfeedback linkrefid = "">Test_Failed</displayfeedback>
+			</outcomes_feedback_test>
+		</outcomes_processing>
+		<assessfeedback ident = "Test_Passed">
+			<flow_mat>
+				<material>
+					<mattext>Well done.  You have passed this test.</mattext>
+				</material>
+			</flow_mat>
+		</assessfeedback>
+		<assessfeedback ident = "Test_Failed">
+			<flow_mat>
+				<material>
+					<mattext>Sorry.  You have failed this test.</mattext>
+				</material>
+			</flow_mat>
+		</assessfeedback>
+		<section ident = "IMS_QTIV1p2_S_ResReport_01">
+			<presentation_material>
+				<flow_mat>
+					<flow_mat>
+						<material>
+							<matimage uri = "periodictable.jpg" x0 = "100" y0 = "100" height = "400" width = "600"/>
+						</material>
+					</flow_mat>
+					<flow_mat>
+						<material>
+							<mattext>Answer the following questions on the Periodic Table shown above.</mattext>
+						</material>
+					</flow_mat>
+				</flow_mat>
+			</presentation_material>
+			<outcomes_processing scoremodel = "SumofScores">
+				<outcomes>
+					<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "6" cutvalue = "4"/>
+				</outcomes>
+				<outcomes_feedback_test>
+					<test_variable>
+						<variable_test testoperator = "GTE">4</variable_test>
+					</test_variable>
+					<displayfeedback linkrefid = "Section_Mastery"/>
+				</outcomes_feedback_test>
+				<outcomes_feedback_test>
+					<test_variable>
+						<variable_test testoperator = "LT">4</variable_test>
+					</test_variable>
+					<displayfeedback linkrefid = "">Section_Failed</displayfeedback>
+				</outcomes_feedback_test>
+			</outcomes_processing>
+			<sectionfeedback ident = "Section_Mastery">
+				<flow_mat>
+					<material>
+						<matemtext>You have passed this Section.</matemtext>
+					</material>
+				</flow_mat>
+			</sectionfeedback>
+			<sectionfeedback ident = "Section_Failed">
+				<flow_mat>
+					<material>
+						<mattext>You have failed this Section.</mattext>
+					</material>
+				</flow_mat>
+			</sectionfeedback>
+			<selection_ordering>
+				<selection>
+					<selection_number>6</selection_number>
+				</selection>
+				<order order_type = "Random"/>
+			</selection_ordering>
+			<item ident = "IMS_QTIV1p2_I_SAO_01" maxattempts = "2">
+				<presentation>
+					<flow>
+						<material>
+							<mattext>Which one of following is an 'Inert' gas ?</mattext>
+						</material>
+						<response_lid ident = "LID01" rcardinality = "Single" rtiming = "No">
+							<render_choice shuffle = "Yes" minnumber = "1" maxnumber = "1">
+								<flow_label>
+									<response_label ident = "A">
+										<material>
+											<mattext>He</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "B">
+										<material>
+											<mattext>C</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "C">
+										<material>
+											<mattext>Zn</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "D">
+										<material>
+											<mattext>Cl</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "E">
+										<material>
+											<mattext>Li</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+							</render_choice>
+						</response_lid>
+					</flow>
+				</presentation>
+				<resprocessing>
+					<qticomment/>
+					<outcomes>
+						<decvar defaultval = "0" minvalue = "0" maxvalue = "1"/>
+					</outcomes>
+					<respcondition continue = "Yes">
+						<qticomment>To detect if the correct answer has been supplied.</qticomment>
+						<conditionvar>
+							<varequal respident = "LID01">A</varequal>
+						</conditionvar>
+						<setvar action = "Set" varname = "SCORE">1</setvar>
+						<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+					</respcondition>
+					<respcondition continue = "No">
+						<qticomment>To detect if the incorrect answer is supplied.</qticomment>
+						<conditionvar>
+							<not>
+								<varequal respident = "LID01" case = "No">A</varequal>
+							</not>
+						</conditionvar>
+						<displayfeedback feedbacktype = "Response" linkrefid = "InCorrect"/>
+					</respcondition>
+				</resprocessing>
+				<itemfeedback ident = "Correct">
+					<material>
+						<mattext>Correct answer is A.</mattext>
+					</material>
+				</itemfeedback>
+				<itemfeedback ident = "Incorrect" view = "All">
+					<material>
+						<mattext xml:lang = "en-US" xml:space = "default" texttype = "" charset = "">Answers B, C, D and E are incorrect.</mattext>
+					</material>
+				</itemfeedback>
+			</item>
+			<item ident = "IMS_QTIV1p2_I_SAO_02" maxattempts = "2">
+				<presentation>
+					<flow>
+						<material>
+							<mattext>The symbol 'Cl' denotes which element ?</mattext>
+						</material>
+						<response_lid ident = "LID02" rcardinality = "Single" rtiming = "No">
+							<render_choice shuffle = "Yes" minnumber = "1" maxnumber = "1">
+								<flow_label>
+									<response_label ident = "A">
+										<material>
+											<mattext>Carbon</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "B">
+										<material>
+											<mattext>Chlorine</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "C">
+										<material>
+											<mattext>Calcium</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "D">
+										<material>
+											<mattext>Caesium</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+							</render_choice>
+						</response_lid>
+					</flow>
+				</presentation>
+				<resprocessing>
+					<outcomes>
+						<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+					</outcomes>
+					<respcondition continue = "Yes">
+						<qticomment>Correct response detection</qticomment>
+						<conditionvar>
+							<varequal respident = "LID02">B</varequal>
+						</conditionvar>
+						<setvar varname = "SCORE" action = "Set">1</setvar>
+						<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+					</respcondition>
+					<respcondition>
+						<conditionvar>
+							<not>
+								<varequal respident = "LID02">B</varequal>
+							</not>
+						</conditionvar>
+						<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+					</respcondition>
+				</resprocessing>
+				<itemfeedback ident = "Correct" view = "All">
+					<material>
+						<mattext>Correct.</mattext>
+					</material>
+				</itemfeedback>
+				<itemfeedback ident = "Incorrect" view = "All">
+					<material>
+						<mattext>No.  The correct answer is Chlorine.</mattext>
+					</material>
+				</itemfeedback>
+			</item>
+			<item ident = "IMS_QTIV1p2_I_SAO_03" maxattempts = "2">
+				<presentation>
+					<flow>
+						<material>
+							<mattext>Which group of elements are the Halogens ?</mattext>
+						</material>
+						<response_lid ident = "TF01" rcardinality = "Single" rtiming = "No">
+							<render_choice shuffle = "Yes">
+								<flow_label>
+									<response_label ident = "A">
+										<material>
+											<mattext>H, Li, Na, K, Rb</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "B">
+										<material>
+											<mattext>Be, Mg, Ca, Sr, Ba</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "C">
+										<material>
+											<mattext>F, Cl, Br, I, At</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "D">
+										<material>
+											<mattext>He, Ne, Ar, Kr, Xe</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+							</render_choice>
+						</response_lid>
+					</flow>
+				</presentation>
+				<resprocessing>
+					<outcomes>
+						<decvar minvalue = "0" maxvalue = "1" defaultval = "0"/>
+					</outcomes>
+					<respcondition continue = "No">
+						<qticomment>Processing for the incorrect answer.</qticomment>
+						<conditionvar>
+							<not>
+								<varequal respident = "TF01">C</varequal>
+							</not>
+						</conditionvar>
+						<displayfeedback feedbacktype = "Response" linkrefid = "Incorrect"/>
+					</respcondition>
+					<respcondition continue = "No">
+						<qticomment>Processing for the correct answer.</qticomment>
+						<conditionvar>
+							<varequal respident = "TF01" case = "No">C</varequal>
+						</conditionvar>
+						<setvar action = "Set" varname = "SCORE">1</setvar>
+						<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+					</respcondition>
+				</resprocessing>
+				<itemfeedback ident = "Correct">
+					<material>
+						<mattext>Correct answer.</mattext>
+					</material>
+				</itemfeedback>
+				<itemfeedback ident = "Incorrect">
+					<material>
+						<mattext>Sorry, you are wrong.  F, Cl, Br, I, At are the Halogens.</mattext>
+					</material>
+				</itemfeedback>
+			</item>
+			<item ident = "IMS_QTIV1p2_I_SAO_04" maxattempts = "2">
+				<presentation>
+					<flow>
+						<material>
+							<mattext>What is the atomic number for Hydrogen ?</mattext>
+						</material>
+						<response_lid ident = "LID03" rcardinality = "Single" rtiming = "No">
+							<render_choice shuffle = "Yes">
+								<flow_label>
+									<response_label ident = "A">
+										<material>
+											<mattext>1</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "B">
+										<material>
+											<mattext>2</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "C">
+										<material>
+											<mattext>3</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "D">
+										<material>
+											<mattext>4</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+							</render_choice>
+						</response_lid>
+					</flow>
+				</presentation>
+				<resprocessing>
+					<outcomes>
+						<decvar varname = "SCORE" vartype = "Integer" minvalue = "0" maxvalue = "1" defaultval = "0"/>
+					</outcomes>
+					<respcondition continue = "No">
+						<qticomment>Correct response check</qticomment>
+						<conditionvar>
+							<varequal respident = "LID03" case = "No">A</varequal>
+						</conditionvar>
+						<setvar action = "Set" varname = "SCORE">1</setvar>
+						<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+					</respcondition>
+					<respcondition>
+						<conditionvar>
+							<not>
+								<varequal respident = "LID03" case = "No">A</varequal>
+							</not>
+						</conditionvar>
+						<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+					</respcondition>
+				</resprocessing>
+				<itemfeedback ident = "Correct" view = "All">
+					<material>
+						<mattext>Correct.</mattext>
+					</material>
+				</itemfeedback>
+				<itemfeedback ident = "Incorrect" view = "All">
+					<material>
+						<mattext>No.  The atomic weight of Hydrogen is '1'.</mattext>
+					</material>
+				</itemfeedback>
+			</item>
+			<item ident = "IMS_QTIV1p2_I_SAO_05" maxattempts = "2">
+				<presentation>
+					<flow>
+						<material>
+							<mattext>What is the atomic symbol for the element Silver ?</mattext>
+						</material>
+						<response_lid ident = "LID04" rcardinality = "Single" rtiming = "No">
+							<render_choice shuffle = "No" minnumber = "1" maxnumber = "1">
+								<flow_label>
+									<response_label ident = "A">
+										<material>
+											<mattext>Al</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "B">
+										<material>
+											<mattext>Au</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "C">
+										<material>
+											<mattext>Ar</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "D">
+										<material>
+											<mattext>Ag</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+							</render_choice>
+						</response_lid>
+					</flow>
+				</presentation>
+				<resprocessing>
+					<outcomes>
+						<decvar varname = "SCORE" defaultval = "0" minvalue = "0" maxvalue = "1" vartype = "Integer"/>
+					</outcomes>
+					<respcondition continue = "Yes">
+						<qticomment>Correct response processing</qticomment>
+						<conditionvar>
+							<varequal respident = "LID04">D</varequal>
+						</conditionvar>
+						<setvar varname = "SCORE" action = "Add">1</setvar>
+						<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+					</respcondition>
+					<respcondition continue = "No">
+						<qticomment>Incorrect response processing</qticomment>
+						<conditionvar>
+							<not>
+								<varequal respident = "LID04">D</varequal>
+							</not>
+						</conditionvar>
+						<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+					</respcondition>
+				</resprocessing>
+				<itemfeedback ident = "Correct" view = "All">
+					<material>
+						<mattext>Yes.</mattext>
+					</material>
+				</itemfeedback>
+				<itemfeedback ident = "Incorrect" view = "All">
+					<material>
+						<mattext>No.  The atomic symbol for Silver is 'Ag'.</mattext>
+					</material>
+				</itemfeedback>
+			</item>
+			<item ident = "IMS_QTIV1p2_I_QTILiveTalkv1_06" maxattempts = "2">
+				<presentation>
+					<flow>
+						<material>
+							<mattext>What is the atomic symbol for the common salt ?</mattext>
+						</material>
+						<response_lid ident = "LID03" rcardinality = "Multiple" rtiming = "No">
+							<render_choice shuffle = "Yes" minnumber = "1" maxnumber = "1">
+								<flow_label>
+									<response_label ident = "A">
+										<material>
+											<mattext>CaCl</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "B">
+										<material>
+											<mattext>NaCl</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "C">
+										<material>
+											<mattext>CaBr</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "D">
+										<material>
+											<mattext>NaBr</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+							</render_choice>
+						</response_lid>
+					</flow>
+				</presentation>
+				<resprocessing>
+					<outcomes>
+						<decvar varname = "SCORE" vartype = "Integer" defaultval = "0" minvalue = "0" maxvalue = "1"/>
+					</outcomes>
+					<respcondition>
+						<qticomment>Correct response processing</qticomment>
+						<conditionvar>
+							<varequal respident = "LID03">B</varequal>
+						</conditionvar>
+						<setvar varname = "SCORE" action = "Set">1</setvar>
+						<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+					</respcondition>
+					<respcondition>
+						<qticomment>Incorrect answer response processing</qticomment>
+						<conditionvar>
+							<not>
+								<varequal respident = "LID03">B</varequal>
+							</not>
+						</conditionvar>
+						<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+					</respcondition>
+				</resprocessing>
+				<itemfeedback ident = "Correct" view = "All">
+					<material>
+						<mattext>Correct.</mattext>
+					</material>
+				</itemfeedback>
+				<itemfeedback ident = "Incorrect" view = "All">
+					<material>
+						<mattext>No.  The atomic symbol for common salt is 'NaCl'.</mattext>
+					</material>
+				</itemfeedback>
+			</item>
+			<item ident = "IMS_QTIV1p2_I_SAO_07" maxattempts = "2">
+				<presentation>
+					<flow>
+						<material>
+							<mattext>'Fe' is the symbol for which element ?</mattext>
+						</material>
+						<response_lid ident = "LID03" rcardinality = "Multiple" rtiming = "No">
+							<render_choice shuffle = "Yes" minnumber = "1" maxnumber = "1">
+								<flow_label>
+									<response_label ident = "A">
+										<material>
+											<mattext>Gold</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "B">
+										<material>
+											<mattext>Bronze</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "C">
+										<material>
+											<mattext>Iron</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "D">
+										<material>
+											<mattext>Mercury</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+							</render_choice>
+						</response_lid>
+					</flow>
+				</presentation>
+				<resprocessing>
+					<outcomes>
+						<decvar varname = "SCORE" vartype = "Integer" defaultval = "0" minvalue = "0" maxvalue = "1"/>
+					</outcomes>
+					<respcondition>
+						<qticomment>Correct answer response processing.</qticomment>
+						<conditionvar>
+							<varequal respident = "LID03">C</varequal>
+						</conditionvar>
+						<setvar varname = "SCORE" action = "Set">1</setvar>
+						<displayfeedback linkrefid = "Correct" feedbacktype = "Response"/>
+					</respcondition>
+					<respcondition>
+						<qticomment>Incorrect answer response processing.</qticomment>
+						<conditionvar>
+							<not>
+								<varequal respident = "LID03">C</varequal>
+							</not>
+						</conditionvar>
+						<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+					</respcondition>
+				</resprocessing>
+				<itemfeedback ident = "Correct" view = "All">
+					<material>
+						<mattext>Correct.</mattext>
+					</material>
+				</itemfeedback>
+				<itemfeedback ident = "Incorrect" view = "All">
+					<material>
+						<mattext>No.  'Fe' is the atomic symbol for Iron.</mattext>
+					</material>
+				</itemfeedback>
+			</item>
+			<item ident = "IMS_QTIV1p2_I_SAO_08" maxattempts = "2">
+				<presentation>
+					<flow>
+						<material>
+							<mattext>Galium Arsenide is known as a III-V compound ?</mattext>
+						</material>
+						<response_lid ident = "TF02" rcardinality = "Single" rtiming = "No">
+							<render_choice shuffle = "Yes">
+								<flow_label>
+									<response_label ident = "T">
+										<material>
+											<mattext>True</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "F">
+										<material>
+											<mattext>False</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+							</render_choice>
+						</response_lid>
+					</flow>
+				</presentation>
+				<resprocessing>
+					<qticomment>Processing for the correct answer.</qticomment>
+					<outcomes>
+						<decvar minvalue = "0" maxvalue = "1" defaultval = "0"/>
+					</outcomes>
+					<respcondition>
+						<conditionvar>
+							<varequal respident = "TF02">T</varequal>
+						</conditionvar>
+						<setvar action = "Set" varname = "SCORE">1</setvar>
+						<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+					</respcondition>
+					<respcondition continue = "No">
+						<conditionvar>
+							<varequal respident = "TF02" case = "No">F</varequal>
+						</conditionvar>
+						<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+					</respcondition>
+				</resprocessing>
+				<itemfeedback ident = "Correct">
+					<material>
+						<mattext>Correct answer.</mattext>
+					</material>
+				</itemfeedback>
+				<itemfeedback ident = "Incorrect">
+					<material>
+						<mattext>Incorrect.  Galium Arsendie is a III-V compound.</mattext>
+					</material>
+				</itemfeedback>
+			</item>
+			<item ident = "IMS_QTIV1p2_I_SAO_09" maxattempts = "2">
+				<presentation>
+					<flow>
+						<material>
+							<mattext>Six is the atomic weight of the element most significant for the creation of on Earth ?</mattext>
+						</material>
+						<response_lid ident = "TF03" rcardinality = "Single" rtiming = "No">
+							<render_choice shuffle = "Yes">
+								<flow_label>
+									<response_label ident = "T">
+										<material>
+											<mattext>True</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "F">
+										<material>
+											<mattext>False</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+							</render_choice>
+						</response_lid>
+					</flow>
+				</presentation>
+				<resprocessing>
+					<qticomment>Processing for the correct answer.</qticomment>
+					<outcomes>
+						<decvar minvalue = "0" maxvalue = "1" defaultval = "0"/>
+					</outcomes>
+					<respcondition>
+						<conditionvar>
+							<varequal respident = "TF03">T</varequal>
+						</conditionvar>
+						<setvar action = "Set" varname = "SCORE">1</setvar>
+						<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+					</respcondition>
+					<respcondition continue = "No">
+						<conditionvar>
+							<varequal respident = "TF03" case = "No">F</varequal>
+						</conditionvar>
+						<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+					</respcondition>
+				</resprocessing>
+				<itemfeedback ident = "Correct">
+					<material>
+						<mattext>Correct i.e. the element Carbon.</mattext>
+					</material>
+				</itemfeedback>
+				<itemfeedback ident = "Incorrect">
+					<material>
+						<mattext>Sorry, you are wrong.  Carbon has an atomic weight of six.</mattext>
+					</material>
+				</itemfeedback>
+			</item>
+			<item ident = "IMS_QTIV1p2_I_SAO_10" maxattempts = "2">
+				<presentation>
+					<flow>
+						<material>
+							<mattext>Is Lutetium the last element in the Lanthanide Series ?</mattext>
+						</material>
+						<response_lid ident = "TF04" rcardinality = "Single" rtiming = "No">
+							<render_choice shuffle = "Yes">
+								<flow_label>
+									<response_label ident = "T">
+										<material>
+											<mattext>True</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+								<flow_label>
+									<response_label ident = "F">
+										<material>
+											<mattext>False</mattext>
+										</material>
+									</response_label>
+								</flow_label>
+							</render_choice>
+						</response_lid>
+					</flow>
+				</presentation>
+				<resprocessing>
+					<qticomment>Processing for the correct answer.</qticomment>
+					<outcomes>
+						<decvar minvalue = "0" maxvalue = "1" defaultval = "0"/>
+					</outcomes>
+					<respcondition>
+						<conditionvar>
+							<varequal respident = "TF04">T</varequal>
+						</conditionvar>
+						<setvar action = "Set" varname = "SCORE">1</setvar>
+						<displayfeedback feedbacktype = "Response" linkrefid = "Correct"/>
+					</respcondition>
+					<respcondition continue = "No">
+						<conditionvar>
+							<varequal respident = "TF04" case = "No">F</varequal>
+						</conditionvar>
+						<displayfeedback linkrefid = "Incorrect" feedbacktype = "Response"/>
+					</respcondition>
+				</resprocessing>
+				<itemfeedback ident = "Correct">
+					<material>
+						<mattext>Correct answer.</mattext>
+					</material>
+				</itemfeedback>
+				<itemfeedback ident = "Incorrect">
+					<material>
+						<mattext>Sorry, you are wrong.  Lutetium is the lat element in the Lathanide Series.</mattext>
+					</material>
+				</itemfeedback>
+			</item>
+		</section>
+	</assessment>
+</questestinterop>

@@ -57,7 +57,11 @@ class ContentPackage:
 			idExtra=idExtra+1
 		return idStr
 	
-	def GetUniqueFileName (self,fName,dataHash=None):
+	def GetUniqueFileName (self,fName,dataHash=None, dont_save=False):
+		"""The dont_save is for getting the filename for a reference to a question since
+		the reference won't have access to the actual question object.
+		This can be avoided if assessments are always processed last.
+		"""
 		nameParts=fName.split(".")
 		stem=nameParts[0]
 		if not stem:
@@ -70,6 +74,7 @@ class ContentPackage:
 			else:
 				nameParts[0]=stem
 			fName=string.join(nameParts,'.')
+			if dont_save: return fName
 			if self.fileSpace.has_key(fName):
 				if dataHash and self.fileSpace[fName]==dataHash:
 					break
