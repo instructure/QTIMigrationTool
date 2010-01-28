@@ -479,10 +479,10 @@ class QTIAssessment(QTIMetadataContainer):
 		self.assessment.SetTitle(value)
 	
 	def SetAttribute_xml_lang (self,lang):
-		self.assessment.SetLanguage(value)
+		self.assessment.SetLanguage(lang)
 		
 	def GenerateQTIMetadata(self):
-		qtiMD=self.resource.GetQTIMD()
+		self.resource.GetQTIMD()
 		
 	def SetDuration(self, duration):
 		self.assessment.SetTimeLimit(duration)
@@ -542,10 +542,105 @@ class QTISection(QTIMetadataContainer):
 	
 	def AddSection(self, section):
 		self.section.AddSection(section)
+		
+	def SetOrderType (self,value):
+		self.section.SetOrderType(value)
+		
+	def SetSelectionNumber(self, value):
+		self.section.SetSelectionNumber(value)
 	
 	def CloseObject (self):
 		self.parent.AddSection(self.section)
 
+# SelectionOrdering
+# --------
+#
+class SelectionOrdering(QTIObjectV1):
+	"""
+	<!ELEMENT selection_ordering (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(QTISection)),QTIException(eInvalidStructure,"<selection_ordering>")
+
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def SetOrderType (self,value):
+		self.parent.SetOrderType(value)
+	
+	def SetSelectionNumber(self, value):
+		self.parent.SetSelectionNumber(value)
+	
+	def CloseObject (self):
+		pass
+	
+	
+# Order
+# --------
+#
+class Order(QTIObjectV1):
+	"""
+	<!ELEMENT order (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(SelectionOrdering)),QTIException(eInvalidStructure,"<order>")
+		self.order_type=None
+		self.ParseAttributes(attrs)
+
+	def AddData (self,data):
+		self.data=self.data+data
+		
+	def SetAttribute_order_type (self,value):
+		self.order_type = value
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.order_type:
+			self.parent.SetOrderType(self.order_type)
+	
+	
+# Selection
+# --------
+#
+class Selection(QTIObjectV1):
+	"""
+	<!ELEMENT selection (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(SelectionOrdering)),QTIException(eInvalidStructure,"<selection>")
+		self.order_type=None
+
+	def AddData (self,data):
+		self.data=self.data+data
+		
+	def SetSelectionNumber(self, value):
+		self.parent.SetSelectionNumber(value)
+	
+	
+# SelectionNumber
+# --------
+#
+class SelectionNumber(QTIObjectV1):
+	"""
+	<!ELEMENT selection (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(Selection)),QTIException(eInvalidStructure,"<selection_number>")
+
+	def AddData (self,data):
+		self.data=self.data+data
+		
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data: self.parent.SetSelectionNumber(self.data)
 			
 # QTIItem
 # -------
@@ -4102,7 +4197,7 @@ QTIASI_ELEMENTS={
         'or_objects':Unsupported,
         'or_selection':Unsupported,
         'or_test':Unsupported,
-        'order':Unsupported,
+        'order':Order,
         'order_extension':Unsupported,
         'other':OtherOperatorV1,
         'outcomes':Outcomes,
@@ -4159,10 +4254,11 @@ QTIASI_ELEMENTS={
         'sectionprecondition':Unsupported,
         'sectionproc_extension':Unsupported,
         'sectionref':Unsupported,
-        'selection':Unsupported,
+        'selection':Selection,
+        'selection_number':SelectionNumber,
         'selection_extension':Unsupported,
         'selection_metadata':Unsupported,
-        'selection_ordering':Unsupported,
+        'selection_ordering':SelectionOrdering,
         'sequence_parameter':Unsupported,
         'setvar':SetVar,
         'solution':Solution,

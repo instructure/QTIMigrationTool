@@ -231,6 +231,8 @@ class AssessmentSection:
 		self.fixed=None
 		self.keepTogether=None
 		self.timeLimit=None
+		self.randomOrdering=None
+		self.selectNumber=None
 		self.sections = []
 		self.refs=[]
 		
@@ -260,6 +262,19 @@ class AssessmentSection:
 	
 	def AddItemReference(self, reference):
 		self.refs.append(reference)
+	
+	def SetOrderType (self,value):
+		""" The type will be one of: fixed, sequential, random
+		http://www.imsglobal.org/question/qtiv1p2/imsqti_asi_saov1p2.html#1404826
+		"""
+		if value.lower() == "random":
+			self.randomOrdering = True
+		
+	def SetSelectionNumber(self, value):
+		"""This is how many questions from a group should be selected
+		"""
+		print "*******Selection number: %s" % value
+		self.selectNumber = value
 		
 	def WriteXML (self,f):
 		f.write('\n<assessmentSection')
@@ -271,6 +286,13 @@ class AssessmentSection:
 		if self.keepTogether: f.write('\n keepTogether="'+XMLString(self.keepTogether)+'"')
 		f.write('>')
 		if self.timeLimit: f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
+		if self.randomOrdering: f.write('\n<ordering shuffle="true"/>')
+		if self.selectNumber: f.write('\n<selection select="%s"/>' % self.selectNumber)
+		
+		#get sequencing:
+		#<!ELEMENT selection_ordering (qticomment? , sequence_parameter* , selection* , order?)>
+		#http://www.imsglobal.org/question/qtiv1p2/imsqti_asi_saov1p2.html#1404869
+		#http://www.imsglobal.org/question/qtiv1p2/imsqti_asi_saov1p2.html#1405708
 		
 		for sections in self.sections:
 			sections.WriteXML(f)
