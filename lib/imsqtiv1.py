@@ -551,6 +551,28 @@ class QTISection(QTIMetadataContainer):
 	
 	def SetSequenceType(self, value):
 		self.section.SetSequenceType(value)
+		
+	def SetOutcomeWeights(self, weights):
+		self.section.SetOutcomeWeights(weights)
+		
+	def GetItemV1 (self):
+		return self
+	
+	def DeclareOutcome (self,decvar):
+		print "***Outcome declared on assessment: %s" % (decvar.identifier,)
+#		if self.outcomes.has_key(decvar.identifier):
+#			raise QTIException(eDuplicateVariable,decvar.identifier)
+#		if self.variables.has_key(decvar.identifier):
+#			print 'Warning: duplicate variable name, renaming outcome "'+decvar.identifier+'"'
+#			self.outcomes[decvar.identifier]=self.UniqueVarName(decvar.identifier)
+#		else:
+#			self.outcomes[decvar.identifier]=decvar.identifier
+#		declaration=OutcomeDeclaration(self.outcomes[decvar.identifier],'single',decvar.baseType)
+#		if decvar.default:
+#			declaration.SetDefaultValue(DefaultValue(decvar.default))
+#		self.item.DeclareVariable(declaration)
+#		self.variables[self.outcomes[decvar.identifier]]=(declaration,decvar)
+		pass
 	
 	def CloseObject (self):
 		self.parent.AddSection(self.section)
@@ -648,6 +670,114 @@ class SelectionNumber(QTIObjectV1):
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data: self.parent.SetSelectionNumber(self.data)
+	
+	
+# OutcomesProcessing
+# --------
+#
+class OutcomesProcessing(QTIObjectV1):
+	"""
+	<!ELEMENT outcomes_processing (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(QTISection)),QTIException(eInvalidStructure,"<outcomes_processing>")
+		self.outcome_weights={}
+
+	def AddData (self,data):
+		self.data=self.data+data
+		
+	def AddWeight(self, id, weight):
+		self.outcome_weights[id] = weight
+		
+	def CloseObject (self):
+		self.parent.SetOutcomeWeights(self.outcome_weights)
+
+# ObjectsCondition
+# --------
+#
+class ObjectsCondition(QTIObjectV1):
+	"""
+	<!ELEMENT objects_condition (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(ResProcessing, OutcomesProcessing)),QTIException(eInvalidStructure,"<objects_condition>")
+		self.item_weight=None
+		self.item_identity=None
+
+	def AddData (self,data):
+		self.data=self.data+data
+		
+	def SetItemWeight(self, weight):
+		self.item_weight = weight
+		
+	def SetItemIdentity(self, id):
+		self.item_identity = id
+		
+	def CloseObject (self):
+		if isinstance(self.parent, OutcomesProcessing) and self.item_identity and self.item_weight:
+			self.parent.AddWeight(self.item_identity, self.item_weight)
+			pass
+
+# OutcomesMetaData
+# --------
+#
+class OutcomesMetaData(QTIObjectV1):
+	"""
+	<!ELEMENT outcomes_metadata (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(ObjectsCondition)),QTIException(eInvalidStructure,"<outcomes_metadata>")
+		self.mdname=None
+		self.ParseAttributes(attrs)
+
+	def AddData (self,data):
+		self.data=self.data+data
+		
+	def SetSelectionNumber(self, value):
+		self.parent.SetSelectionNumber(value)
+		
+	def SetAttribute_mdname (self,value):
+		self.mdname = value
+		
+	def CloseObject(self):
+		self.data=self.data.strip()
+		if self.mdname and self.mdname.lower() == "ident":
+			self.parent.SetItemIdentity(self.data)
+
+# ObjectsParameter
+# --------
+#
+class ObjectsParameter(QTIObjectV1):
+	"""
+	<!ELEMENT objects_parameter (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(ObjectsCondition)),QTIException(eInvalidStructure,"<objects_parameter>")
+		self.pname=None
+		self.ParseAttributes(attrs)
+
+	def AddData (self,data):
+		self.data=self.data+data
+		
+	def SetSelectionNumber(self, value):
+		self.parent.SetSelectionNumber(value)
+		
+	def SetAttribute_pname (self,value):
+		self.pname = value
+		
+	def CloseObject(self):
+		self.data=self.data.strip()
+		if self.pname and self.pname.lower() == "qmd_weighting":
+			self.parent.SetItemWeight(self.data)
+		
 			
 # QTIItem
 # -------
@@ -3379,7 +3509,7 @@ class Outcomes(QTIObjectV1):
 		self.parent=parent
 		self.ParseAttributes(attrs)
 		# resprocessing, outcomes_processing, 
-		assert isinstance(self.parent,ResProcessing),QTIException(eInvalidStructure,"<outcomes>")
+		assert isinstance(self.parent,(OutcomesProcessing,ResProcessing)),QTIException(eInvalidStructure,"<outcomes>")
 
 
 # DecVar
@@ -4197,8 +4327,8 @@ QTIASI_ELEMENTS={
         'not_test':Unsupported,
         'objectbank':QTIObjectBank,
         'objectives':Objectives,
-        'objects_condition':Unsupported,
-        'objects_parameter':Unsupported,
+        'objects_condition':ObjectsCondition,
+        'objects_parameter':ObjectsParameter,
         'objectscond_extension':Unsupported,
         'or':OrOperatorV1,
         'or_objects':Unsupported,
@@ -4209,8 +4339,8 @@ QTIASI_ELEMENTS={
         'other':OtherOperatorV1,
         'outcomes':Outcomes,
         'outcomes_feedback_test':Unsupported,
-        'outcomes_metadata':Unsupported,
-        'outcomes_processing':Unsupported,
+        'outcomes_metadata':OutcomesMetaData,
+        'outcomes_processing':OutcomesProcessing,
         'presentation':Presentation,
         'presentation_material':Unsupported,
         'processing_parameter':Unsupported,

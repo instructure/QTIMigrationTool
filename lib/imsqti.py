@@ -235,6 +235,7 @@ class AssessmentSection:
 		self.selectNumber=None
 		self.withReplacement=None
 		self.sections = []
+		self.outcomeWeights=None
 		self.refs=[]
 		
 	def SetIdentifier (self,identifier):
@@ -263,6 +264,9 @@ class AssessmentSection:
 	
 	def AddItemReference(self, reference):
 		self.refs.append(reference)
+		
+	def SetOutcomeWeights(self, weights):
+		self.outcomeWeights = weights
 	
 	def SetOrderType (self,value):
 		""" The type will be one of: fixed, sequential, random
