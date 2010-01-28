@@ -549,6 +549,9 @@ class QTISection(QTIMetadataContainer):
 	def SetSelectionNumber(self, value):
 		self.section.SetSelectionNumber(value)
 	
+	def SetSequenceType(self, value):
+		self.section.SetSequenceType(value)
+	
 	def CloseObject (self):
 		self.parent.AddSection(self.section)
 
@@ -563,6 +566,7 @@ class SelectionOrdering(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		assert isinstance(self.parent,(QTISection)),QTIException(eInvalidStructure,"<selection_ordering>")
+		self.ParseAttributes(attrs)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -572,6 +576,12 @@ class SelectionOrdering(QTIObjectV1):
 	
 	def SetSelectionNumber(self, value):
 		self.parent.SetSelectionNumber(value)
+	
+	def SetSequenceType(self, value):
+		self.parent.SetSequenceType(value)
+		
+	def SetAttribute_sequence_type (self,value):
+		self.SetSequenceType(value)
 	
 	def CloseObject (self):
 		pass
@@ -588,19 +598,13 @@ class Order(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		assert isinstance(self.parent,(SelectionOrdering)),QTIException(eInvalidStructure,"<order>")
-		self.order_type=None
 		self.ParseAttributes(attrs)
 
 	def AddData (self,data):
 		self.data=self.data+data
 		
 	def SetAttribute_order_type (self,value):
-		self.order_type = value
-	
-	def CloseObject (self):
-		self.data=self.data.strip()
-		if self.order_type:
-			self.parent.SetOrderType(self.order_type)
+		self.parent.SetOrderType(value)
 	
 	
 # Selection
@@ -614,13 +618,16 @@ class Selection(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		assert isinstance(self.parent,(SelectionOrdering)),QTIException(eInvalidStructure,"<selection>")
-		self.order_type=None
+		self.ParseAttributes(attrs)
 
 	def AddData (self,data):
 		self.data=self.data+data
 		
 	def SetSelectionNumber(self, value):
 		self.parent.SetSelectionNumber(value)
+		
+	def SetAttribute_sequence_type (self,value):
+		self.parent.SetSequenceType(value)
 	
 	
 # SelectionNumber

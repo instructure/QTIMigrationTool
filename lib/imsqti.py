@@ -233,6 +233,7 @@ class AssessmentSection:
 		self.timeLimit=None
 		self.randomOrdering=None
 		self.selectNumber=None
+		self.withReplacement=None
 		self.sections = []
 		self.refs=[]
 		
@@ -271,10 +272,13 @@ class AssessmentSection:
 			self.randomOrdering = True
 		
 	def SetSelectionNumber(self, value):
-		"""This is how many questions from a group should be selected
-		"""
-		print "*******Selection number: %s" % value
+		"""This is how many questions from a group should be selected"""
 		self.selectNumber = value
+	
+	def SetSequenceType(self, value):
+		"""Possible values: repeat, normal"""
+		if value.lower() == "repeat":
+			self.withReplacement = True
 		
 	def WriteXML (self,f):
 		f.write('\n<assessmentSection')
@@ -287,12 +291,11 @@ class AssessmentSection:
 		f.write('>')
 		if self.timeLimit: f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
 		if self.randomOrdering: f.write('\n<ordering shuffle="true"/>')
-		if self.selectNumber: f.write('\n<selection select="%s"/>' % self.selectNumber)
-		
-		#get sequencing:
-		#<!ELEMENT selection_ordering (qticomment? , sequence_parameter* , selection* , order?)>
-		#http://www.imsglobal.org/question/qtiv1p2/imsqti_asi_saov1p2.html#1404869
-		#http://www.imsglobal.org/question/qtiv1p2/imsqti_asi_saov1p2.html#1405708
+		if self.selectNumber or self.withReplacement:
+			f.write('\n<selection')
+			if self.selectNumber: f.write(' select="%s"' % self.selectNumber)
+			if self.withReplacement: f.write(' withReplacement="%s"' % self.withReplacement)
+			f.write(' />')
 		
 		for sections in self.sections:
 			sections.WriteXML(f)
