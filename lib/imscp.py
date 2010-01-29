@@ -28,7 +28,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
 from lom import *
-from imsqti import QTIMetadata
+from imsqti import QTIMetadata, InstructureMetadata
 import StringIO
 import os
 from shutil import copyfile
@@ -138,6 +138,7 @@ class CPResource:
 		self.type='webcontent'
 		self.lom=None
 		self.qtiMD=None
+		self.instructureMD=None
 		self.files=[]
 		self.entryPoint=None
 	
@@ -172,6 +173,11 @@ class CPResource:
 		if not self.lom:
 			self.lom=LOM()
 		return self.lom
+			
+	def GetInstructureMD (self):
+		if not self.instructureMD:
+			self.instructureMD=InstructureMetadata()
+		return self.instructureMD
 
 	def GetQTIMD (self):
 		if not self.qtiMD:
@@ -197,6 +203,8 @@ class CPResource:
 			f.write('>')
 			if self.lom or self.qtiMD:
 				f.write('\n\t\t<metadata>')
+				if self.instructureMD:
+					self.instructureMD.WriteXML(f)
 				if self.lom:
 					self.lom.WriteIMSXML(f,"imsmd:")
 				if self.qtiMD:

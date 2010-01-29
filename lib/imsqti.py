@@ -111,6 +111,67 @@ class QTIMetadata:
 			f.write('\n<'+ns+'toolVendor>'+XMLString(self.toolVendor)+'</'+ns+'toolVendor>')
 		f.write('\n</'+ns+'qtiMetadata>')
 
+class InstructureMetadata:
+	def __init__ (self):
+		self.fields = {}
+	
+	def AddMetaField(self, type, value):
+		self.fields[type] = value
+	
+	def WriteXML (self,f,ns=""):
+		if len(self.fields):
+			f.write('\n<%sinstructureMetadata>' % ns)
+			
+			for type, val in self.fields.items():
+				f.write('\n<%sinstructureField type="%s">%s</%sinstructureField>' %(ns, type, val, ns))
+				pass
+			f.write('\n</'+ns+'instructureMetadata>')
+		
+class ItemSessionControl:
+	"""
+	http://www.imsglobal.org/question/qtiv2p1pd2/imsqti_infov2p1pd2.html#element10029
+	"""
+	def __init__(self):
+		self.maxAttempts=None
+		self.showFeedback=None
+		self.allowReview=None
+		self.showSolution=None
+		self.allowComment=None
+		self.allowSkipping=None
+		self.validateResponses=None
+	
+	def SetMaxAttempts(self, value):
+		self.maxAttempts = value
+	
+	def SetShowFeedback(self, value):
+		self.showFeedback = value
+	
+	def SetAllowReview(self, value):
+		self.allowReview = value
+	
+	def SetShowSolution(self, value):
+		self.showSolution = value
+	
+	def SetAllowComment(self, value):
+		self.allowComment = value
+	
+	def SetAllowSkipping(self, value):
+		self.allowSkipping = value
+	
+	def SetValidateResponses(self, value):
+		self.validateResponses = value
+		
+	def WriteXML (self,f):
+		f.write('\n<itemSessionControl')
+		if self.maxAttempts: f.write(' maxAttempts="'+XMLString(self.maxAttempts)+'"')
+		if self.showFeedback: f.write(' showFeedback="'+XMLString(self.showFeedback)+'"')
+		if self.allowReview: f.write(' allowReview="'+XMLString(self.allowReview)+'"')
+		if self.showSolution: f.write(' showSolution="'+XMLString(self.showSolution)+'"')
+		if self.allowComment: f.write(' allowComment="'+XMLString(self.allowComment)+'"')
+		if self.allowSkipping: f.write(' allowSkipping="'+XMLString(self.allowSkipping)+'"')
+		if self.validateResponses: f.write(' validateResponses="'+XMLString(self.validateResponses)+'"')
+		f.write('/>')
+
 def convert_duration_to_seconds(duration):
 	"""The duration is in the ISO 8601 format: PnYnMnDTnHnMnS
 	This function converts that to seconds.
@@ -138,7 +199,7 @@ class AssessmentTest:
 		self.timeLimit=None
 		self.variables={}
 		self.parts = [TestPart()]
-		
+	
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
 		
@@ -156,12 +217,15 @@ class AssessmentTest:
 	
 	def SetToolVersion (self, tool_version):
 		self.toolVersion = tool_version
-	
+		
 	def AddSection(self, section, part_index=0):
 		self.parts[part_index].AddSection(section)
 		
 	def AddPart(self, section):
 		self.parts.append(section)
+		
+	def SetItemSessionControl(self, control, part_index=0):
+		self.parts[part_index].SetItemSessionControl(control)
 	
 	def WriteXML (self,f):
 		f.write('<assessmentTest')
@@ -193,6 +257,10 @@ class TestPart:
 		self.navigationMode=None
 		self.submissionMode=None
 		self.sections = []
+		self.itemSessionControl=None
+	
+	def SetItemSessionControl(self, control):
+		self.itemSessionControl = control
 		
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
@@ -216,6 +284,7 @@ class TestPart:
 		if self.submissionMode: f.write('\n submissionMode="'+XMLString(self.submissionMode)+'"')
 		f.write('>')
 		if self.timeLimit: f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
+		if self.itemSessionControl: self.itemSessionControl.WriteXML(f)
 		
 		for sections in self.sections:
 			sections.WriteXML(f)
@@ -237,6 +306,10 @@ class AssessmentSection:
 		self.items = []
 		self.outcomeWeights=None
 		self.references={}
+		self.itemSessionControl=None
+	
+	def SetItemSessionControl(self, control):
+		self.itemSessionControl = control
 		
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
@@ -303,6 +376,7 @@ class AssessmentSection:
 		f.write('>')
 		if self.timeLimit: f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
 		if self.randomOrdering: f.write('\n<ordering shuffle="true"/>')
+		if self.itemSessionControl: self.itemSessionControl.WriteXML(f)
 		if self.selectNumber or self.withReplacement:
 			f.write('\n<selection')
 			if self.selectNumber: f.write(' select="%s"' % self.selectNumber)

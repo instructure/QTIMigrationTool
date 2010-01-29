@@ -253,6 +253,10 @@ class QTIObjectV1:
 	def GetMDContainer(self):
 		assert self.parent,QTIException(eNoParentMDContainer)
 		return self.parent.GetMDContainer()
+
+	def GetWctMDContainer(self):
+		assert self.parent,QTIException(eNoParentMDContainer)
+		return self.parent.GetWctMDContainer()
 	
 	def SniffRenderHotspot (self):
 		if self.parent:
@@ -415,6 +419,36 @@ class QTIMetadataContainer(QTIObjectV1):
 		pass
 
 
+# WCTMetadataContainer
+# --------------------
+#
+class WCTMetadataContainer(QTIObjectV1):
+	def __init__(self):
+		self.sessionControl=None
+		self.showTotalScore=None
+		self.whichAttemptToGrade=None
+		self.assessmentType=None
+	
+	def GetWctMDContainer(self):
+		return self
+		
+	def SetMaxAttempts(self,attempts):
+		if not self.sessionControl: self.sessionControl = ItemSessionControl()
+		self.sessionControl.SetMaxAttempts(attempts)
+	
+	def SetShowFeedback(self, show):
+		if not self.sessionControl: self.sessionControl = ItemSessionControl()
+		self.sessionControl.SetShowFeedback(show)
+		
+	def SetWhichAttemptToGrade(self, which):
+		self.whichAttemptToGrade = which
+		
+	def SetShowTotalScore(self, show):
+		self.showTotalScore = show
+	
+	def SetAssessmentType(self, type):
+		self.assessmentType = type
+	
 
 # QTIObjectBank
 # -------------
@@ -436,7 +470,7 @@ class QTIObjectBank(QTIMetadataContainer):
 # QTIAssessment
 # -------------
 #
-class QTIAssessment(QTIObjectV1):
+class QTIAssessment(WCTMetadataContainer):
 	"""
 	<!ELEMENT assessment (qticomment? , duration? , qtimetadata* , objectives* , assessmentcontrol* , rubric* , presentation_material? , outcomes_processing* , assessproc_extension? , assessfeedback* , selection_ordering? , reference? , (sectionref | section)+)>
 	
@@ -445,13 +479,13 @@ class QTIAssessment(QTIObjectV1):
 						   xml:lang CDATA  #IMPLIED >
 	"""
 	def __init__(self,name,attrs,parent):
-		#QTIObjectV1.__init__(self,name,attrs,parent)
+		WCTMetadataContainer.__init__(self)
 		self.parent=parent
 		self.parser=self.GetParser()
 		self.assessment=AssessmentTest()
 		# This is the manifest object
 		self.resource=CPResource()
-		self.resource.SetType("imsqti_item_xmlv2p0")
+		self.resource.SetType("imsqti_assessment_xmlv2p1")
 		self.educationalMetadata=None
 		self.variables={'FEEDBACK':None}
 		if attrs.has_key('ident'):
@@ -484,6 +518,12 @@ class QTIAssessment(QTIObjectV1):
 	def GenerateQTIMetadata(self):
 		self.resource.GetQTIMD()
 		
+	def GenerateInstructureMetadata(self):
+		iMD = self.resource.GetInstructureMD()
+		if self.showTotalScore: iMD.AddMetaField("show_score", self.showTotalScore.lower())
+		if self.whichAttemptToGrade: iMD.AddMetaField("which_attempt_to_keep", self.whichAttemptToGrade.lower())
+		if self.assessmentType: iMD.AddMetaField("quiz_type", self.assessmentType.lower())
+		
 	def SetDuration(self, duration):
 		self.assessment.SetTimeLimit(duration)
 		
@@ -494,7 +534,7 @@ class QTIAssessment(QTIObjectV1):
 		return self
 	
 	def DeclareOutcome (self,decvar):
-		self.PrintWarning("***Warning: Outcomes not supported on sections: %s: %s" % (decvar.identifier,decvar.data))
+		self.PrintWarning("Outcomes not supported on assessments: identifier: %s, type: %s, min: %s, max: %s" % (decvar.identifier,decvar.baseType, decvar.min, decvar.max))
 		
 	def PrintWarning (self,warning,force=0):
 		if not self.warnings.has_key(warning):
@@ -507,7 +547,8 @@ class QTIAssessment(QTIObjectV1):
 		# Fix up the title
 		if self.assessment.title:
 			self.resource.GetLOM().GetGeneral().SetTitle(LOMLangString(self.assessment.title,self.assessment.language))
-		self.GenerateQTIMetadata()
+		#self.GenerateQTIMetadata()
+		self.GenerateInstructureMetadata()
 		# Add the resource to the root thing - and therefore the content package
 		self.GetRoot().AddResource(self.resource)
 		# Adding a resource to a cp may cause it to change identifier, but we don't mind.
@@ -517,6 +558,8 @@ class QTIAssessment(QTIObjectV1):
 			f.write('<!--\n')
 			f.write(EncodeComment(self.msg))
 			f.write('\t-->\n\n')
+		
+		self.assessment.SetItemSessionControl(self.sessionControl)
 		self.assessment.WriteXML(f)
 		cpf=CPFile()
 		cpf.SetHREF(self.fName)
@@ -528,7 +571,7 @@ class QTIAssessment(QTIObjectV1):
 # QTISection
 # ----------
 #
-class QTISection(QTIObjectV1):
+class QTISection(WCTMetadataContainer):
 	"""
 	<!ELEMENT section (qticomment? , duration? , qtimetadata* , objectives* , sectioncontrol* , sectionprecondition* , sectionpostcondition* , rubric* , presentation_material? , outcomes_processing* , sectionproc_extension? , sectionfeedback* , selection_ordering? , reference? , (itemref | item | sectionref | section)*)>
 	
@@ -537,6 +580,7 @@ class QTISection(QTIObjectV1):
 			xml:lang CDATA  #IMPLIED >
 	"""
 	def __init__(self,name,attrs,parent):
+		WCTMetadataContainer.__init__(self)
 		self.parent=parent
 		assert isinstance(self.parent,(QTIAssessment,QTISection)),QTIException(eInvalidStructure,"<section>")
 		self.parser=self.GetParser()
@@ -575,11 +619,12 @@ class QTISection(QTIObjectV1):
 		return self
 	
 	def DeclareOutcome (self,decvar):
-		print "Outcome declared on section: %s: %s" % (decvar.identifier,decvar.data)
+		self.PrintWarning("Outcomes not supported on section: identifier: %s, type: %s, min: %s, max: %s" % (decvar.identifier,decvar.baseType, decvar.min, decvar.max))
 	
 	def CloseObject (self):
 		self.section.ProcessReferences()
 		self.parent.AddSection(self.section)
+		self.section.SetItemSessionControl(self.sessionControl)
 
 # SelectionOrdering
 # --------
@@ -1584,6 +1629,99 @@ class QMDItemType(QTIObjectV1):
 			self.PrintWarning("Warning: qmd_itemtype now replaced by qtiMetadata.interactionType in manifest")
 
 
+class WCTBase(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.label = name
+		self.container = self.GetWctMDContainer()
+		# itemmetadata
+		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<wct_results_showFeedback>")
+
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data:
+			self.PrintWarning("Converting proprietary WebCT metadata field %s = %s" % (self.label, self.data))
+
+# WCTShowFeedback
+# -----------
+#	
+class WCTShowFeedback(WCTBase):
+	"""
+	<!ELEMENT wct_results_showFeedback (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		WCTBase.__init__(self, name, attrs, parent)
+	
+	def CloseObject (self):
+		WCTBase.CloseObject(self)
+		if self.data:
+			self.container.SetShowFeedback(self.data)
+
+# WCTShowTotalScore
+# -----------
+#	
+class WCTShowTotalScore(WCTBase):
+	"""
+	<!ELEMENT wct_results_showtotalscore (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		WCTBase.__init__(self, name, attrs, parent)
+	
+	def CloseObject (self):
+		WCTBase.CloseObject(self)
+		if self.data:
+			self.container.SetShowTotalScore(self.data)
+
+# WCTMaxAttempts
+# -----------
+#	
+class WCTMaxAttempts(WCTBase):
+	"""
+	<!ELEMENT wct_attempt_attemptsallowed (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		WCTBase.__init__(self, name, attrs, parent)
+	
+	def CloseObject (self):
+		WCTBase.CloseObject(self)
+		if self.data:
+			self.container.SetMaxAttempts(self.data)
+
+# WCTWhichAttemptToGrade
+# -----------
+#	
+class WCTWhichAttemptToGrade(WCTBase):
+	"""
+	<!ELEMENT wct_results_scoring (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		WCTBase.__init__(self, name, attrs, parent)
+	
+	def CloseObject (self):
+		WCTBase.CloseObject(self)
+		if self.data:
+			self.container.SetWhichAttemptToGrade(self.data)
+
+# QMDAssessmentType
+# -----------
+#	
+class QMDAssessmentType(WCTBase):
+	"""
+	<!ELEMENT qmd_assessmenttype (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		WCTBase.__init__(self, name, attrs, parent)
+	
+	def CloseObject (self):
+		WCTBase.CloseObject(self)
+		if self.data:
+			self.container.SetAssessmentType(self.data)
+
+
 # QTIMetadataField
 # ----------------
 #
@@ -1619,6 +1757,13 @@ MDFieldMap={
 	'question type':QMDItemType,
 	'status':QMDStatus,
 	'layoutstatus':QMDStatus,
+	
+	# These are custom WebCT (Blackboard Vista) fields
+	'wct_results_showfeedback':WCTShowFeedback,
+	'wct_results_showtotalscore':WCTShowTotalScore,
+	'wct_attempt_attemptsallowed':WCTMaxAttempts,
+	'wct_results_scoring':WCTWhichAttemptToGrade,
+	'assessmenttype':QMDAssessmentType,
 	}
 class QTIMetadataField(QTIObjectV1):
 	"""
