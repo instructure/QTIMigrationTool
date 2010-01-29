@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<questestinterop xmlns="http://www.imsglobal.org/xsd/ims_qtiasiv1p2">
+  <assessment ident="4394086650391" title="Test Export Quiz 2" tool_name="webct">
+    <duration>M55</duration>
+    <qtimetadata>
+      <vocabulary uri="webct_imsqti_metadatav1p0.txt" vocab_type="text/plain" />
+      <qtimetadatafield>
+        <fieldlabel>wct_results_showFeedback</fieldlabel>
+        <fieldentry>true</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_results_showTotalScore</fieldlabel>
+        <fieldentry>true</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_attempt_displayQuestionTitle</fieldlabel>
+        <fieldentry>true</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_attempt_attemptsAllowed</fieldlabel>
+        <fieldentry>0</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_results_showScore</fieldlabel>
+        <fieldentry>true</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_attempt_displayInNewWindow</fieldlabel>
+        <fieldentry>true</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_attempt_attemptSeparation</fieldlabel>
+        <fieldentry>H0</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_results_studentDisplay</fieldlabel>
+        <fieldentry>withCorrectAnswerAndStudentEval</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_results_showGraderComments</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_attempt_showStatistics</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_randomizeAttempt</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_attempt_instructions_is_html</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_results_scoreRelease</fieldlabel>
+        <fieldentry>releaseAfterSubmission</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_results_scoring</fieldlabel>
+        <fieldentry>Last</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_results_allowArtifactCreation</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_attempt_allowLateSubmission</fieldlabel>
+        <fieldentry>true</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_attempt_questionDelivery</fieldlabel>
+        <fieldentry>oneByOneRestricted</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>wct_attempt_instructions_every_question</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
+    </qtimetadata>
+    <qtimetadata>
+      <vocabulary uri="imsqtiv1p2_metadata.txt" vocab_type="text/plain" />
+      <qtimetadatafield>
+        <fieldlabel>qmd_assessmenttype</fieldlabel>
+        <fieldentry>Self-assessment</fieldentry>
+      </qtimetadatafield>
+    </qtimetadata>
+    <section ident="4394086654391" title="4394086654391">
+      <outcomes_processing>
+        <outcomes>
+          <decvar vartype="Decimal" varname="SCORE" />
+        </outcomes>
+        <objects_condition>
+          <outcomes_metadata mdname="ident" mdoperator="EQ">4388459047391</outcomes_metadata>
+          <objects_parameter pname="qmd_weighting">0.1</objects_parameter>
+        </objects_condition>
+      </outcomes_processing>
+      <selection_ordering>
+        <order order_type="Sequential" />
+      </selection_ordering>
+      <itemref linkrefid="4388459047391" />
+    </section>
+  </assessment>
+</questestinterop>
+
