@@ -1,2 +1,2 @@
 #!/bin/bash
-./migrate.py --ucvars --nogui --overwrite --cpout=assessments/ assessments/orig/
+./migrate.py --ucvars --nogui --overwrite --cpout=assessments/out/ assessments/orig/

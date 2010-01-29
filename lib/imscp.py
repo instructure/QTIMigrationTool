@@ -98,6 +98,8 @@ class ContentPackage:
 	def DumpToDirectory (self,path):
 		if not os.path.exists(path):
 			os.mkdir(path)
+			os.mkdir(os.path.join(path,"assessmentTests"))
+			os.mkdir(os.path.join(path,"assessmentItems"))
 		assert os.path.isdir(path)
 		manifestPath=os.path.join(path,'imsmanifest.xml')
 		f=open(manifestPath,'w')

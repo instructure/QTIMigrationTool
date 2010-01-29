@@ -498,7 +498,7 @@ class QTIAssessment(WCTMetadataContainer):
 		# Set the name of the file
 		cp=self.GetRoot().cp
 		# Reserve space for our preferred file name
-		self.fName=cp.GetUniqueFileName("assmnt_"+self.resource.id+".xml")
+		self.fName=cp.GetUniqueFileName(os.path.join("assessmentTests","assmnt_"+self.resource.id+".xml"))
 		self.files={}
 		
 	def SetAttribute_ident (self,value):
@@ -852,7 +852,7 @@ class ItemRef(QTIObjectV1):
 		# Set the name of the file
 		cp=self.GetRoot().cp
 		# Reserve space for our preferred file name
-		self.fName=cp.GetUniqueFileName(self.clean_linkrefid+".xml", dont_save=True)
+		self.fName=cp.GetUniqueFileName(os.path.join("assessmentItems", self.clean_linkrefid+".xml"), dont_save=True)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -907,7 +907,7 @@ class QTIItem(QTIMetadataContainer):
 		# Set the name of the file
 		cp=self.GetRoot().cp
 		# Reserve space for our preferred file name
-		self.fName=cp.GetUniqueFileName(self.resource.id+".xml")
+		self.fName=cp.GetUniqueFileName(os.path.join("assessmentItems", self.resource.id+".xml"))
 		self.files={}
 	
 	def SetAttribute_maxattempts (self,value):
