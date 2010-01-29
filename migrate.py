@@ -66,7 +66,7 @@ HELP_TEXT=[
 NO_GUI=0
 
 if __name__ == '__main__':
-	wd=os.getcwd()
+	wd=os.path.dirname(__file__)
 	sys.path.append(os.path.join(wd,"lib"))
 	try:
 		import imsqtiv1
