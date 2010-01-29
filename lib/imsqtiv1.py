@@ -803,6 +803,8 @@ class OutcomesMetaData(QTIObjectV1):
 	def CloseObject(self):
 		self.data=self.data.strip()
 		if self.mdname and self.mdname.lower() == "ident":
+			if ':' in self.data:
+				self.data=string.join(string.split(self.data,':'),'-')
 			self.parent.SetItemIdentity(self.data)
 
 # ObjectsParameter
