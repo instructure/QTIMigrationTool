@@ -406,8 +406,8 @@ class AssessmentItemRef:
 	def WriteXML(self,f):
 		#<assessmentItemRef identifier="set01" href="rtest01-set01.xml"/>
 		f.write('\n<assessmentItemRef')
-		f.write(' identifier="'+XMLString(self.identifier)+'"')
-		f.write(' href="'+XMLString(self.href)+'"')
+		f.write(' identifier="%s"' % XMLString(self.identifier))
+		f.write(' href="../%s"' % XMLString(self.href))
 		if self.weight:
 			f.write(">")
 			f.write('\n<weight identifier="%s" value="%s"/>' % (0, self.weight))
