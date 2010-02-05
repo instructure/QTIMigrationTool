@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <questestinterop xmlns="http://www.imsglobal.org/xsd/ims_qtiasiv1p2">
   <assessment ident="4394156316391" title="Test Export 3 (survey)">
-    <duration>H2M55</duration>
+    <duration>H1</duration>
     <qtimetadata>
       <vocabulary uri="webct_imsqti_metadatav1p0.txt" vocab_type="text/plain" />
       <qtimetadatafield>
@@ -96,7 +96,6 @@
       </outcomes_processing>
       <selection_ordering>
         <order order_type="Sequential" />
-        <selection sequence_type="Repeat" />
       </selection_ordering>
       <itemref linkrefid="4393891318391" />
     </section>

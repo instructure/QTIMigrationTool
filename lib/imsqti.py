@@ -113,19 +113,40 @@ class QTIMetadata:
 
 class InstructureMetadata:
 	def __init__ (self):
-		self.fields = {}
+		self.fields = None
+		self.matching_items = None
 	
 	def AddMetaField(self, type, value):
+		if not self.fields: self.fields = {}
 		self.fields[type] = value
 	
+	def StartMatchingList(self):
+		if not self.matching_items: self.matching_items = []
+		self.matching_items.append([])
+	
+	def AddMatchingItem(self, item):
+		index = len(self.matching_items) - 1
+		self.matching_items[index].append(item)
+	
 	def WriteXML (self,f,ns=""):
-		if len(self.fields):
+		if self.fields or self.matching_items:
 			f.write('\n<%sinstructureMetadata>' % ns)
 			
-			for type, val in self.fields.items():
-				f.write('\n<%sinstructureField type="%s">%s</%sinstructureField>' %(ns, type, val, ns))
-				pass
-			f.write('\n</'+ns+'instructureMetadata>')
+			if self.fields:
+				for type, val in self.fields.items():
+					f.write('\n<%sinstructureField type="%s">%s</%sinstructureField>' %(ns, type, val, ns))
+			
+			if self.matching_items and len(self.matching_items) > 1:
+				f.write('\n<%smatchingAnswers>' % ns)
+				for answer in self.matching_items[0]:
+					f.write('\n<%smatchingAnswer>%s</%smatchingAnswer>' % (ns,answer,ns))
+				f.write('\n</%smatchingAnswers>' % ns)
+				f.write('\n<%smatchingMatches>' % ns)
+				for match in self.matching_items[1]:
+					f.write('\n<%smatchingMatch>%s</%smatchingMatch>' % (ns,match,ns))
+				f.write('\n</%smatchingMatches>' % ns)
+				
+			f.write('\n</%sinstructureMetadata>' % ns)
 		
 class ItemSessionControl:
 	"""
@@ -429,6 +450,7 @@ class AssessmentItem:
 		self.itemBody=None
 		self.responseProcessing=None
 		self.modalFeedback=[]
+		self.instructureMetadata=None
 		
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
@@ -469,6 +491,9 @@ class AssessmentItem:
 	
 	def HasModalFeedback (self):
 		return len(self.modalFeedback)>0
+	
+	def SetInstructureMetadata(self, md):
+		self.instructureMetadata = md
 		
 	def WriteXML (self,f):
 		f.write('<assessmentItem')
@@ -494,6 +519,10 @@ class AssessmentItem:
 		if self.toolVersion:
 			f.write('\n toolVersion="'+XMLString(self.toolVersion)+'"')
 		f.write('>')
+		
+		if self.instructureMetadata:
+			self.instructureMetadata.WriteXML(f)
+			
 		vars=self.variables.keys()
 		vars.sort()
 		for var in vars:

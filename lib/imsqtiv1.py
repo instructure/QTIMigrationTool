@@ -422,12 +422,13 @@ class QTIMetadataContainer(QTIObjectV1):
 # WCTMetadataContainer
 # --------------------
 #
-class WCTMetadataContainer(QTIObjectV1):
+class WCTMetadataContainer(QTIMetadataContainer):
 	def __init__(self):
 		self.sessionControl=None
 		self.showTotalScore=None
 		self.whichAttemptToGrade=None
 		self.assessmentType=None
+		self.instructureMetadata=None
 	
 	def GetWctMDContainer(self):
 		return self
@@ -449,6 +450,12 @@ class WCTMetadataContainer(QTIObjectV1):
 	def SetAssessmentType(self, type):
 		self.assessmentType = type
 	
+	def StartMatchingList(self):
+		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
+		self.instructureMetadata.StartMatchingList()
+	
+	def AddMatchingItem(self, item):
+		self.instructureMetadata.AddMatchingItem(item)
 
 # QTIObjectBank
 # -------------
@@ -466,6 +473,71 @@ class QTIObjectBank(QTIMetadataContainer):
 	def SetAttribute_ident (self,id):
 		pass
 		
+# mat_extension
+# -------------
+#
+class WCTMatExtension(QTIMetadataContainer):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		QTIObjectV1.__init__(self,name,attrs,parent)
+		self.PrintWarning('Warning: mat_extension not supported, looking inside for extended matching options')
+		
+		
+# material_table
+# -------------
+#
+class WCTMaterialTable(QTIMetadataContainer):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		QTIObjectV1.__init__(self,name,attrs,parent)
+		self.PrintWarning('Warning: aterial_table not supported, looking inside for extended matching options')
+		
+	def SetAttribute_label (self,id):
+		pass
+				
+# webct:matching_ext_flow
+# -------------
+#
+class WCTMatchingExtFlow(QTIMetadataContainer):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		QTIObjectV1.__init__(self,name,attrs,parent)
+		self.GetWctMDContainer().StartMatchingList()
+		
+	def SetAttribute_rshuffle (self,id):
+		pass
+		
+	def SetAttribute_rhidden (self,id):
+		pass
+		
+	def SetAttribute_labelType (self,id):
+		pass
+	
+				
+# webct:matching_text_ext
+# -------------
+#
+class WCTMatchingTextExt(QTIMetadataContainer):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		QTIObjectV1.__init__(self,name,attrs,parent)
+		self.label = None
+		
+	def SetAttribute_rshuffle (self,id):
+		pass
+		
+	def SetAttribute_label (self,label):
+		pass
+	
+	def SetAttribute_xml_lang (self,lang):
+		self.language=lang
+	
+	def AppendElement (self,element):
+		self.GetWctMDContainer().AddMatchingItem(element.text.strip())
 	
 # QTIAssessment
 # -------------
@@ -873,7 +945,7 @@ class ItemRef(QTIObjectV1):
 # QTIItem
 # -------
 #
-class QTIItem(QTIMetadataContainer):
+class QTIItem(WCTMetadataContainer):
 	"""
 	<!ELEMENT item (qticomment? , duration? , itemmetadata? , objectives* , itemcontrol* , itemprecondition* , itempostcondition* , (itemrubric | rubric)* , presentation? , resprocessing* , itemproc_extension? , itemfeedback* , reference?)>
 
@@ -885,6 +957,7 @@ class QTIItem(QTIMetadataContainer):
 	""" 
 
 	def __init__(self,name,attrs,parent):
+		WCTMetadataContainer.__init__(self)
 		self.parent=parent
 		self.parser=self.GetParser()
 		self.item=AssessmentItem()
@@ -1024,6 +1097,10 @@ class QTIItem(QTIMetadataContainer):
 			qtiMD.SetFeedbackType('nonadaptive')
 		else:
 			qtiMD.SetFeedbackType('none')
+			
+	def AttachInstructureMetadata(self):
+		if self.instructureMetadata:
+			self.item.SetInstructureMetadata(self.instructureMetadata)
 			
 	# Methods used in resprocessing
 	
@@ -1197,6 +1274,7 @@ class QTIItem(QTIMetadataContainer):
 		if self.item.title:
 			self.resource.GetLOM().GetGeneral().SetTitle(LOMLangString(self.item.title,self.item.language))
 		self.GenerateQTIMetadata()
+		self.AttachInstructureMetadata()
 		# Add the resource to the root thing - and therefore the content package
 		self.GetRoot().AddResource(self.resource)
 		# Adding a resource to a cp may cause it to change identifier, but we don't mind.
@@ -2196,7 +2274,7 @@ class MatThing(QTIObjectV1):
 		self.height=None
 		self.ParseAttributes(attrs)
 		# material, altmaterial, reference
-		assert isinstance(self.parent,Material),QTIException(eInvalidStructure,"<"+name+">")
+		assert isinstance(self.parent,(Material, WCTMatchingTextExt)),QTIException(eInvalidStructure,"<"+name+">")
 		
 	def SetAttribute_label (self,value):
 		self.label=value
@@ -4504,7 +4582,7 @@ QTIASI_ELEMENTS={
         'itemref':ItemRef,
         'itemrubric':Unsupported,
         'map_output':Unsupported,
-        'mat_extension':Unsupported,
+        'mat_extension':WCTMatExtension,
         'matapplet':Unsupported,
         'matapplication':Unsupported,
         'mataudio':MatAudio,
@@ -4512,6 +4590,7 @@ QTIASI_ELEMENTS={
         'matemtext':MatEmText,
         'material':Material,
         'material_ref':Unsupported,
+        'material_table':WCTMaterialTable,
         'matimage':MatImage,
         'matref':Unsupported,
         'mattext':MatText,
@@ -4608,7 +4687,9 @@ QTIASI_ELEMENTS={
         'varlte':VarLTE,
         'varsubset':VarSubset,
         'varsubstring':VarSubstring,
-        'vocabulary':Vocabulary
+        'vocabulary':Vocabulary,
+		'webct:matching_ext_flow':WCTMatchingExtFlow,
+		'webct:matching_text_ext':WCTMatchingTextExt
 	}
 
 class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):

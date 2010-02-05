@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <questestinterop xmlns="http://www.imsglobal.org/xsd/ims_qtiasiv1p2">
-  <assessment ident="4394086650391" title="Test Export Quiz 2" tool_name="webct">
-    <duration>M55</duration>
+  <assessment ident="4394086650391" title="Test Export Quiz 2">
     <qtimetadata>
       <vocabulary uri="webct_imsqti_metadatav1p0.txt" vocab_type="text/plain" />
       <qtimetadatafield>
