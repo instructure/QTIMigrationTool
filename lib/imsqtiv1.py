@@ -665,6 +665,9 @@ class QTISection(WCTMetadataContainer):
 	def SetAttribute_title (self,value):
 		self.section.SetTitle(value)
 	
+	def SetAttribute_visible(self, visible):
+		self.section.SetVisible(visible)
+	
 	def SetDuration(self, duration):
 		#todo: if it's a testPart it can be set...
 		pass

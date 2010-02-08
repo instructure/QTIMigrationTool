@@ -89,7 +89,7 @@
         <fieldentry>Examination</fieldentry>
       </qtimetadatafield>
     </qtimetadata>
-    <section ident="384667998091" title="384667998091">
+    <section ident="384667998091" title="384667998091" visible="false">
       <outcomes_processing>
         <outcomes>
           <decvar vartype="Decimal" varname="SCORE"/>
@@ -133,7 +133,7 @@
       <selection_ordering>
         <order order_type="Sequential"/>
       </selection_ordering>
-      <section ident="" title="First Part">
+      <section ident="" title="First Part" visible="true">
         <outcomes_processing>
           <outcomes>
             <decvar vartype="Decimal" varname="SCORE"/>
@@ -159,7 +159,7 @@
         <itemref
                 linkrefid="URN:X-WEBCT-VISTA_V2:790EA1350C97681DE0440003BA07D9B4"/>
       </section>
-      <section ident="" title="Question Set">
+      <section ident="" title="Question Set" visible="true">
         <outcomes_processing>
           <outcomes>
             <decvar vartype="Decimal" varname="SCORE"/>
