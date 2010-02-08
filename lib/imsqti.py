@@ -133,8 +133,8 @@ class InstructureMetadata:
 			f.write('\n<%sinstructureMetadata>' % ns)
 			
 			if self.fields:
-				for type, val in self.fields.items():
-					f.write('\n<%sinstructureField type="%s">%s</%sinstructureField>' %(ns, type, val, ns))
+				for name, val in self.fields.items():
+					f.write('\n<%sinstructureField name="%s" value="%s" />' %(ns, name, val))
 			
 			if self.matching_items and len(self.matching_items) > 1:
 				f.write('\n<%smatchingAnswers>' % ns)
