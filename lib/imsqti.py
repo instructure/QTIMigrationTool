@@ -254,7 +254,7 @@ class AssessmentTest:
 		f.write('\n\txmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
 		f.write('\n\txsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"')
 		f.write('\n identifier="'+XMLString(self.identifier)+'"')
-		f.write('\n title="'+XMLString(self.title)+'"')
+		f.write('\n title="%s"' % XMLString(self.title))
 		if self.language:
 			f.write('\n xml:lang="'+XMLString(self.language)+'"')
 		if self.toolName:

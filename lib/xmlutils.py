@@ -47,6 +47,8 @@ def XMLString (src):
 				dst=dst+"&lt;"
 			elif c=='>':
 				dst=dst+"&gt;"
+			elif c=='"':
+				dst=dst+'&quot;'
 			elif ord(c)>128:
 				dst=dst+"&#"+str(ord(c))+';'
 			else:
