@@ -145,5 +145,5 @@ if __name__ == '__main__':
 
 	filenames=None
 	parser=None
-	sys.exit(1)
+	sys.exit(0)
 	
