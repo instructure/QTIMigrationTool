@@ -37,6 +37,7 @@ import string
 import os, sys
 from xml.sax import make_parser, handler, SAXParseException
 import StringIO
+from random import randint
 try:
 	import vobject
 	GOT_VOBJECT=1
@@ -156,6 +157,7 @@ class QTIObjectV1:
 		return value
 	
 	def CheckNMTOKEN (self,token,prefix):
+		token = token.strip()
 		unchecked=0
 		newtoken=""
 		bad=0
@@ -558,6 +560,7 @@ class QTIAssessment(WCTMetadataContainer):
 		# This is the manifest object
 		self.resource=CPResource()
 		self.resource.SetType("imsqti_assessment_xmlv2p1")
+		self.resource.SetIdentifier("%s" % randint(1,100000));
 		self.educationalMetadata=None
 		self.variables={'FEEDBACK':None}
 		if attrs.has_key('ident'):
@@ -966,6 +969,7 @@ class QTIItem(WCTMetadataContainer):
 		self.item=AssessmentItem()
 		self.resource=CPResource()
 		self.resource.SetType("imsqti_item_xmlv2p0")
+		self.resource.SetIdentifier("%s" % randint(1,100000));
 		self.educationalMetadata=None
 		self.variables={'FEEDBACK':None}
 		self.declareFeedback=0
@@ -4724,7 +4728,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 				print "Processing directory: : "+path
 				children=os.listdir(path)
 				self.ProcessFiles(path,children)
-			elif fileName[-4:].lower()=='.xml':
+			elif fileName[-4:].lower() in ['.xml', '.dat']:
 				print "Processing file: "+path
 				f=open(path,'r')
 				try:
