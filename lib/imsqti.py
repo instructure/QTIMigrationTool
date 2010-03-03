@@ -451,6 +451,7 @@ class AssessmentItem:
 		self.responseProcessing=None
 		self.modalFeedback=[]
 		self.instructureMetadata=None
+		self.calculated=None
 		
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
@@ -495,6 +496,9 @@ class AssessmentItem:
 	def SetInstructureMetadata(self, md):
 		self.instructureMetadata = md
 		
+	def SetCalculated(self, c):
+		self.calculated = c
+	
 	def WriteXML (self,f):
 		f.write('<assessmentItem')
 		f.write('\n\txmlns="http://www.imsglobal.org/xsd/imsqti_v2p1"')
@@ -541,6 +545,7 @@ class AssessmentItem:
 			self.responseProcessing.WriteXML(f)
 		for feedback in self.modalFeedback:
 			feedback.WriteXML(f)
+		if self.calculated: self.calculated.WriteXML(f)
 		f.write('\n</assessmentItem>\n')
 
 
@@ -564,7 +569,7 @@ class VariableDeclaration:
 		self.default=value
 		
 	def GetDefaultValue (self):
-		return value
+		return self.default
 		
 	
 class ResponseDeclaration(VariableDeclaration):
@@ -1814,3 +1819,92 @@ class InsideOperator(Expression):
 		f.write(' coords="'+string.join(cStrs,' ')+'">')
 		self.expression.WriteXML(f)
 		f.write("</inside>")
+
+
+class Calculated:
+	def __init__(self):
+		self.formula=None
+		self.answer_scale=None
+		self.answer_tolerance=None
+		self.answer_tolerance_type=None
+		self.unit_points_percent=None
+		self.unit_required=None
+		self.unit_case_sensitive=None
+		self.partial_credit_points_percent=None
+		self.partial_credit_tolerance=None
+		self.partial_credit_tolerance_type=None
+		self.var_sets=[]
+		self.vars=[]
+	
+	def add_var_set(self, vs):
+		self.var_sets.append(vs)
+	
+	def add_var(self, var):
+		self.vars.append(var)
+		
+	def WriteXML(self, f):
+		f.write('\n<itemproc_extension>')
+		f.write('\n<calculated>')
+		if self.formula: f.write('\n<formula>%s</formula>' % XMLString(self.formula))
+		if self.answer_scale: f.write('\n<answer_scale>%s</answer_scale>' % XMLString(self.answer_scale))
+		if self.answer_tolerance: f.write('\n<answer_tolerance type="%s">%s</answer_tolerance>' % (XMLString(self.answer_tolerance), self.answer_tolerance_type))
+		if self.unit_points_percent: f.write('\n<unit_points_percent>%s</unit_points_percent>' % XMLString(self.unit_points_percent))
+		if self.unit_required: f.write('\n<unit_required>%s</unit_required>' % XMLString(self.unit_required))
+		if self.unit_case_sensitive: f.write('\n<unit_case_sensitive>%s</unit_case_sensitive>' % XMLString(self.unit_case_sensitive))
+		if self.partial_credit_points_percent: f.write('\n<partial_credit_points_percent>%s</partial_credit_points_percent>' % XMLString(self.partial_credit_points_percent))
+		if self.partial_credit_tolerance: f.write('\n<partial_credit_tolerance type="%s">%s</partial_credit_tolerance>' % (XMLString(self.partial_credit_tolerance), self.partial_credit_tolerance_type))
+		f.write('\n<vars>')
+		for var in self.vars:
+			var.WriteXML(f)
+		f.write('\n</vars>')
+		f.write('\n<var_sets>')
+		for var in self.var_sets:
+			var.WriteXML(f)
+		f.write('\n</var_sets>')
+		f.write('\n</calculated>')
+		f.write('\n</itemproc_extension>')
+		
+
+class VarSet:
+	def __init__(self):
+		self.vars=[]
+		self.answer=None
+		self.ident=None
+
+	def add_var(self, var):
+		self.vars.append(var)
+	
+	def WriteXML(self, f):
+		f.write('<var_set')
+		if self.ident: f.write(' ident="%s"' % XMLString(self.ident))
+		f.write('>')
+		for var in self.vars:
+			var.WriteXML(f)
+		if self.answer: f.write('\n<answer>%s</answer>' % XMLString(self.answer))
+		f.write('\n</var_set>')
+
+class Var:
+	def __init__(self):
+		self.name=None
+		self.scale=None
+		self.min=None
+		self.max=None
+		self.data=None
+	
+	def WriteXML(self,f):
+		f.write('\n<var')
+		if self.name: f.write(' name="%s"' % XMLString(self.name))
+		if self.scale: f.write(' scale="%s"' % XMLString(self.scale))
+		f.write('>')
+		
+		if self.data:
+			f.write(XMLString(self.data))
+		else:
+			if self.min: f.write('\n<min>%s</min>' % XMLString(self.min))
+			if self.max: f.write('\n<max>%s</max>' % XMLString(self.max))
+			f.write("\n")
+		
+		f.write('</var>')
+
+
+

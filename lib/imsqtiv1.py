@@ -47,7 +47,7 @@ except:
 RESPONSE_PREFIX="RESPONSE_"
 OUTCOME_PREFIX="OUTCOME_"
 FEEDBACK_PREFIX="FEEDBACK_"
-
+CURRENT_FILE_NAME=None
 
 from iso8601 import *
 from xmlutils import *
@@ -86,6 +86,7 @@ class QTIException:
 
 # Exceptions that might be expected to occurr
 eUnknownElement="Unknown element"
+eUnknownShape="Unknown shape"
 eNoParentPackage="QTI object outside <questestinterop> element"
 eInvalidStructure="QTI object in unexpected location"
 eEmptyCondition="QTI <conditionvar> contained no expressions"
@@ -93,6 +94,14 @@ eUndeclaredResponse="Reference to undeclared response variable"
 eUndeclaredOutcome="Reference to undeclared outcome variable"
 eUnimplementedOperator="Unimplemented operator"
 eDuplicateVariable="Duplicate variable name"
+eIndexIntoMultiple="Index into multiple"
+eUnexpectedContainer="Unexpected Container"
+eUnexpectedVarAction="Unexpected Var Action"
+eTooManySimilarVariables="Too many similar variables"
+eDuplicateResponse="Duplicate Response"
+eUnboundResponse="Unbound Response"
+eNoParentItem="No parent item"
+eNoParentMDContainer="No parent metadata container"
 
 # Exceptions that should never happen!
 assertElementOutsideRoot="Element outside root"
@@ -256,9 +265,9 @@ class QTIObjectV1:
 		assert self.parent,QTIException(eNoParentMDContainer)
 		return self.parent.GetMDContainer()
 
-	def GetWctMDContainer(self):
+	def GetInstructureHelperContainer(self):
 		assert self.parent,QTIException(eNoParentMDContainer)
-		return self.parent.GetWctMDContainer()
+		return self.parent.GetInstructureHelperContainer()
 	
 	def SniffRenderHotspot (self):
 		if self.parent:
@@ -421,19 +430,27 @@ class QTIMetadataContainer(QTIObjectV1):
 		pass
 
 
-# WCTMetadataContainer
+# InstructureHelperContainer
 # --------------------
 #
-class WCTMetadataContainer(QTIMetadataContainer):
+class InstructureHelperContainer(QTIMetadataContainer):
 	def __init__(self):
 		self.sessionControl=None
 		self.showTotalScore=None
 		self.whichAttemptToGrade=None
 		self.assessmentType=None
 		self.instructureMetadata=None
+		self.bb_id=None
+		self.bb_assessment_type=None
+		self.bb_question_type=None
+		self.bb_max_score=None
+		self.calculated=None
 	
-	def GetWctMDContainer(self):
+	def GetInstructureHelperContainer(self):
 		return self
+	
+	def set_calculated(self, c):
+		self.calculated = c
 		
 	def SetMaxAttempts(self,attempts):
 		if not self.sessionControl: self.sessionControl = ItemSessionControl()
@@ -458,11 +475,37 @@ class WCTMetadataContainer(QTIMetadataContainer):
 	
 	def AddMatchingItem(self, item):
 		self.instructureMetadata.AddMatchingItem(item)
+	
+	def SetBBObjectID(self, id):
+		self.SetAttribute_ident(id)
+		self.bb_id = id
+	
+	def SetBBAssessmentType(self, type):
+		""" Possible values for BB8: Test
+		"""
+		self.bb_assessment_type = type
+	
+	def SetBBQuestionType(self, type):
+		"""These are the possible BB8 values:
+		Multiple Choice, Calculated, Numeric, Either/Or, Essay, 
+		File Upload, Fill in the Blank Plus, Fill in the Blank, 
+		Hot Spot, Jumbled Sentence, Matching, Multiple Answer, 
+		Multiple Choice, Opinion Scale, Ordering, Quiz Bowl, 
+		Short Response, True/False
+		"""
+		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
+		self.bb_question_type = type
+		self.instructureMetadata.AddMetaField("bb8_question_type", type)
+	
+	def SetBBMaxScore(self, max):
+		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
+		self.bb_max_score = max
+		self.instructureMetadata.AddMetaField("max_score", max)
 
 # QTIObjectBank
 # -------------
 #
-class QTIObjectBank(QTIMetadataContainer):
+class QTIObjectBank(QTIObjectV1):
 	"""
 	<!ELEMENT objectbank (qticomment? , qtimetadata* , (section | item)+)>
 
@@ -478,36 +521,367 @@ class QTIObjectBank(QTIMetadataContainer):
 # mat_extension
 # -------------
 #
-class WCTMatExtension(QTIMetadataContainer):
+class WCTMatExtension(QTIObjectV1):
 	"""
 	"""
 	def __init__(self,name,attrs,parent):
 		QTIObjectV1.__init__(self,name,attrs,parent)
-		self.PrintWarning('Warning: mat_extension not supported, looking inside for extended matching options')
+		self.PrintWarning('Warning: mat_extension not supported, looking inside for needed data.')
 		
+	def AppendElement(self, data):
+		self.parent.AppendElement(data)
+		
+
+class BBMatFormattedText(QTIObjectV1):
+	"""Holds question and response data in BB8 exports.
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.type=None
+		
+	def SetAttribute_type(self, type):
+		self.type = type
+
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.AppendElement(xhtml_text(self.data))	
+
 		
 # material_table
 # -------------
 #
-class WCTMaterialTable(QTIMetadataContainer):
+class WCTMaterialTable(QTIObjectV1):
 	"""
 	"""
 	def __init__(self,name,attrs,parent):
 		QTIObjectV1.__init__(self,name,attrs,parent)
-		self.PrintWarning('Warning: aterial_table not supported, looking inside for extended matching options')
+		self.PrintWarning('Warning: material_table not supported, looking inside for needed data')
 		
 	def SetAttribute_label (self,id):
 		pass
+
+		
+# calculated
+# -------------
+#
+class BB8Calulated(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		assert isinstance(self.parent,(ItemProcExtension)),QTIException(eInvalidStructure,"<calculated>")
+		self.calc = Calculated()
+	
+	def CloseObject(self):
+		self.GetInstructureHelperContainer().set_calculated(self.calc)
+
+# formula
+# -------------
+#
+class BB8Formula(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<formula>")
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.calc.formula = self.data
+		
+# answer_scale
+# -------------
+#
+class BB8AnswerScale(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<answer_scale>")
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.calc.answer_scale = self.data
+		
+# answer_tolerance
+# -------------
+#
+class BB8AnswerTolerance(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<answer_tolerance>")
+		self.ParseAttributes(attrs)
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def SetAttribute_type(self, type):
+		self.parent.calc.answer_tolerance_type = type
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.calc.answer_tolerance = self.data
+		
+# unit_points_percent
+# -------------
+#
+class BB8UnitPointsPercent(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<unit_points_percent>")
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.calc.unit_points_percent = self.data
+		
+# unit_required
+# -------------
+#
+class BB8UnitRequired(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<unit_required>")
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.calc.unit_required = self.data
+		
+# unit_case_sensitive
+# -------------
+#
+class BB8UnitCaseSensitive(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<unit_case_sensitive>")
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.calc.unit_case_sensitive = self.data
+		
+# partial_credit_points_percent
+# -------------
+#
+class BB8PartialCreditPointsPercent(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<partial_credit_points_percent>")
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.calc.partial_credit_points_percent = self.data
+		
+# partial_credit_tolerance
+# -------------
+#
+class BB8PartialCreditTolerance(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<partial_credit_tolerance>")
+		self.ParseAttributes(attrs)
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def SetAttribute_type(self, type):
+		self.parent.calc.partial_credit_tolerance_type = type
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.calc.partial_credit_tolerance = self.data
+
+# vars
+# -------------
+#
+class BB8Vars(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<vars>")
+		self.calc = parent.calc
+	
+	def add_var(self, var):
+		self.calc.add_var(var)
+
+# var_sets
+# -------------
+#
+class BB8VarSets(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<var_sets>")
+		self.calc = parent.calc
+	
+	def add_var_set(self, var):
+		self.calc.add_var_set(var)
+		
+# var_set
+# -------------
+#
+class BB8VarSet(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		assert isinstance(self.parent,(BB8VarSets)),QTIException(eInvalidStructure,"<var_set>")
+		self.var_set = VarSet()
+		self.ParseAttributes(attrs)
+	
+	def SetAttribute_ident(self, iden):
+		self.var_set.ident = iden
+	
+	def add_var(self, var):
+		self.var_set.add_var(var)
+	
+	def set_answer(self, answer):
+		self.var_set.answer=answer
+	
+	def CloseObject (self):
+		self.parent.add_var_set(self.var_set)
+		
+# var
+# -------------
+#
+class BB8Var(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8VarSet, BB8Vars)),QTIException(eInvalidStructure,"<var>")
+		self.var = Var()
+		self.ParseAttributes(attrs)
+	
+	def SetAttribute_name(self, name):
+		self.var.name = name
+	
+	def SetAttribute_scale(self, scale):
+		self.var.scale = scale
+	
+	def set_min(self, min):
+		self.var.min = min
+	
+	def set_max(self, max):
+		self.var.max = max
+	
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data and not self.data == "":
+			self.var.data = self.data
+		self.parent.add_var(self.var)
+
+		
+# min
+# -------------
+#
+class BB8Min(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8Var)),QTIException(eInvalidStructure,"<min>")
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.set_min(self.data)
+		
+# max
+# -------------
+#
+class BB8Max(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8Var)),QTIException(eInvalidStructure,"<max>")
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.set_max(self.data)
+		
+# answer
+# -------------
+#
+class BB8Answer(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8VarSet)),QTIException(eInvalidStructure,"<answer>")
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.set_answer(self.data)
+
 				
 # webct:matching_ext_flow
 # -------------
 #
-class WCTMatchingExtFlow(QTIMetadataContainer):
+class WCTMatchingExtFlow(QTIObjectV1):
 	"""
 	"""
 	def __init__(self,name,attrs,parent):
 		QTIObjectV1.__init__(self,name,attrs,parent)
-		self.GetWctMDContainer().StartMatchingList()
+		self.GetInstructureHelperContainer().StartMatchingList()
 		
 	def SetAttribute_rshuffle (self,id):
 		pass
@@ -522,7 +896,7 @@ class WCTMatchingExtFlow(QTIMetadataContainer):
 # webct:matching_text_ext
 # -------------
 #
-class WCTMatchingTextExt(QTIMetadataContainer):
+class WCTMatchingTextExt(QTIObjectV1):
 	"""
 	"""
 	def __init__(self,name,attrs,parent):
@@ -539,12 +913,12 @@ class WCTMatchingTextExt(QTIMetadataContainer):
 		self.language=lang
 	
 	def AppendElement (self,element):
-		self.GetWctMDContainer().AddMatchingItem(element.text.strip())
+		self.GetInstructureHelperContainer().AddMatchingItem(element.text.strip())
 	
 # QTIAssessment
 # -------------
 #
-class QTIAssessment(WCTMetadataContainer):
+class QTIAssessment(InstructureHelperContainer):
 	"""
 	<!ELEMENT assessment (qticomment? , duration? , qtimetadata* , objectives* , assessmentcontrol* , rubric* , presentation_material? , outcomes_processing* , assessproc_extension? , assessfeedback* , selection_ordering? , reference? , (sectionref | section)+)>
 	
@@ -553,14 +927,19 @@ class QTIAssessment(WCTMetadataContainer):
 						   xml:lang CDATA  #IMPLIED >
 	"""
 	def __init__(self,name,attrs,parent):
-		WCTMetadataContainer.__init__(self)
+		global CURRENT_FILE_NAME
+		InstructureHelperContainer.__init__(self)
 		self.parent=parent
 		self.parser=self.GetParser()
+		self.fName=None
 		self.assessment=AssessmentTest()
 		# This is the manifest object
 		self.resource=CPResource()
 		self.resource.SetType("imsqti_assessment_xmlv2p1")
-		self.resource.SetIdentifier("%s" % randint(1,100000));
+		if CURRENT_FILE_NAME:
+			self.SetAttribute_ident(CURRENT_FILE_NAME);
+		else:
+			self.SetAttribute_ident("%s" % randint(1,100000));
 		self.educationalMetadata=None
 		self.variables={'FEEDBACK':None}
 		if attrs.has_key('ident'):
@@ -571,18 +950,22 @@ class QTIAssessment(WCTMetadataContainer):
 		if not self.assessment.language and self.parser.options.lang:
 			self.assessment.SetLanguage(self.parser.options.lang)
 		# Set the name of the file
-		cp=self.GetRoot().cp
-		# Reserve space for our preferred file name
-		self.fName=cp.GetUniqueFileName(os.path.join("assessmentTests","assmnt_"+self.resource.id+".xml"))
+		if not self.fName:
+			cp=self.GetRoot().cp
+			# Reserve space for our preferred file name
+			self.fName=cp.GetUniqueFileName(os.path.join("assessmentTests",self.resource.id+".xml"))
 		self.files={}
 		
 	def SetAttribute_ident (self,value):
+		if self.assessment.identifier: return
 		self.assessment.SetIdentifier(value);
 		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
 		if ':' in value:
 			print "Warning: assessment identifier with colon: replaced with hyphen when making resource identifier."
 			value=string.join(string.split(value,':'),'-')
 		self.resource.SetIdentifier(value);
+		cp=self.GetRoot().cp
+		self.fName=cp.GetUniqueFileName(os.path.join("assessmentTests",self.resource.id+".xml"))
 
 	def SetAttribute_title (self,value):
 		self.assessment.SetTitle(value)
@@ -594,10 +977,15 @@ class QTIAssessment(WCTMetadataContainer):
 		self.resource.GetQTIMD()
 		
 	def GenerateInstructureMetadata(self):
+		"""This is the metadata that will appear in the manifest file.
+		"""
 		iMD = self.resource.GetInstructureMD()
 		if self.showTotalScore: iMD.AddMetaField("show_score", self.showTotalScore.lower())
 		if self.whichAttemptToGrade: iMD.AddMetaField("which_attempt_to_keep", self.whichAttemptToGrade.lower())
 		if self.assessmentType: iMD.AddMetaField("quiz_type", self.assessmentType.lower())
+		if self.bb_max_score: iMD.AddMetaField("max_score", self.bb_max_score)
+		if self.bb_id: iMD.AddMetaField("bb8_object_id", self.bb_id)
+		if self.bb_assessment_type: iMD.AddMetaField("bb8_assessment_type", self.bb_assessment_type)
 		
 	def SetDuration(self, duration):
 		self.assessment.SetTimeLimit(duration)
@@ -646,7 +1034,7 @@ class QTIAssessment(WCTMetadataContainer):
 # QTISection
 # ----------
 #
-class QTISection(WCTMetadataContainer):
+class QTISection(InstructureHelperContainer):
 	"""
 	<!ELEMENT section (qticomment? , duration? , qtimetadata* , objectives* , sectioncontrol* , sectionprecondition* , sectionpostcondition* , rubric* , presentation_material? , outcomes_processing* , sectionproc_extension? , sectionfeedback* , selection_ordering? , reference? , (itemref | item | sectionref | section)*)>
 	
@@ -655,7 +1043,7 @@ class QTISection(WCTMetadataContainer):
 			xml:lang CDATA  #IMPLIED >
 	"""
 	def __init__(self,name,attrs,parent):
-		WCTMetadataContainer.__init__(self)
+		InstructureHelperContainer.__init__(self)
 		self.parent=parent
 		assert isinstance(self.parent,(QTIAssessment,QTISection)),QTIException(eInvalidStructure,"<section>")
 		self.parser=self.GetParser()
@@ -951,7 +1339,7 @@ class ItemRef(QTIObjectV1):
 # QTIItem
 # -------
 #
-class QTIItem(WCTMetadataContainer):
+class QTIItem(InstructureHelperContainer):
 	"""
 	<!ELEMENT item (qticomment? , duration? , itemmetadata? , objectives* , itemcontrol* , itemprecondition* , itempostcondition* , (itemrubric | rubric)* , presentation? , resprocessing* , itemproc_extension? , itemfeedback* , reference?)>
 
@@ -963,7 +1351,8 @@ class QTIItem(WCTMetadataContainer):
 	""" 
 
 	def __init__(self,name,attrs,parent):
-		WCTMetadataContainer.__init__(self)
+		InstructureHelperContainer.__init__(self)
+		self.fName=None
 		self.parent=parent
 		self.parser=self.GetParser()
 		self.item=AssessmentItem()
@@ -985,9 +1374,10 @@ class QTIItem(WCTMetadataContainer):
 		if not self.item.language and self.parser.options.lang:
 			self.item.SetLanguage(self.parser.options.lang)
 		# Set the name of the file
-		cp=self.GetRoot().cp
-		# Reserve space for our preferred file name
-		self.fName=cp.GetUniqueFileName(os.path.join("assessmentItems", self.resource.id+".xml"))
+		if not self.fName:
+			cp=self.GetRoot().cp
+			# Reserve space for our preferred file name
+			self.fName=cp.GetUniqueFileName(os.path.join("assessmentItems", self.resource.id+".xml"))
 		self.files={}
 	
 	def SetAttribute_maxattempts (self,value):
@@ -998,18 +1388,21 @@ class QTIItem(WCTMetadataContainer):
 		self.item.SetLabel(value)
 	
 	def SetAttribute_ident (self,value):
+		if self.item.identifier: return
 		self.item.SetIdentifier(value);
 		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
 		if ':' in value:
 			print "Warning: item identifier with colon: replaced with hyphen when making resource identifier."
 			value=string.join(string.split(value,':'),'-')
 		self.resource.SetIdentifier(value);
+		cp=self.GetRoot().cp
+		self.fName=cp.GetUniqueFileName(os.path.join("assessmentItems", self.resource.id+".xml"))
 
 	def SetAttribute_title (self,value):
 		self.item.SetTitle(value)
 	
 	def SetAttribute_xml_lang (self,lang):
-		self.item.SetLanguage(value)
+		self.item.SetLanguage(lang)
 
 	def GetItemV1 (self):
 		return self
@@ -1104,10 +1497,13 @@ class QTIItem(WCTMetadataContainer):
 			qtiMD.SetFeedbackType('nonadaptive')
 		else:
 			qtiMD.SetFeedbackType('none')
-			
-	def AttachInstructureMetadata(self):
-		if self.instructureMetadata:
-			self.item.SetInstructureMetadata(self.instructureMetadata)
+		
+	
+	def GenerateInstructureMetadata(self):
+		"""This is the metadata that is listed on the manifest file
+		"""
+		iMD = self.resource.GetInstructureMD()
+		if self.bb_question_type: iMD.AddMetaField("bb8_question_type", self.bb_question_type)
 			
 	# Methods used in resprocessing
 	
@@ -1281,7 +1677,10 @@ class QTIItem(WCTMetadataContainer):
 		if self.item.title:
 			self.resource.GetLOM().GetGeneral().SetTitle(LOMLangString(self.item.title,self.item.language))
 		self.GenerateQTIMetadata()
-		self.AttachInstructureMetadata()
+		self.GenerateInstructureMetadata()
+		if self.instructureMetadata: self.item.SetInstructureMetadata(self.instructureMetadata)
+		if self.calculated: self.item.SetCalculated(self.calculated)
+		
 		# Add the resource to the root thing - and therefore the content package
 		self.GetRoot().AddResource(self.resource)
 		# Adding a resource to a cp may cause it to change identifier, but we don't mind.
@@ -1330,6 +1729,99 @@ class QTIMetadata(QTIObjectV1):
 		self.parent=parent
 		# itemmetadata, assessment, section, objectbank
 		assert isinstance(self.parent,(ItemMetadata,QTIObjectBank,QTIAssessment,QTISection)),QTIException(eInvalidStructure,"<qtimetadata>")
+
+
+# assessmentmetadata
+# -----------
+#
+class AssessmentMetadata(QTIObjectV1):
+	"""
+	<!ELEMENT assessmentmetadata>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		# itemmetadata, assessment, section, objectbank
+		assert isinstance(self.parent,QTIAssessment),QTIException(eInvalidStructure,"<assessmentmetadata>")
+
+
+# sectionmetadata
+# -----------
+#
+class SectionMetadata(QTIObjectV1):
+	"""
+	<!ELEMENT sectionmetadata>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		# itemmetadata, assessment, section, objectbank
+		assert isinstance(self.parent,QTISection),QTIException(eInvalidStructure,"<sectionmetadata>")
+
+class ItemProcExtension(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.container = self.GetInstructureHelperContainer()
+
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+
+class BBBase(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.label = name
+		self.container = self.GetInstructureHelperContainer()
+
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data:
+			self.PrintWarning("Converting proprietary Blackboard metadata field %s = %s" % (self.label, self.data))
+
+# bbmd_asi_object_id
+class BBObjectID(BBBase):
+	def __init__(self,name,attrs,parent):
+		BBBase.__init__(self, name, attrs, parent)
+		assert isinstance(self.parent,(ItemMetadata,AssessmentMetadata, SectionMetadata)),QTIException(eInvalidStructure,"<bbmd_asi_object_id>")
+
+	def CloseObject (self):
+		BBBase.CloseObject(self)
+		self.container.SetBBObjectID(self.data)
+
+# bbmd_assessmenttype
+class BBAssessmentType(BBBase):
+	def __init__(self,name,attrs,parent):
+		BBBase.__init__(self, name, attrs, parent)
+		assert isinstance(self.parent,(ItemMetadata,AssessmentMetadata, SectionMetadata)),QTIException(eInvalidStructure,"<bbmd_assessmenttype>")
+
+	def CloseObject (self):
+		BBBase.CloseObject(self)
+		self.container.SetBBAssessmentType(self.data)
+
+# bbmd_questiontype
+class BBQuestionType(BBBase):
+	def __init__(self,name,attrs,parent):
+		BBBase.__init__(self, name, attrs, parent)
+		assert isinstance(self.parent,(ItemMetadata,AssessmentMetadata, SectionMetadata)),QTIException(eInvalidStructure,"<bbmd_questiontype>")
+
+	def CloseObject (self):
+		BBBase.CloseObject(self)
+		self.container.SetBBQuestionType(self.data)
+
+# qmd_absolutescore_max
+class BBMaxScore(BBBase):
+	def __init__(self,name,attrs,parent):
+		BBBase.__init__(self, name, attrs, parent)
+		assert isinstance(self.parent,(ItemMetadata,AssessmentMetadata, SectionMetadata)),QTIException(eInvalidStructure,"<qmd_absolutescore_max>")
+
+	def CloseObject (self):
+		BBBase.CloseObject(self)
+		self.container.SetBBMaxScore(self.data)
 
 
 # Vocabulary
@@ -1721,7 +2213,7 @@ class WCTBase(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.label = name
-		self.container = self.GetWctMDContainer()
+		self.container = self.GetInstructureHelperContainer()
 		# itemmetadata
 		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<wct_results_showFeedback>")
 
@@ -3600,6 +4092,7 @@ class ItemFeedback(QTIObjectV1):
 			self.PrintWarning("Warning: discarding view on feedback ("+value+")")
 	
 	def SetAttribute_ident (self,value):
+		self.identifier = value
 		self.feedback.SetIdentifier(self.ReadIdentifier(value,FEEDBACK_PREFIX))
 	
 	def SetAttribute_title (self,value):
@@ -3998,7 +4491,7 @@ class SetVar(QTIObjectV1):
 		elif self.action=='divide':
 			valExpression=DivideOperator(varExpression,valExpression)
 		else:
-			raise QTIException(eUnexpectedVarAction,selt.action)
+			raise QTIException(eUnexpectedVarAction,self.action)
 		self.parent.AddRule(SetOutcomeValue(outcome.GetIdentifier(),valExpression))
 
 # DisplayFeedback
@@ -4558,11 +5051,19 @@ QTIASI_ELEMENTS={
         'and_objects':Unsupported,
         'and_selection':Unsupported,
         'and_test':Unsupported,
+        'answer':BB8Answer,
+        'answer_scale':BB8AnswerScale,
+        'answer_tolerance':BB8AnswerTolerance,
         'assessfeedback':Unsupported,
         'assessment':QTIAssessment,
         'assessmentcontrol':Unsupported,
         'assessproc_extension':Unsupported,
+        'assessmentmetadata':AssessmentMetadata,
+        'bbmd_asi_object_id':BBObjectID, # BB8 internal id
+        'bbmd_assessmenttype':BBAssessmentType, # Test
+        'bbmd_questiontype':BBQuestionType, # Multiple Choice, Calculated, Numeric, Either/Or, Essay, File Upload, Fill in the Blank Plus, Fill in the Blank, Hot Spot, Jumbled Sentence, Matching, Multiple Answer, Multiple Choice, Opinion Scale, Ordering, Quiz Bowl, Short Response, True/False
         'conditionvar':ConditionVar,
+        'calculated':BB8Calulated,
         'decvar':DecVar,
         'displayfeedback':DisplayFeedback,
         'duration':Duration,
@@ -4576,6 +5077,7 @@ QTIASI_ELEMENTS={
         'flow':FlowV1,
         'flow_label':FlowLabel,
         'flow_mat':FlowMat,
+        'formula':BB8Formula,
         'hint':Hint,
         'hintmaterial':HintMaterial,
         'interpretvar':InterpretVar,
@@ -4585,11 +5087,12 @@ QTIASI_ELEMENTS={
         'itemmetadata':ItemMetadata,
         'itempostcondition':Unsupported,
         'itemprecondition':Unsupported,
-        'itemproc_extension':Unsupported,
+        'itemproc_extension':ItemProcExtension,
         'itemref':ItemRef,
         'itemrubric':Unsupported,
         'map_output':Unsupported,
         'mat_extension':WCTMatExtension,
+        'mat_formattedtext':BBMatFormattedText,
         'matapplet':Unsupported,
         'matapplication':Unsupported,
         'mataudio':MatAudio,
@@ -4602,6 +5105,8 @@ QTIASI_ELEMENTS={
         'matref':Unsupported,
         'mattext':MatText,
         'matvideo':Unsupported,
+        'max':BB8Max,
+        'min':BB8Min,
         'not':NotOperatorV1,
         'not_objects':Unsupported,
         'not_selection':Unsupported,
@@ -4622,9 +5127,12 @@ QTIASI_ELEMENTS={
         'outcomes_feedback_test':Unsupported,
         'outcomes_metadata':OutcomesMetaData,
         'outcomes_processing':OutcomesProcessing,
+        'partial_credit_points_percent':BB8PartialCreditPointsPercent,
+        'partial_credit_tolerance':BB8PartialCreditTolerance,
         'presentation':Presentation,
         'presentation_material':Unsupported,
         'processing_parameter':Unsupported,
+        'qmd_absolutescore_max':BBMaxScore,
         'qmd_computerscored':Unsupported,
         'qmd_feedbackpermitted':Unsupported,
         'qmd_hintspermitted':Unsupported,
@@ -4684,6 +5192,9 @@ QTIASI_ELEMENTS={
         'sourcebank_ref':Unsupported,
         'test_variable':Unsupported,
         'unanswered':Unanswered,
+        'unit_case_sensitive':BB8UnitCaseSensitive,
+        'unit_points_percent':BB8UnitPointsPercent,
+        'unit_required':BB8UnitRequired,
         'var_extension':Unsupported,
         'varequal':VarEqual,
         'vargt':VarGT,
@@ -4692,6 +5203,10 @@ QTIASI_ELEMENTS={
         'varinside':VarInside,
         'varlt':VarLT,
         'varlte':VarLTE,
+        'var':BB8Var,
+        'vars':BB8Vars,
+        'var_set':BB8VarSet,
+        'var_sets':BB8VarSets,
         'varsubset':VarSubset,
         'varsubstring':VarSubstring,
         'vocabulary':Vocabulary,
@@ -4739,8 +5254,10 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 	def DumpCP (self):
 		if self.options.cpPath:
 			self.cp.DumpToDirectory(self.options.cpPath)
-					
+
 	def Parse (self,f,path):
+		global CURRENT_FILE_NAME
+		CURRENT_FILE_NAME = path.split('/')[-1][:-4]
 		self.currPath=path
 		self.gotRoot=0
 		self.cObject=None
@@ -4756,6 +5273,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 				print "ERROR: parsing %s"%path
 				print "       ("+str(sys.exc_info()[0])+": "+str(sys.exc_info()[1])+")"
 		self.currPath=None
+		CURRENT_FILE_NAME=None
 
 	def resolveEntity(self,publicID,systemID):
 		print "Resolving: PUBLIC %s SYSTEM %s"%(publicID,systemID)
