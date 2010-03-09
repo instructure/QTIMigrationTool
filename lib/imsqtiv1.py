@@ -495,7 +495,7 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		"""
 		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
 		self.bb_question_type = type
-		self.instructureMetadata.AddMetaField("bb8_question_type", type)
+		self.instructureMetadata.AddMetaField("quiz_type", type)
 	
 	def SetBBMaxScore(self, max):
 		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
@@ -672,6 +672,24 @@ class BB8UnitRequired(QTIObjectV1):
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.calc.unit_required = self.data
+		
+# unit_value
+# -------------
+#
+class BB8UnitValue(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<unit_value>")
+		
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.calc.unit_value = self.data
 		
 # unit_case_sensitive
 # -------------
@@ -1503,7 +1521,7 @@ class QTIItem(InstructureHelperContainer):
 		"""This is the metadata that is listed on the manifest file
 		"""
 		iMD = self.resource.GetInstructureMD()
-		if self.bb_question_type: iMD.AddMetaField("bb8_question_type", self.bb_question_type)
+		if self.bb_question_type: iMD.AddMetaField("quiz_type", self.bb_question_type)
 			
 	# Methods used in resprocessing
 	
@@ -5060,7 +5078,7 @@ QTIASI_ELEMENTS={
         'assessproc_extension':Unsupported,
         'assessmentmetadata':AssessmentMetadata,
         'bbmd_asi_object_id':BBObjectID, # BB8 internal id
-        'bbmd_assessmenttype':BBAssessmentType, # Test
+        'bbmd_assessmenttype':BBAssessmentType, # Test, Pool
         'bbmd_questiontype':BBQuestionType, # Multiple Choice, Calculated, Numeric, Either/Or, Essay, File Upload, Fill in the Blank Plus, Fill in the Blank, Hot Spot, Jumbled Sentence, Matching, Multiple Answer, Multiple Choice, Opinion Scale, Ordering, Quiz Bowl, Short Response, True/False
         'conditionvar':ConditionVar,
         'calculated':BB8Calulated,
@@ -5195,6 +5213,7 @@ QTIASI_ELEMENTS={
         'unit_case_sensitive':BB8UnitCaseSensitive,
         'unit_points_percent':BB8UnitPointsPercent,
         'unit_required':BB8UnitRequired,
+        'unit_value':BB8UnitValue,
         'var_extension':Unsupported,
         'varequal':VarEqual,
         'vargt':VarGT,

@@ -1829,6 +1829,7 @@ class Calculated:
 		self.answer_tolerance_type=None
 		self.unit_points_percent=None
 		self.unit_required=None
+		self.unit_value=None
 		self.unit_case_sensitive=None
 		self.partial_credit_points_percent=None
 		self.partial_credit_tolerance=None
@@ -1847,12 +1848,13 @@ class Calculated:
 		f.write('\n<calculated>')
 		if self.formula: f.write('\n<formula>%s</formula>' % XMLString(self.formula))
 		if self.answer_scale: f.write('\n<answer_scale>%s</answer_scale>' % XMLString(self.answer_scale))
-		if self.answer_tolerance: f.write('\n<answer_tolerance type="%s">%s</answer_tolerance>' % (XMLString(self.answer_tolerance), self.answer_tolerance_type))
+		if self.answer_tolerance: f.write('\n<answer_tolerance type="%s">%s</answer_tolerance>' % (self.answer_tolerance_type, XMLString(self.answer_tolerance)))
 		if self.unit_points_percent: f.write('\n<unit_points_percent>%s</unit_points_percent>' % XMLString(self.unit_points_percent))
+		if self.unit_value: f.write('\n<unit_value>%s</unit_value>' % XMLString(self.unit_value))
 		if self.unit_required: f.write('\n<unit_required>%s</unit_required>' % XMLString(self.unit_required))
 		if self.unit_case_sensitive: f.write('\n<unit_case_sensitive>%s</unit_case_sensitive>' % XMLString(self.unit_case_sensitive))
 		if self.partial_credit_points_percent: f.write('\n<partial_credit_points_percent>%s</partial_credit_points_percent>' % XMLString(self.partial_credit_points_percent))
-		if self.partial_credit_tolerance: f.write('\n<partial_credit_tolerance type="%s">%s</partial_credit_tolerance>' % (XMLString(self.partial_credit_tolerance), self.partial_credit_tolerance_type))
+		if self.partial_credit_tolerance: f.write('\n<partial_credit_tolerance type="%s">%s</partial_credit_tolerance>' % (self.partial_credit_tolerance_type, XMLString(self.partial_credit_tolerance)))
 		f.write('\n<vars>')
 		for var in self.vars:
 			var.WriteXML(f)
