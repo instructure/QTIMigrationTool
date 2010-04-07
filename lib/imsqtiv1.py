@@ -125,6 +125,8 @@ class QTIObjectV1:
 		for aName in attrs.keys():
 			if aName[:4]=='xml:':
 				f=getattr(self,'SetAttribute_xml_'+aName[4:],0)
+			elif aName[:6]=='webct:':
+				f=getattr(self,'SetAttribute_webct_'+aName[6:],0)
 			else:
 				f=getattr(self,'SetAttribute_'+aName,0)
 			if f:
@@ -564,31 +566,64 @@ class WCTMaterialTable(QTIObjectV1):
 	def SetAttribute_label (self,id):
 		pass
 
-		
-# calculated
-# -------------
-#
-class BB8Calulated(QTIObjectV1):
+
+class WCTCalculatedAnswer(QTIObjectV1):
 	"""
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
+		self.ihc = self.GetInstructureHelperContainer()
+		self.calc = self.ihc.calculated
 		assert isinstance(self.parent,(ItemProcExtension)),QTIException(eInvalidStructure,"<calculated>")
+		self.ParseAttributes(attrs)
+	
+	def SetAttribute_webct_precision(self, precision):
+		self.calc.answer_scale = precision
+	
+	def SetAttribute_webct_toleranceType(self, type):
+		self.calc.answer_tolerance_type = type
+	
+	def SetAttribute_webct_tolerance(self, tol):
+		self.calc.answer_tolerance = tol
+		
+	def AddRule(self, rule):
+		if rule.identifier and rule.identifier == "SCORE":
+			if rule.expression and rule.expression.arguments:
+				if rule.expression.arguments[1]:
+					self.ihc.SetBBMaxScore(rule.expression.arguments[1].value)
+		
+# calculated
+# -------------
+#
+class CalculatedNode(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.GetInstructureHelperContainer().SetBBQuestionType("Calculated")
+		assert isinstance(self.parent,(ItemProcExtension, WCTMatExtension)),QTIException(eInvalidStructure,"<calculated>")
 		self.calc = Calculated()
+	
+	def add_var(self, var):
+		self.calc.add_var(var)
+		
+	def add_var_set(self, var):
+		self.calc.add_var_set(var)
 	
 	def CloseObject(self):
 		self.GetInstructureHelperContainer().set_calculated(self.calc)
 
+
 # formula
 # -------------
 #
-class BB8Formula(QTIObjectV1):
+class CalculatedFormula(QTIObjectV1):
 	"""
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<formula>")
+		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<formula>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -606,7 +641,7 @@ class BB8AnswerScale(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<answer_scale>")
+		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<answer_scale>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -624,7 +659,7 @@ class BB8AnswerTolerance(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<answer_tolerance>")
+		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<answer_tolerance>")
 		self.ParseAttributes(attrs)
 		
 	def AddData (self,data):
@@ -646,7 +681,7 @@ class BB8UnitPointsPercent(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<unit_points_percent>")
+		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<unit_points_percent>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -664,7 +699,7 @@ class BB8UnitRequired(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<unit_required>")
+		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<unit_required>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -682,7 +717,7 @@ class BB8UnitValue(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<unit_value>")
+		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<unit_value>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -700,7 +735,7 @@ class BB8UnitCaseSensitive(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<unit_case_sensitive>")
+		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<unit_case_sensitive>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -718,7 +753,7 @@ class BB8PartialCreditPointsPercent(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<partial_credit_points_percent>")
+		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<partial_credit_points_percent>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -736,7 +771,7 @@ class BB8PartialCreditTolerance(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<partial_credit_tolerance>")
+		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<partial_credit_tolerance>")
 		self.ParseAttributes(attrs)
 		
 	def AddData (self,data):
@@ -757,7 +792,7 @@ class BB8Vars(QTIObjectV1):
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
-		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<vars>")
+		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<vars>")
 		self.calc = parent.calc
 	
 	def add_var(self, var):
@@ -771,7 +806,7 @@ class BB8VarSets(QTIObjectV1):
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
-		assert isinstance(self.parent,(BB8Calulated)),QTIException(eInvalidStructure,"<var_sets>")
+		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<var_sets>")
 		self.calc = parent.calc
 	
 	def add_var_set(self, var):
@@ -780,12 +815,12 @@ class BB8VarSets(QTIObjectV1):
 # var_set
 # -------------
 #
-class BB8VarSet(QTIObjectV1):
+class CalculatedVarSet(QTIObjectV1):
 	"""
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
-		assert isinstance(self.parent,(BB8VarSets)),QTIException(eInvalidStructure,"<var_set>")
+		assert isinstance(self.parent,(BB8VarSets, CalculatedNode)),QTIException(eInvalidStructure,"<var_set>")
 		self.var_set = VarSet()
 		self.ParseAttributes(attrs)
 	
@@ -810,7 +845,7 @@ class BB8Var(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8VarSet, BB8Vars)),QTIException(eInvalidStructure,"<var>")
+		assert isinstance(self.parent,(CalculatedVarSet, BB8Vars)),QTIException(eInvalidStructure,"<var>")
 		self.var = Var()
 		self.ParseAttributes(attrs)
 	
@@ -833,6 +868,40 @@ class BB8Var(QTIObjectV1):
 		self.data=self.data.strip()
 		if self.data and not self.data == "":
 			self.var.data = self.data
+		self.parent.add_var(self.var)
+		
+# var
+# -------------
+#
+class WCTVar(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		assert isinstance(self.parent,(CalculatedNode, CalculatedVarSet)),QTIException(eInvalidStructure,"<var>")
+		self.var = Var()
+		self.ParseAttributes(attrs)
+	
+	def SetAttribute_webct_name(self, name):
+		self.var.name = name
+	
+	def SetAttribute_webct_precision(self, scale):
+		self.var.scale = scale
+	
+	def SetAttribute_webct_min(self, min):
+		self.var.min = min
+	
+	def SetAttribute_webct_max(self, max):
+		self.var.max = max
+	
+	def SetAttribute_webct_value(self, value):
+		self.var.data = value
+	
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
 		self.parent.add_var(self.var)
 
 		
@@ -875,18 +944,25 @@ class BB8Max(QTIObjectV1):
 # answer
 # -------------
 #
-class BB8Answer(QTIObjectV1):
+class CalculatedAnswer(QTIObjectV1):
 	"""
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8VarSet)),QTIException(eInvalidStructure,"<answer>")
+		self.value = None
+		assert isinstance(self.parent,(CalculatedVarSet)),QTIException(eInvalidStructure,"<answer>")
+		self.ParseAttributes(attrs)
+		
+	def SetAttribute_webct_value(self, value):
+		self.value = value
+		self.parent.set_answer(value)
 		
 	def AddData (self,data):
 		self.data=self.data+data
 	
 	def CloseObject (self):
+		if self.value: return
 		self.data=self.data.strip()
 		self.parent.set_answer(self.data)
 
@@ -4473,7 +4549,7 @@ class SetVar(QTIObjectV1):
 		self.value=""
 		self.ParseAttributes(attrs)
 		# respcondition
-		assert isinstance(self.parent,RespCondition),QTIException(eInvalidStructure,"<setvar>")
+		assert isinstance(self.parent,(RespCondition, WCTCalculatedAnswer)),QTIException(eInvalidStructure,"<setvar>")
 			
 	def SetAttribute_varname (self,value):
 		self.identifier=self.ReadIdentifier(value,OUTCOME_PREFIX)
@@ -5069,7 +5145,7 @@ QTIASI_ELEMENTS={
         'and_objects':Unsupported,
         'and_selection':Unsupported,
         'and_test':Unsupported,
-        'answer':BB8Answer,
+        'answer':CalculatedAnswer,
         'answer_scale':BB8AnswerScale,
         'answer_tolerance':BB8AnswerTolerance,
         'assessfeedback':Unsupported,
@@ -5081,7 +5157,7 @@ QTIASI_ELEMENTS={
         'bbmd_assessmenttype':BBAssessmentType, # Test, Pool
         'bbmd_questiontype':BBQuestionType, # Multiple Choice, Calculated, Numeric, Either/Or, Essay, File Upload, Fill in the Blank Plus, Fill in the Blank, Hot Spot, Jumbled Sentence, Matching, Multiple Answer, Multiple Choice, Opinion Scale, Ordering, Quiz Bowl, Short Response, True/False
         'conditionvar':ConditionVar,
-        'calculated':BB8Calulated,
+        'calculated':CalculatedNode,
         'decvar':DecVar,
         'displayfeedback':DisplayFeedback,
         'duration':Duration,
@@ -5095,7 +5171,7 @@ QTIASI_ELEMENTS={
         'flow':FlowV1,
         'flow_label':FlowLabel,
         'flow_mat':FlowMat,
-        'formula':BB8Formula,
+        'formula':CalculatedFormula,
         'hint':Hint,
         'hintmaterial':HintMaterial,
         'interpretvar':InterpretVar,
@@ -5224,11 +5300,18 @@ QTIASI_ELEMENTS={
         'varlte':VarLTE,
         'var':BB8Var,
         'vars':BB8Vars,
-        'var_set':BB8VarSet,
+        'var_set':CalculatedVarSet,
         'var_sets':BB8VarSets,
         'varsubset':VarSubset,
         'varsubstring':VarSubstring,
         'vocabulary':Vocabulary,
+		'webct:calculated':CalculatedNode,
+		'webct:formula':CalculatedFormula,
+		'webct:var':WCTVar,
+		'webct:calculated_set':CalculatedVarSet,
+		'webct:calculated_var':WCTVar,
+		'webct:answer':CalculatedAnswer,
+		'webct:calculated_answer':WCTCalculatedAnswer,
 		'webct:matching_ext_flow':WCTMatchingExtFlow,
 		'webct:matching_text_ext':WCTMatchingTextExt
 	}
