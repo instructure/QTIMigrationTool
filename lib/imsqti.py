@@ -471,11 +471,12 @@ class AssessmentItem:
 		self.variables[variable.GetIdentifier()]=variable
 	
 	def ResetResponseProcessing (self):
-		self.responseProcessing=None
-		for vName in self.variables.keys():
-			v=self.variables[vName]
-			if isinstance(v,OutcomeDeclaration):
-				del self.variables[vName]
+		if not self.responseProcessing:
+			self.responseProcessing=None
+			for vName in self.variables.keys():
+				v=self.variables[vName]
+				if isinstance(v,OutcomeDeclaration):
+					del self.variables[vName]
 					
 	def GetItemBody (self):
 		if not self.itemBody:
@@ -747,9 +748,14 @@ class ItemBody(BodyElement):
 	def __init__ (self):
 		BodyElement.__init__(self)
 		self.blocks=[]
+		self.locked = False
 		
 	def AppendBlock (self,block):
-		self.blocks.append(block)
+		if not self.locked:
+			self.blocks.append(block)
+
+	def lock(self, lock=True):
+		self.locked = lock
 		
 	def WriteXML (self,f):
 		f.write('\n<itemBody')

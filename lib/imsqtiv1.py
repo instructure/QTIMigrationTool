@@ -1603,16 +1603,12 @@ class QTIItem(InstructureHelperContainer):
 	
 	def ResetResprocessing (self):
 		if self.outcomes:
-			self.PrintWarning("Warning: multiople <resprocessing> not supported, ignoring all but the last")
+			self.PrintWarning("Warning: multiple <resprocessing> not supported, combining them into one.")
 		self.item.ResetResponseProcessing()
-		for outcome in self.outcomes.keys():
-			print "Dropping outcome %s"%outcome
-			del self.variables[self.outcomes[outcome]]
-			del self.outcomes[outcome]
-			
+
 	def DeclareOutcome (self,decvar):
 		if self.outcomes.has_key(decvar.identifier):
-			raise QTIException(eDuplicateVariable,decvar.identifier)
+			self.PrintWarning("Warning: multiple <outcomes> with same identifier, using last one.")
 		if self.variables.has_key(decvar.identifier):
 			print 'Warning: duplicate variable name, renaming outcome "'+decvar.identifier+'"'
 			self.outcomes[decvar.identifier]=self.UniqueVarName(decvar.identifier)
@@ -2379,6 +2375,39 @@ class WCTWhichAttemptToGrade(WCTBase):
 		if self.data:
 			self.container.SetWhichAttemptToGrade(self.data)
 
+
+# wct_questiontype
+# -----------
+#
+class WCTQuestionType(WCTBase):
+	"""
+	<!ELEMENT wct_results_scoring (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		WCTBase.__init__(self, name, attrs, parent)
+
+	def CloseObject (self):
+		WCTBase.CloseObject(self)
+		if self.data:
+			self.container.SetBBQuestionType(self.data)
+
+# wct_fib_questionText
+# -----------
+#
+class WCTFIBText(WCTBase):
+	"""
+	<!ELEMENT wct_fib_questionText (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		WCTBase.__init__(self, name, attrs, parent)
+
+	def CloseObject (self):
+		WCTBase.CloseObject(self)
+		if self.data:
+			body = self.container.item.GetItemBody()
+			body.blocks = [xhtml_text(self.data)]
+			body.lock()
+
 # QMDAssessmentType
 # -----------
 #	
@@ -2436,6 +2465,8 @@ MDFieldMap={
 	'wct_results_showtotalscore':WCTShowTotalScore,
 	'wct_attempt_attemptsallowed':WCTMaxAttempts,
 	'wct_results_scoring':WCTWhichAttemptToGrade,
+	'wct_fib_questiontext':WCTFIBText,
+	'wct_questiontype':WCTQuestionType,
 	'assessmenttype':QMDAssessmentType,
 	}
 class QTIMetadataField(QTIObjectV1):
