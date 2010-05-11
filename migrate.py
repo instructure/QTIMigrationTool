@@ -34,6 +34,8 @@ MIGRATION_VERSION="2008-06-12"
 
 import os, sys
 from stat import *
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 SPLASH_LOG=[
 "IMS QTIv1.2 to QTIv2.1 Migration Tool, by Steve Lay",
