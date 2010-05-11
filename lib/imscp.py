@@ -32,6 +32,7 @@ from imsqti import QTIMetadata, InstructureMetadata
 import StringIO
 import os
 from shutil import copyfile
+import codecs
 
 IMSCP_NAMESPACE="http://www.imsglobal.org/xsd/imscp_v1p1"
 IMSMD_NAMESPACE="http://www.imsglobal.org/xsd/imsmd_v1p2"
@@ -106,7 +107,7 @@ class ContentPackage:
 			os.mkdir(temp_path)
 		assert os.path.isdir(path)
 		manifestPath=os.path.join(path,'imsmanifest.xml')
-		f=open(manifestPath,'w')
+		f=codecs.open(manifestPath,'w', "utf8")
 		print "Writing manifest file: "+manifestPath
 		self.WriteManifestXML(f)
 		f.close()
@@ -243,7 +244,7 @@ class CPFile:
 			filepath=ResolveCPURI(path,self.href)
 			print "Writing file: "+filepath
 			if self.dataPath is None:
-				f=open(filepath,'w')
+				f=codecs.open(filepath,'w', "utf8")
 				f.write(self.data)
 				f.close()
 			else:
@@ -251,7 +252,7 @@ class CPFile:
 					copyfile(self.dataPath,filepath)
 				except IOError:
 					print 'Problem copying "%s" -> "%s"'%(self.dataPath,filepath)
-					f=open(filepath,'w')
+					f=codecs.open(filepath,'w',"utf8")
 					f.write("Data Missing\n")
 					f.close()
 
