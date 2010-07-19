@@ -519,6 +519,9 @@ class QTIObjectBank(QTIObjectV1):
 		
 	def SetAttribute_ident (self,id):
 		pass
+
+	def AddSection (self,id):
+		pass
 		
 # mat_extension
 # -------------
@@ -1139,7 +1142,7 @@ class QTISection(InstructureHelperContainer):
 	def __init__(self,name,attrs,parent):
 		InstructureHelperContainer.__init__(self)
 		self.parent=parent
-		assert isinstance(self.parent,(QTIAssessment,QTISection)),QTIException(eInvalidStructure,"<section>")
+		assert isinstance(self.parent,(QTIAssessment,QTISection, QTIObjectBank)),QTIException(eInvalidStructure,"<section>")
 		self.parser=self.GetParser()
 		self.section=AssessmentSection()
 		self.ParseAttributes(attrs)
