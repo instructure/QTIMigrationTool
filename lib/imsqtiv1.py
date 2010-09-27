@@ -477,16 +477,20 @@ class InstructureHelperContainer(QTIMetadataContainer):
 	
 	def AddMatchingItem(self, item):
 		self.instructureMetadata.AddMatchingItem(item)
+
+	def SetQuestionBank(self, name):
+		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
+		self.instructureMetadata.AddMetaField("question_bank", name)
 	
 	def SetBBObjectID(self, id):
 		self.SetAttribute_ident(id)
 		self.bb_id = id
 	
 	def SetBBAssessmentType(self, type):
-		""" Possible values for BB8: Test
+		""" Possible values for BB8: Test, Pool, Survey
 		"""
 		self.bb_assessment_type = type
-	
+
 	def SetBBQuestionType(self, type):
 		"""These are the possible BB8 values:
 		Multiple Choice, Calculated, Numeric, Either/Or, Essay, 
@@ -515,10 +519,13 @@ class QTIObjectBank(QTIObjectV1):
 	"""
 	def __init__(self,name,attrs,parent):
 		QTIObjectV1.__init__(self,name,attrs,parent)
+		self.question_bank = None
+		assert isinstance(self.parent,(QuesTestInterop)),QTIException(eInvalidStructure,"<objectbank>")
 		self.PrintWarning('Warning: objectbank not supported, looking inside for items')
+		self.ParseAttributes(attrs)
 		
 	def SetAttribute_ident (self,id):
-		pass
+		self.question_bank = id
 
 	def AddSection (self,id):
 		pass
@@ -1030,6 +1037,7 @@ class QTIAssessment(InstructureHelperContainer):
 		self.parser=self.GetParser()
 		self.fName=None
 		self.assessment=AssessmentTest()
+		self.question_bank = None
 		# This is the manifest object
 		self.resource=CPResource()
 		self.resource.SetType("imsqti_assessment_xmlv2p1")
@@ -1072,6 +1080,11 @@ class QTIAssessment(InstructureHelperContainer):
 		
 	def GenerateQTIMetadata(self):
 		self.resource.GetQTIMD()
+
+	def SetBBAssessmentType(self, type):
+		InstructureHelperContainer.SetBBAssessmentType(self,type)
+		if type == 'Pool':
+			self.question_bank = self.assessment.title
 		
 	def GenerateInstructureMetadata(self):
 		"""This is the metadata that will appear in the manifest file.
@@ -1104,6 +1117,9 @@ class QTIAssessment(InstructureHelperContainer):
 			self.parent.PrintWarning(warning,1)
 	
 	def CloseObject (self):
+		if self.bb_assessment_type == 'Pool':
+			# All the questions get the pool's name so we don't need a pool object
+			return
 		# Fix up the title
 		if self.assessment.title:
 			self.resource.GetLOM().GetGeneral().SetTitle(LOMLangString(self.assessment.title,self.assessment.language))
@@ -1143,6 +1159,9 @@ class QTISection(InstructureHelperContainer):
 		InstructureHelperContainer.__init__(self)
 		self.parent=parent
 		assert isinstance(self.parent,(QTIAssessment,QTISection, QTIObjectBank)),QTIException(eInvalidStructure,"<section>")
+		self.question_bank = None
+		if hasattr(self.parent, 'question_bank'):
+			self.question_bank = self.parent.question_bank
 		self.parser=self.GetParser()
 		self.section=AssessmentSection()
 		self.ParseAttributes(attrs)
@@ -1451,6 +1470,8 @@ class QTIItem(InstructureHelperContainer):
 		InstructureHelperContainer.__init__(self)
 		self.fName=None
 		self.parent=parent
+		if hasattr(self.parent, 'question_bank') and self.parent.question_bank:
+			self.SetQuestionBank(self.parent.question_bank)
 		self.parser=self.GetParser()
 		self.item=AssessmentItem()
 		self.resource=CPResource()
@@ -2384,7 +2405,7 @@ class WCTWhichAttemptToGrade(WCTBase):
 #
 class WCTQuestionType(WCTBase):
 	"""
-	<!ELEMENT wct_results_scoring (#PCDATA)>
+	<!ELEMENT wct_questiontype (#PCDATA)>
 	"""
 	def __init__(self,name,attrs,parent):
 		WCTBase.__init__(self, name, attrs, parent)
@@ -2393,6 +2414,21 @@ class WCTQuestionType(WCTBase):
 		WCTBase.CloseObject(self)
 		if self.data:
 			self.container.SetBBQuestionType(self.data)
+
+# wct_questioncategory
+# -----------
+#
+class WCTQuestionCategory(WCTBase):
+	"""
+	<!ELEMENT wct_questioncategory (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		WCTBase.__init__(self, name, attrs, parent)
+
+	def CloseObject (self):
+		WCTBase.CloseObject(self)
+		if self.data:
+			self.container.SetQuestionBank(self.data)
 
 # wct_fib_questionText
 # -----------
@@ -2470,6 +2506,7 @@ MDFieldMap={
 	'wct_results_scoring':WCTWhichAttemptToGrade,
 	'wct_fib_questiontext':WCTFIBText,
 	'wct_questiontype':WCTQuestionType,
+	'wct_questioncategory':WCTQuestionCategory,
 	'assessmenttype':QMDAssessmentType,
 	}
 class QTIMetadataField(QTIObjectV1):
