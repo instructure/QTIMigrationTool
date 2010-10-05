@@ -342,6 +342,9 @@ class QuesTestInterop(QTIObjectV1):
 	def AddResource (self,resource):
 		self.resources.append(resource)
 		self.cp.AddResource(resource)
+
+	def AddSection (self,id):
+		pass
 	
 	def ResolveURI (self,uri):
 		# The base URI of this XML file is self.path
@@ -1158,7 +1161,7 @@ class QTISection(InstructureHelperContainer):
 	def __init__(self,name,attrs,parent):
 		InstructureHelperContainer.__init__(self)
 		self.parent=parent
-		assert isinstance(self.parent,(QTIAssessment,QTISection, QTIObjectBank)),QTIException(eInvalidStructure,"<section>")
+		assert isinstance(self.parent,(QTIAssessment,QTISection, QTIObjectBank, QuesTestInterop)),QTIException(eInvalidStructure,"<section>")
 		self.question_bank = None
 		if hasattr(self.parent, 'question_bank'):
 			self.question_bank = self.parent.question_bank
