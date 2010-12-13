@@ -168,8 +168,9 @@ class CPResource:
 		self.id=None
 		if self.lom:
 			self.id=self.lom.SuggestXMLID()
-			self.FixIdentifier()
-		else:
+			if self.id:
+				self.FixIdentifier()
+		if not self.id:
 			self.id="resource"
 		self.id=cp.GetUniqueID(self.id)
 			
