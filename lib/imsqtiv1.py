@@ -283,6 +283,13 @@ class QTIObjectV1:
 		else:
 			self.parent.PrintWarning(warning,force)
 
+	def CheckLocation (self, expected_parents, tag, do_assert=True):
+		if not isinstance(self.parent, expected_parents):
+			if do_assert:
+				raise QTIException(eInvalidStructure,tag)
+			else:
+				print "Tag (%s) in unexpected location - parent: (%s)" % (tag, self.parent)
+
 
 # Unsupported
 # -----------
@@ -523,7 +530,7 @@ class QTIObjectBank(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		QTIObjectV1.__init__(self,name,attrs,parent)
 		self.question_bank = None
-		assert isinstance(self.parent,(QuesTestInterop)),QTIException(eInvalidStructure,"<objectbank>")
+		self.CheckLocation((QuesTestInterop),"<objectbank>")
 		self.PrintWarning('Warning: objectbank not supported, looking inside for items')
 		self.ParseAttributes(attrs)
 		
@@ -587,7 +594,7 @@ class WCTCalculatedAnswer(QTIObjectV1):
 		self.parent=parent
 		self.ihc = self.GetInstructureHelperContainer()
 		self.calc = self.ihc.calculated
-		assert isinstance(self.parent,(ItemProcExtension)),QTIException(eInvalidStructure,"<calculated>")
+		self.CheckLocation((ItemProcExtension),"<calculated>")
 		self.ParseAttributes(attrs)
 	
 	def SetAttribute_webct_precision(self, precision):
@@ -614,7 +621,7 @@ class CalculatedNode(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.GetInstructureHelperContainer().SetBBQuestionType("Calculated")
-		assert isinstance(self.parent,(ItemProcExtension, WCTMatExtension)),QTIException(eInvalidStructure,"<calculated>")
+		self.CheckLocation((ItemProcExtension, WCTMatExtension),"<calculated>")
 		self.calc = Calculated()
 	
 	def add_var(self, var):
@@ -636,7 +643,7 @@ class CalculatedFormula(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<formula>")
+		self.CheckLocation((CalculatedNode),"<formula>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -654,7 +661,7 @@ class BB8AnswerScale(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<answer_scale>")
+		self.CheckLocation((CalculatedNode),"<answer_scale>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -672,7 +679,7 @@ class BB8AnswerTolerance(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<answer_tolerance>")
+		self.CheckLocation((CalculatedNode),"<answer_tolerance>")
 		self.ParseAttributes(attrs)
 		
 	def AddData (self,data):
@@ -694,7 +701,7 @@ class BB8UnitPointsPercent(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<unit_points_percent>")
+		self.CheckLocation((CalculatedNode),"<unit_points_percent>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -712,7 +719,7 @@ class BB8UnitRequired(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<unit_required>")
+		self.CheckLocation((CalculatedNode),"<unit_required>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -730,7 +737,7 @@ class BB8UnitValue(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<unit_value>")
+		self.CheckLocation((CalculatedNode),"<unit_value>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -748,7 +755,7 @@ class BB8UnitCaseSensitive(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<unit_case_sensitive>")
+		self.CheckLocation((CalculatedNode),"<unit_case_sensitive>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -766,7 +773,7 @@ class BB8PartialCreditPointsPercent(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<partial_credit_points_percent>")
+		self.CheckLocation((CalculatedNode),"<partial_credit_points_percent>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -784,7 +791,7 @@ class BB8PartialCreditTolerance(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<partial_credit_tolerance>")
+		self.CheckLocation((CalculatedNode),"<partial_credit_tolerance>")
 		self.ParseAttributes(attrs)
 		
 	def AddData (self,data):
@@ -805,7 +812,7 @@ class BB8Vars(QTIObjectV1):
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
-		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<vars>")
+		self.CheckLocation((CalculatedNode),"<vars>")
 		self.calc = parent.calc
 	
 	def add_var(self, var):
@@ -819,7 +826,7 @@ class BB8VarSets(QTIObjectV1):
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
-		assert isinstance(self.parent,(CalculatedNode)),QTIException(eInvalidStructure,"<var_sets>")
+		self.CheckLocation((CalculatedNode),"<var_sets>")
 		self.calc = parent.calc
 	
 	def add_var_set(self, var):
@@ -833,7 +840,7 @@ class CalculatedVarSet(QTIObjectV1):
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
-		assert isinstance(self.parent,(BB8VarSets, CalculatedNode)),QTIException(eInvalidStructure,"<var_set>")
+		self.CheckLocation((BB8VarSets, CalculatedNode),"<var_set>")
 		self.var_set = VarSet()
 		self.ParseAttributes(attrs)
 	
@@ -858,7 +865,7 @@ class BB8Var(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(CalculatedVarSet, BB8Vars)),QTIException(eInvalidStructure,"<var>")
+		self.CheckLocation((CalculatedVarSet, BB8Vars),"<var>")
 		self.var = Var()
 		self.ParseAttributes(attrs)
 	
@@ -892,7 +899,7 @@ class WCTVar(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(CalculatedNode, CalculatedVarSet)),QTIException(eInvalidStructure,"<var>")
+		self.CheckLocation((CalculatedNode, CalculatedVarSet),"<var>")
 		self.var = Var()
 		self.ParseAttributes(attrs)
 	
@@ -927,7 +934,7 @@ class BB8Min(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8Var)),QTIException(eInvalidStructure,"<min>")
+		self.CheckLocation((BB8Var),"<min>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -945,7 +952,7 @@ class BB8Max(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(BB8Var)),QTIException(eInvalidStructure,"<max>")
+		self.CheckLocation((BB8Var),"<max>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -964,7 +971,7 @@ class CalculatedAnswer(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.value = None
-		assert isinstance(self.parent,(CalculatedVarSet)),QTIException(eInvalidStructure,"<answer>")
+		self.CheckLocation((CalculatedVarSet),"<answer>")
 		self.ParseAttributes(attrs)
 		
 	def SetAttribute_webct_value(self, value):
@@ -1161,7 +1168,7 @@ class QTISection(InstructureHelperContainer):
 	def __init__(self,name,attrs,parent):
 		InstructureHelperContainer.__init__(self)
 		self.parent=parent
-		assert isinstance(self.parent,(QTIAssessment,QTISection, QTIObjectBank, QuesTestInterop)),QTIException(eInvalidStructure,"<section>")
+		self.CheckLocation((QTIAssessment,QTISection, QTIObjectBank, QuesTestInterop),"<section>")
 		self.question_bank = None
 		if hasattr(self.parent, 'question_bank'):
 			self.question_bank = self.parent.question_bank
@@ -1221,7 +1228,7 @@ class SelectionOrdering(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(QTISection, QTIAssessment)),QTIException(eInvalidStructure,"<selection_ordering>")
+		self.CheckLocation((QTISection, QTIAssessment),"<selection_ordering>")
 		if isinstance(self.parent,QTISection):
 			self.process=True
 			self.ParseAttributes(attrs)
@@ -1258,7 +1265,7 @@ class Order(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(SelectionOrdering)),QTIException(eInvalidStructure,"<order>")
+		self.CheckLocation((SelectionOrdering),"<order>")
 		self.ParseAttributes(attrs)
 
 	def AddData (self,data):
@@ -1278,7 +1285,7 @@ class Selection(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(SelectionOrdering)),QTIException(eInvalidStructure,"<selection>")
+		self.CheckLocation((SelectionOrdering),"<selection>")
 		self.ParseAttributes(attrs)
 
 	def AddData (self,data):
@@ -1301,7 +1308,7 @@ class SelectionNumber(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(Selection)),QTIException(eInvalidStructure,"<selection_number>")
+		self.CheckLocation((Selection),"<selection_number>")
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -1321,7 +1328,7 @@ class OutcomesProcessing(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(QTISection, QTIAssessment)),QTIException(eInvalidStructure,"<outcomes_processing>")
+		self.CheckLocation((QTISection, QTIAssessment),"<outcomes_processing>")
 		self.outcome_weights={}
 
 	def AddData (self,data):
@@ -1344,7 +1351,7 @@ class ObjectsCondition(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(ResProcessing, OutcomesProcessing)),QTIException(eInvalidStructure,"<objects_condition>")
+		self.CheckLocation((ResProcessing, OutcomesProcessing),"<objects_condition>")
 		self.item_weight=None
 		self.item_identity=None
 
@@ -1372,7 +1379,7 @@ class OutcomesMetaData(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(ObjectsCondition)),QTIException(eInvalidStructure,"<outcomes_metadata>")
+		self.CheckLocation((ObjectsCondition),"<outcomes_metadata>")
 		self.mdname=None
 		self.ParseAttributes(attrs)
 
@@ -1402,7 +1409,7 @@ class ObjectsParameter(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		assert isinstance(self.parent,(ObjectsCondition)),QTIException(eInvalidStructure,"<objects_parameter>")
+		self.CheckLocation((ObjectsCondition),"<objects_parameter>")
 		self.pname=None
 		self.ParseAttributes(attrs)
 
@@ -1432,7 +1439,7 @@ class ItemRef(QTIObjectV1):
 		self.data=""
 		self.linkrefid=None
 		self.clean_linkrefid=None
-		assert isinstance(self.parent,(QTISection)),QTIException(eInvalidStructure,"<itemref>")
+		self.CheckLocation((QTISection),"<itemref>")
 		self.ParseAttributes(attrs)
 		# Set the name of the file
 		cp=self.GetRoot().cp
@@ -1832,8 +1839,7 @@ class ItemMetadata(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		# item
-		assert isinstance(self.parent,QTIItem),QTIException(eInvalidStructure,"<itemmetadata>")
-
+		self.CheckLocation((QTIItem), "<itemmetadata>")
 
 # QTIMetadata
 # -----------
@@ -1845,7 +1851,7 @@ class QTIMetadata(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		# itemmetadata, assessment, section, objectbank
-		assert isinstance(self.parent,(ItemMetadata,QTIObjectBank,QTIAssessment,QTISection)),QTIException(eInvalidStructure,"<qtimetadata>")
+		self.CheckLocation((ItemMetadata,QTIObjectBank,QTIAssessment,QTISection),"<qtimetadata>")
 
 
 # assessmentmetadata
@@ -1858,7 +1864,7 @@ class AssessmentMetadata(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		# itemmetadata, assessment, section, objectbank
-		assert isinstance(self.parent,QTIAssessment),QTIException(eInvalidStructure,"<assessmentmetadata>")
+		self.CheckLocation((QTIAssessment),"<assessmentmetadata>")
 
 
 # sectionmetadata
@@ -1871,7 +1877,7 @@ class SectionMetadata(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		# itemmetadata, assessment, section, objectbank
-		assert isinstance(self.parent,QTISection),QTIException(eInvalidStructure,"<sectionmetadata>")
+		self.CheckLocation((QTISection),"<sectionmetadata>")
 
 class ItemProcExtension(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
@@ -1904,7 +1910,7 @@ class BBBase(QTIObjectV1):
 class BBObjectID(BBBase):
 	def __init__(self,name,attrs,parent):
 		BBBase.__init__(self, name, attrs, parent)
-		assert isinstance(self.parent,(ItemMetadata,AssessmentMetadata, SectionMetadata)),QTIException(eInvalidStructure,"<bbmd_asi_object_id>")
+		self.CheckLocation((ItemMetadata,AssessmentMetadata, SectionMetadata),"<bbmd_asi_object_id>", False)
 
 	def CloseObject (self):
 		BBBase.CloseObject(self)
@@ -1914,7 +1920,7 @@ class BBObjectID(BBBase):
 class BBAssessmentType(BBBase):
 	def __init__(self,name,attrs,parent):
 		BBBase.__init__(self, name, attrs, parent)
-		assert isinstance(self.parent,(ItemMetadata,AssessmentMetadata, SectionMetadata)),QTIException(eInvalidStructure,"<bbmd_assessmenttype>")
+		self.CheckLocation((ItemMetadata,AssessmentMetadata, SectionMetadata),"<bbmd_assessmenttype>", False)
 
 	def CloseObject (self):
 		BBBase.CloseObject(self)
@@ -1924,7 +1930,7 @@ class BBAssessmentType(BBBase):
 class BBQuestionType(BBBase):
 	def __init__(self,name,attrs,parent):
 		BBBase.__init__(self, name, attrs, parent)
-		assert isinstance(self.parent,(ItemMetadata,AssessmentMetadata, SectionMetadata)),QTIException(eInvalidStructure,"<bbmd_questiontype>")
+		self.CheckLocation((ItemMetadata,AssessmentMetadata, SectionMetadata),"<bbmd_questiontype>")
 
 	def CloseObject (self):
 		BBBase.CloseObject(self)
@@ -1934,7 +1940,7 @@ class BBQuestionType(BBBase):
 class BBMaxScore(BBBase):
 	def __init__(self,name,attrs,parent):
 		BBBase.__init__(self, name, attrs, parent)
-		assert isinstance(self.parent,(ItemMetadata,AssessmentMetadata, SectionMetadata)),QTIException(eInvalidStructure,"<qmd_absolutescore_max>")
+		self.CheckLocation((ItemMetadata,AssessmentMetadata, SectionMetadata),"<qmd_absolutescore_max>", False)
 
 	def CloseObject (self):
 		BBBase.CloseObject(self)
@@ -1959,7 +1965,7 @@ class Vocabulary(QTIObjectV1):
 		self.entityRef=None
 		self.vocabType=None
 		# qtimetadata
-		assert isinstance(self.parent,QTIMetadata),QTIException(eInvalidStructure,"<vocabulary>")
+		self.CheckLocation((QTIMetadata),"<vocabulary>")
 		self.ParseAttributes(attrs)
 		self.PrintWarning("Warning: qtimetadata vocabulary is ignored")
 		
@@ -1990,7 +1996,7 @@ class QMDMaximumscore(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_maximumscore>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_maximumscore>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2032,7 +2038,7 @@ class QMDLevelOfDifficulty(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_levelofdifficulty>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_levelofdifficulty>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2058,7 +2064,7 @@ class QMDKeywords(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_keywords>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_keywords>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2082,7 +2088,7 @@ class QMDDomain(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_domain>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_domain>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2105,7 +2111,7 @@ class QMDTopic(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_topic>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_topic>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2127,7 +2133,7 @@ class QMDDescription(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_description>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_description>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2149,7 +2155,7 @@ class QMDTitle(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_title>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_title>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2180,7 +2186,7 @@ class QMDContributor(QTIObjectV1):
 			self.role=name
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_author>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_author>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2220,7 +2226,7 @@ class QMDOrganisation(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_organisation>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_organisation>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2256,7 +2262,7 @@ class QMDToolVendor(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_toolvendor>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_toolvendor>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2290,7 +2296,7 @@ class QMDStatus(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_status>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_status>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2314,7 +2320,7 @@ class QMDItemType(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<qmd_itemtype>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_itemtype>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2332,7 +2338,7 @@ class WCTBase(QTIObjectV1):
 		self.label = name
 		self.container = self.GetInstructureHelperContainer()
 		# itemmetadata
-		assert isinstance(self.parent,(ItemMetadata,QTIMetadataField)),QTIException(eInvalidStructure,"<wct_results_showFeedback>")
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<wct_results_showFeedback>", False)
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2523,7 +2529,7 @@ class QTIMetadataField(QTIObjectV1):
 		self.lang=None
 		self.label=None
 		self.entry=None
-		assert isinstance(self.parent,QTIMetadata),QTIException(eInvalidStructure,"<qtimetadatafield>")
+		self.CheckLocation((QTIMetadata),"<qtimetadatafield>")
 		self.ParseAttributes(attrs)
 
 	def SetAttribute_xml_lang (self,value):
@@ -2555,7 +2561,7 @@ class FieldLabel(QTIObjectV1):
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
-		assert isinstance(self.parent,QTIMetadataField),QTIException(eInvalidStructure,"<fieldlabel>")
+		self.CheckLocation((QTIMetadataField),"<fieldlabel>")
 		self.data=""
 	
 	def AddData (self,data):
@@ -2574,7 +2580,7 @@ class FieldEntry(QTIObjectV1):
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
-		assert isinstance(self.parent,QTIMetadataField),QTIException(eInvalidStructure,"<fieldentry>")
+		self.CheckLocation((QTIMetadataField),"<fieldentry>")
 		self.data=""
 	
 	def AddData (self,data):
@@ -2595,7 +2601,7 @@ class Duration(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		# assessment, section, item
-		assert isinstance(self.parent,(QTIItem,QTIAssessment,QTISection)),QTIException(eInvalidStructure,"<duration>")
+		self.CheckLocation((QTIItem,QTIAssessment,QTISection),"<duration>")
 
 	def AddData (self,data):
 		self.data=self.data+data
@@ -2620,7 +2626,7 @@ class ItemControl(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		# item
-		assert isinstance(self.parent,QTIItem),QTIException(eInvalidStructure,"<itemcontrol>")
+		self.CheckLocation((QTIItem),"<itemcontrol>")
 		self.PrintWarning("Warning: itemcontrol is currently outside the scope of version 2")
 
 				
@@ -2640,7 +2646,7 @@ class Presentation(QTIObjectV1):
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
-		assert isinstance(self.parent,QTIItem),QTIException(eInvalidStructure,"<presentation>")
+		self.CheckLocation((QTIItem),"<presentation>")
 		self.body=self.parent.item.GetItemBody()
 		self.ParseAttributes(attrs)
 		
@@ -2683,7 +2689,7 @@ class Rubric(QTIObjectV1):
 		self.parent=parent
 		self.view='all'
 		# assessment, section, item
-		assert isinstance(self.parent,(QTIItem,QTIAssessment,QTISection)),QTIException(eInvalidStructure,"<rubric>")
+		self.CheckLocation((QTIItem,QTIAssessment,QTISection),"<rubric>")
 		self.ParseAttributes(attrs)
 		if self.view=='all':
 			self.PrintWarning('Warning: rubric with view="all" replaced by <div> with class="rubric"')
@@ -2722,7 +2728,7 @@ class Objectives(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		# assessment, section, item
-		assert isinstance(self.parent,(QTIItem,QTIAssessment,QTISection)),QTIException(eInvalidStructure,"<objectives>")
+		self.CheckLocation((QTIItem,QTIAssessment,QTISection),"<objectives>")
 		self.objectives=[]
 		self.rubric=None
 		self.view='all'
@@ -2770,7 +2776,7 @@ class FlowV1(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.flowclass=None
-		assert isinstance(self.parent,(FlowV1,Presentation)),QTIException(eInvalidStructure,"<flow>")
+		self.CheckLocation((FlowV1,Presentation),"<flow>")
 		self.ParseAttributes(attrs)
 		if isinstance(self.parent,FlowV1):
 			self.flow_level=parent.GetFlowLevel()+1
@@ -2845,7 +2851,7 @@ class FlowMat(FlowV1):
 		self.flowclass=None
 		# flow_mat, objectives, rubric, assessfeedback, sectionfeedback, response_label,
 		# itemfeedback, solutionmaterial, hintmaterial
-		assert isinstance(self.parent,(FlowMat,ItemFeedback,ResponseLabel,Rubric,Objectives,SolutionMaterial,HintMaterial)),QTIException(eInvalidStructure,"<flow_mat>")
+		self.CheckLocation((FlowMat,ItemFeedback,ResponseLabel,Rubric,Objectives,SolutionMaterial,HintMaterial),"<flow_mat>")
 		self.ParseAttributes(attrs)
 		self.flow_level=parent.GetFlowLevel()+1
 		self.children=[]
@@ -2870,9 +2876,9 @@ class Material(QTIObjectV1):
 		# presentation, flow, response_lid, response_xy, response_str, response_num, response_grp, response_label,
 		# render_choice, render_hotspot, render_slider, render_fib, itemfeedback, solutionmaterial,
 		# hintmaterial
-		assert isinstance(self.parent,(Presentation,FlowV1,ResponseLabel,ResponseThing,RenderThing,
+		self.CheckLocation((Presentation,FlowV1,ResponseLabel,ResponseThing,RenderThing,
 			ItemFeedback,Rubric,Objectives,InterpretVar,SolutionMaterial,HintMaterial)
-			),QTIException(eInvalidStructure,"<material>")
+			,"<material>")
 		self.elide=not (self.label or self.language)
 		if isinstance(self.parent,(Presentation)):
 			# Fix up top-level objects with no flow in them.
@@ -2941,7 +2947,7 @@ class MatThing(QTIObjectV1):
 		self.height=None
 		self.ParseAttributes(attrs)
 		# material, altmaterial, reference
-		assert isinstance(self.parent,(Material, WCTMatchingTextExt)),QTIException(eInvalidStructure,"<"+name+">")
+		self.CheckLocation((Material, WCTMatchingTextExt),"<"+name+">")
 		
 	def SetAttribute_label (self,value):
 		self.label=value
@@ -3481,7 +3487,7 @@ class ResponseThing(QTIObjectV1):
 		self.index=0
 		self.ParseAttributes(attrs)
 		# presentation, flow
-		assert isinstance(self.parent,(Presentation,FlowV1)),QTIException(eInvalidStructure,"<"+name+">")
+		self.CheckLocation((Presentation,FlowV1),"<"+name+">")
 		if isinstance(self.parent,(Presentation)):
 			# Fix up top-level objects with no flow in them.
 			self.parent=FlowV1('flow',{},parent)
@@ -3670,7 +3676,7 @@ class RenderThing(QTIObjectV1):
 		self.interactionThing=None
 		self.labelThing=None
 		# response_lid, response_xy, response_str, response_num, response_grp
-		assert isinstance(self.parent,(ResponseThing)),QTIException(eInvalidStructure,"<render_choice>")
+		self.CheckLocation((ResponseThing),"<render_choice>")
 		self.ParseAttributes(attrs)
 		
 	def SetAttribute_minnumber (self,value):
@@ -4111,7 +4117,7 @@ class ResponseLabel(QTIObjectV1):
 		self.labelThing=self.parent.GetLabelThing()
 		self.ParseAttributes(attrs)
 		# flow_label, render_choice, render_hotspot, render_slider, render_fib
-		assert isinstance(self.parent,(FlowLabel,RenderThing)),QTIException(eInvalidStructure,"<response_label>")
+		self.CheckLocation((FlowLabel,RenderThing),"<response_label>")
 	
 	def SetAttribute_rshuffle (self,value):
 		self.rshuffle=self.ReadYesNo(value,1)
@@ -4218,7 +4224,7 @@ class FlowLabel(QTIObjectV1):
 		self.parent=parent
 		self.ParseAttributes(attrs)
 		# flow_label, render_choice, render_hotspot, render_slider, render_fib
-		assert isinstance(self.parent,(RenderThing,FlowLabel)),QTIException(eInvalidStructure,"<flow_label>")
+		self.CheckLocation((RenderThing,FlowLabel),"<flow_label>")
 		self.PrintWarning("Warning: flow_label is no longer supported in version 2, ignoring")
 	
 	def SetAttribute_class (self,value):
@@ -4253,7 +4259,7 @@ class ItemFeedback(QTIObjectV1):
 		self.feedback=ModalFeedback()
 		self.ParseAttributes(attrs)
 		# item
-		assert isinstance(self.parent,QTIItem),QTIException(eInvalidStructure,"<itemfeedback>")
+		self.CheckLocation((QTIItem),"<itemfeedback>")
 		
 	def SetAttribute_view (self,value):
 		if not (value.lower() in ['all','candidate']):
@@ -4290,7 +4296,7 @@ class Solution(QTIObjectV1):
 		self.feedbackstyle="complete"
 		self.ParseAttributes(attrs)
 		# itemfeedback
-		assert isinstance(self.parent,ItemFeedback),QTIException(eInvalidStructure,"<solution>")
+		self.CheckLocation((ItemFeedback),"<solution>")
 		self.div=xhtml_div()
 		if self.feedbackstyle!="complete":
 			solclass='solution.'+self.feedbackstyle
@@ -4323,7 +4329,7 @@ class SolutionMaterial(QTIObjectV1):
 		self.parent=parent
 		self.ParseAttributes(attrs)
 		# solution
-		assert isinstance(self.parent,Solution),QTIException(eInvalidStructure,"<solutionmaterial>")
+		self.CheckLocation((Solution),"<solutionmaterial>")
 	
 	def GetFlowLevel (self):
 		return 0
@@ -4346,7 +4352,7 @@ class Hint(QTIObjectV1):
 		self.feedbackstyle="complete"
 		self.ParseAttributes(attrs)
 		# itemfeedback
-		assert isinstance(self.parent,ItemFeedback),QTIException(eInvalidStructure,"<hint>")
+		self.CheckLocation((ItemFeedback),"<hint>")
 		self.div=xhtml_div()
 		if self.feedbackstyle!="complete":
 			hintclass='hint.'+self.feedbackstyle
@@ -4379,7 +4385,7 @@ class HintMaterial(QTIObjectV1):
 		self.parent=parent
 		self.ParseAttributes(attrs)
 		# hint
-		assert isinstance(self.parent,Hint),QTIException(eInvalidStructure,"<hintmaterial>")
+		self.CheckLocation((Hint),"<hintmaterial>")
 	
 	def GetFlowLevel (self):
 		return 0
@@ -4401,7 +4407,7 @@ class ResProcessing(QTIObjectV1):
 		self.parent=parent
 		self.ParseAttributes(attrs)
 		# item
-		assert isinstance(self.parent,QTIItem),QTIException(eInvalidStructure,"<resprocessing>")
+		self.CheckLocation((QTIItem),"<resprocessing>")
 		self.parent.ResetResprocessing()
 		self.rp=parent.item.GetResponseProcessing()
 		self.continueMode=1
@@ -4450,7 +4456,7 @@ class Outcomes(QTIObjectV1):
 		self.parent=parent
 		self.ParseAttributes(attrs)
 		# resprocessing, outcomes_processing, 
-		assert isinstance(self.parent,(OutcomesProcessing,ResProcessing)),QTIException(eInvalidStructure,"<outcomes>")
+		self.CheckLocation((OutcomesProcessing,ResProcessing),"<outcomes>")
 
 
 # DecVar
@@ -4484,7 +4490,7 @@ class DecVar(QTIObjectV1):
 		self.max=None
 		self.ParseAttributes(attrs)
 		# outcomes
-		assert isinstance(self.parent,Outcomes),QTIException(eInvalidStructure,"<decvar>")
+		self.CheckLocation((Outcomes),"<decvar>")
 		if self.min or self.max:
 			self.PrintWarning('Warning: min/max constraint on outcome will generate additional rules in responseProcessing')
 			
@@ -4552,7 +4558,7 @@ class InterpretVar(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		self.interpretation=""
 		# outcomes
-		assert isinstance(self.parent,Outcomes),QTIException(eInvalidStructure,"<interpretvar>")
+		self.CheckLocation((Outcomes),"<interpretvar>")
 	
 	def SetAttribute_varname (self,value):
 		self.identifier=self.ReadIdentifier(value,OUTCOME_PREFIX)
@@ -4588,7 +4594,7 @@ class RespCondition(QTIObjectV1):
 		self.rules=[]
 		self.ParseAttributes(attrs)
 		# resprocessing
-		assert isinstance(self.parent,ResProcessing),QTIException(eInvalidStructure,"<respcondition>")
+		self.CheckLocation((ResProcessing),"<respcondition>")
 				
 	def SetAttribute_continue (self,value):
 		self.continueFlag=self.ReadYesNo(value,0)
@@ -4623,7 +4629,7 @@ class SetVar(QTIObjectV1):
 		self.value=""
 		self.ParseAttributes(attrs)
 		# respcondition
-		assert isinstance(self.parent,(RespCondition, WCTCalculatedAnswer)),QTIException(eInvalidStructure,"<setvar>")
+		self.CheckLocation((RespCondition, WCTCalculatedAnswer),"<setvar>")
 			
 	def SetAttribute_varname (self,value):
 		self.identifier=self.ReadIdentifier(value,OUTCOME_PREFIX)
@@ -4677,7 +4683,7 @@ class DisplayFeedback(QTIObjectV1):
 		self.identifier=None
 		self.ParseAttributes(attrs)
 		# respcondition, outcomes_feedback_test
-		assert isinstance(self.parent,RespCondition),QTIException(eInvalidStructure,"<displayfeedback>")
+		self.CheckLocation((RespCondition),"<displayfeedback>")
 
 	def SetAttribute_feedbacktype (self,value):		
 		if value.lower()!='response':
@@ -4707,7 +4713,7 @@ class ConditionVar(QTIObjectV1):
 		self.expressions=[]
 		self.ParseAttributes(attrs)
 		# respcondition
-		assert isinstance(self.parent,RespCondition),QTIException(eInvalidStructure,"<conditionvar>")
+		self.CheckLocation((RespCondition),"<conditionvar>")
 	
 	def AddExpression (self,expression):
 		self.expressions.append(expression)
@@ -4738,7 +4744,7 @@ class AndOperatorV1(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		self.operator=AndOperator()
 		# conditionvar, and, or, not
-		assert isinstance(self.parent,(ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1)),QTIException(eInvalidStructure,"<and>")
+		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<and>")
 	
 	def AddExpression (self,expression):
 		self.operator.AddExpression(expression)
@@ -4759,7 +4765,7 @@ class OrOperatorV1(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		self.operator=OrOperator()
 		# conditionvar, and, or, not
-		assert isinstance(self.parent,(ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1)),QTIException(eInvalidStructure,"<or>")
+		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<or>")
 	
 	def AddExpression (self,expression):
 		self.operator.AddExpression(expression)
@@ -4780,7 +4786,7 @@ class NotOperatorV1(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		self.expressions=[]
 		# conditionvar, and, or, not
-		assert isinstance(self.parent,(ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1)),QTIException(eInvalidStructure,"<not>")
+		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<not>")
 	
 	def AddExpression (self,expression):
 		self.expressions.append(expression)
@@ -4811,7 +4817,7 @@ class OtherOperatorV1(QTIObjectV1):
 		self.parent=parent
 		self.ParseAttributes(attrs)
 		# conditionvar, and, or, not
-		assert isinstance(self.parent,(ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1)),QTIException(eInvalidStructure,"<not>")
+		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<not>")
 
 	def AddData (self,data):
 		# We ignore the data in <other> as it is sometimes put there for compatibility with other systems.
@@ -4838,7 +4844,7 @@ class Unanswered(QTIObjectV1):
 		self.identifier=None
 		self.ParseAttributes(attrs)
 		# conditionvar, not, and, or
-		assert isinstance(self.parent,(ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1)),QTIException(eInvalidStructure,"<varequal>")
+		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<varequal>")
 
 	def SetAttribute_respident (self,value):
 		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
@@ -4867,7 +4873,7 @@ class VarThing(QTIObjectV1):
 		self.value=""
 		self.ParseAttributes(attrs)
 		# conditionvar, not, and, or
-		assert isinstance(self.parent,(ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1)),QTIException(eInvalidStructure,"<varequal>")
+		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<varequal>")
 
 	def SetAttribute_respident (self,value):
 		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
