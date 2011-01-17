@@ -323,6 +323,7 @@ class AssessmentSection:
 		self.timeLimit=None
 		self.randomOrdering=None
 		self.selectNumber=None
+		self.sourceBankRef=None
 		self.withReplacement=None
 		self.items = []
 		self.outcomeWeights=None
@@ -374,6 +375,9 @@ class AssessmentSection:
 	def SetSelectionNumber(self, value):
 		"""This is how many questions from a group should be selected"""
 		self.selectNumber = value
+
+	def SetSourceBankRef(self, value):
+		self.sourceBankRef = value
 	
 	def SetSequenceType(self, value):
 		"""Possible values: repeat, normal"""
@@ -398,11 +402,17 @@ class AssessmentSection:
 		if self.timeLimit: f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
 		if self.randomOrdering: f.write('\n<ordering shuffle="true"/>')
 		if self.itemSessionControl: self.itemSessionControl.WriteXML(f)
-		if self.selectNumber or self.withReplacement:
+		if self.selectNumber or self.withReplacement or self.sourceBankRef:
 			f.write('\n<selection')
 			if self.selectNumber: f.write(' select="%s"' % self.selectNumber)
 			if self.withReplacement: f.write(' withReplacement="%s"' % self.withReplacement)
-			f.write(' />')
+			if self.sourceBankRef:
+				f.write('>')
+				# This isn't valid QTI 2.*
+				f.write('\n<sourcebank_ref>%s</sourcebank_ref>\n' % self.sourceBankRef)
+				f.write('</selection>')
+			else:
+				f.write(' />')
 		
 		for item in self.items:
 			item.WriteXML(f)

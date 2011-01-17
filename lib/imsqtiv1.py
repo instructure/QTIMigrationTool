@@ -345,6 +345,12 @@ class QuesTestInterop(QTIObjectV1):
 		
 	def SetLOMDescription (self,desc):
 		self.description=desc
+
+	def GetBankId(self):
+		if CURRENT_FILE_NAME:
+			return CURRENT_FILE_NAME
+		else:
+			return None
 		
 	def AddResource (self,resource):
 		self.resources.append(resource)
@@ -488,10 +494,12 @@ class InstructureHelperContainer(QTIMetadataContainer):
 	def AddMatchingItem(self, item):
 		self.instructureMetadata.AddMatchingItem(item)
 
-	def SetQuestionBank(self, name):
+	def SetQuestionBank(self, name, id=None):
 		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
 		self.instructureMetadata.AddMetaField("question_bank", name)
-	
+		if id:
+			self.instructureMetadata.AddMetaField("question_bank_iden", id)
+
 	def SetBBObjectID(self, id):
 		self.SetAttribute_ident(id)
 		self.bb_id = id
@@ -536,6 +544,9 @@ class QTIObjectBank(QTIObjectV1):
 		
 	def SetAttribute_ident (self,id):
 		self.question_bank = id
+
+	def GetBankId(self):
+		return self.question_bank
 
 	def AddSection (self,id):
 		pass
@@ -1052,9 +1063,9 @@ class QTIAssessment(InstructureHelperContainer):
 		self.resource=CPResource()
 		self.resource.SetType("imsqti_assessment_xmlv2p1")
 		if CURRENT_FILE_NAME:
-			self.SetAttribute_ident(CURRENT_FILE_NAME);
+			self.SetAttribute_ident(CURRENT_FILE_NAME)
 		else:
-			self.SetAttribute_ident("%s" % randint(1,100000));
+			self.SetAttribute_ident("%s" % randint(1,100000))
 		self.educationalMetadata=None
 		self.variables={'FEEDBACK':None}
 		if attrs.has_key('ident'):
@@ -1073,12 +1084,12 @@ class QTIAssessment(InstructureHelperContainer):
 		
 	def SetAttribute_ident (self,value):
 		if self.assessment.identifier: return
-		self.assessment.SetIdentifier(value);
+		self.assessment.SetIdentifier(value)
 		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
 		if ':' in value:
 			print "Warning: assessment identifier with colon: replaced with hyphen when making resource identifier."
 			value=string.join(string.split(value,':'),'-')
-		self.resource.SetIdentifier(value);
+		self.resource.SetIdentifier(value)
 		cp=self.GetRoot().cp
 		self.fName=cp.GetUniqueFileName(os.path.join("assessmentTests",self.resource.id+".xml"))
 
@@ -1115,6 +1126,9 @@ class QTIAssessment(InstructureHelperContainer):
 		
 	def GetItemV1 (self):
 		return self
+
+	def GetBankId(self):
+		return self.assessment.identifier
 	
 	def DeclareOutcome (self,decvar):
 		self.PrintWarning("Outcomes not supported on assessments: identifier: %s, type: %s, min: %s, max: %s" % (decvar.identifier,decvar.baseType, decvar.min, decvar.max))
@@ -1177,7 +1191,7 @@ class QTISection(InstructureHelperContainer):
 		self.ParseAttributes(attrs)
 		
 	def SetAttribute_ident (self,value):
-		self.section.SetIdentifier(value);
+		self.section.SetIdentifier(value)
 
 	def SetAttribute_title (self,value):
 		self.section.SetTitle(value)
@@ -1197,6 +1211,9 @@ class QTISection(InstructureHelperContainer):
 		
 	def SetSelectionNumber(self, value):
 		self.section.SetSelectionNumber(value)
+
+	def SetSourceBankRef(self, value):
+		self.section.SetSourceBankRef(value)
 	
 	def SetSequenceType(self, value):
 		self.section.SetSequenceType(value)
@@ -1206,6 +1223,9 @@ class QTISection(InstructureHelperContainer):
 		
 	def AddItemReference(self, ref, fName):
 		self.section.AddItemReference(ref, fName)
+
+	def GetBankId(self):
+		return self.parent.GetBankId()
 		
 	def GetItemV1 (self):
 		return self
@@ -1244,6 +1264,9 @@ class SelectionOrdering(QTIObjectV1):
 	
 	def SetSelectionNumber(self, value):
 		if self.process: self.parent.SetSelectionNumber(value)
+
+	def SetSourceBankRef(self, value):
+		if self.process: self.parent.SetSourceBankRef(value)
 	
 	def SetSequenceType(self, value):
 		if self.process: self.parent.SetSequenceType(value)
@@ -1293,6 +1316,9 @@ class Selection(QTIObjectV1):
 		
 	def SetSelectionNumber(self, value):
 		self.parent.SetSelectionNumber(value)
+
+	def SetSourceBankRef(self, value):
+		self.parent.SetSourceBankRef(value)
 		
 	def SetAttribute_sequence_type (self,value):
 		self.parent.SetSequenceType(value)
@@ -1316,7 +1342,27 @@ class SelectionNumber(QTIObjectV1):
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data: self.parent.SetSelectionNumber(self.data)
-	
+
+
+# SourceBankRef
+# --------
+#
+class SourceBankRef(QTIObjectV1):
+	"""
+	<!ELEMENT sourcebank_ref (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.CheckLocation((Selection),"<sourcebank_ref>")
+
+	def AddData (self,data):
+		self.data=self.data+data
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data: self.parent.SetSourceBankRef(self.data)
+
 	
 # OutcomesProcessing
 # --------
@@ -1481,12 +1527,12 @@ class QTIItem(InstructureHelperContainer):
 		self.fName=None
 		self.parent=parent
 		if hasattr(self.parent, 'question_bank') and self.parent.question_bank:
-			self.SetQuestionBank(self.parent.question_bank)
+			self.SetQuestionBank(self.parent.question_bank, self.parent.GetBankId())
 		self.parser=self.GetParser()
 		self.item=AssessmentItem()
 		self.resource=CPResource()
 		self.resource.SetType("imsqti_item_xmlv2p0")
-		self.resource.SetIdentifier("%s" % randint(1,100000));
+		self.resource.SetIdentifier("%s" % randint(1,100000))
 		self.educationalMetadata=None
 		self.variables={'FEEDBACK':None}
 		self.declareFeedback=0
@@ -4336,7 +4382,7 @@ class SolutionMaterial(QTIObjectV1):
 		
 	def AppendElement (self,element):
 		self.parent.AppendElement(element)
-			
+
 	
 # Hint
 # ----
@@ -5363,7 +5409,7 @@ QTIASI_ELEMENTS={
         'setvar':SetVar,
         'solution':Solution,
         'solutionmaterial':SolutionMaterial,
-        'sourcebank_ref':Unsupported,
+        'sourcebank_ref':SourceBankRef,
         'test_variable':Unsupported,
         'unanswered':Unanswered,
         'unit_case_sensitive':BB8UnitCaseSensitive,
