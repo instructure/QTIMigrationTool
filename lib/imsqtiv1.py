@@ -461,6 +461,7 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		self.bb_id=None
 		self.bb_assessment_type=None
 		self.bb_question_type=None
+		self.question_type=None
 		self.bb_max_score=None
 		self.calculated=None
 	
@@ -519,7 +520,15 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		"""
 		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
 		self.bb_question_type = type
-		self.instructureMetadata.AddMetaField("quiz_type", type)
+		self.instructureMetadata.AddMetaField("bb_question_type", type)
+
+	def SetQuestionType(self, type):
+		"""These are the known values:
+		Matching - Only seen from respondus
+		"""
+		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
+		self.question_type = type
+		self.instructureMetadata.AddMetaField("question_type", type)
 	
 	def SetBBMaxScore(self, max):
 		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
@@ -1677,8 +1686,9 @@ class QTIItem(InstructureHelperContainer):
 		"""This is the metadata that is listed on the manifest file
 		"""
 		iMD = self.resource.GetInstructureMD()
-		if self.bb_question_type: iMD.AddMetaField("quiz_type", self.bb_question_type)
-			
+		if self.bb_question_type: iMD.AddMetaField("bb_question_type", self.bb_question_type)
+		if self.question_type: iMD.AddMetaField("question_type", self.question_type)
+
 	# Methods used in resprocessing
 	
 	def ResetResprocessing (self):
@@ -2365,6 +2375,7 @@ class QMDItemType(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
+		self.container = self.GetInstructureHelperContainer()
 		# itemmetadata
 		self.CheckLocation((ItemMetadata,QTIMetadataField),"<qmd_itemtype>", False)
 
@@ -2374,6 +2385,7 @@ class QMDItemType(QTIObjectV1):
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
+			self.container.SetQuestionType(self.data)
 			self.PrintWarning("Warning: qmd_itemtype now replaced by qtiMetadata.interactionType in manifest")
 
 
