@@ -8,6 +8,15 @@ For up to date information about the migration tool and related initiatives go
 to http://qtitools.caret.cam.ac.uk/ - Please direct any comments to
 swl10@cam.ac.uk
 
+Instructure Modifications
+------------
+
+This tool has been modified by Instructure. Many of the modifications conform to
+the QTI 2.0 specifications, but some don't. So buyers beware!
+
+For instructions on using this tool with Canvas see this project's wiki page:
+https://github.com/instructure/QTIMigrationTool/wiki
+
 
 Installation
 ------------
