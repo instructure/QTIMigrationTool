@@ -3,10 +3,10 @@ This script is designed to support creation of the binary
 distributions of the QTI migration tool.
 
 Usage (Mac OS X):
-	python setup.py py2app
+	python build.py py2app
 
 Usage (Windows):
-	python setup.py py2exe
+	python build.py py2exe
 """
 
 import sys, os
@@ -43,7 +43,7 @@ elif sys.platform == 'win32':
 else:
 	print "ERROR: build for unsupported target"
 	sys.exit(1)
-	
+
 setup(
 	name="QTIMigration",
 	data_files = ['IMSLogo.bmp'],

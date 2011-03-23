@@ -1,1 +1,1 @@
-c:\python25\python setup.py py2exe --packages encodings
+c:\python25\python build.py py2exe --packages encodings

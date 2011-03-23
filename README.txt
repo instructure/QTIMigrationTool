@@ -137,7 +137,7 @@ Troubleshooting
 ---------------
 
 I've tried to make the migration tool as tolerant as possible so that it
-produces some output for all items, even if the migration is incomplete. 
+produces some output for all items, even if the migration is incomplete.
 However, sometimes the tool refuses to parse the input files completely and
 just stops.  Have a look at the section on problems with graphical characters
 (below) and do check that your input files are at least well formed XML files.
@@ -295,7 +295,7 @@ migrate_w32.iss.
 For Mac OS, you will need to install py2app and setuptools.  You can then build
 the binary application using the command:
 
-python setup.py py2app
+python build.py py2app
 
 To build the binary releases you *must* have VObject installed.
 
@@ -437,7 +437,7 @@ provided that the following conditions are met:
     copyright notice, this list of conditions, and the following
     disclaimer in the documentation and/or other materials provided with
     the distribution.
-    
+
  *  Neither the name of the University of Cambridge, nor the names of
     any other contributors to the software, may be used to endorse or
     promote products derived from this software without specific prior
