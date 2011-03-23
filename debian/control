@@ -1,0 +1,17 @@
+Source: canvas-lms-qti-migration-plugin
+Maintainer: JT Olds <jt@instructure.com>
+Section: non-free/misc
+Priority: extra
+Build-Depends: debhelper (>= 7.0.50~), python (>= 2.5), python-vobject
+Standards-Version: 3.9.1
+Homepage: http://www.instructure.com/
+Vcs-Git: ssh://gerrit.instructure.com:29418/qti_migration_tool.git
+Vcs-Browser: https://gerrit.instructure.com/gitweb?p=qti_migration_tool.git;a=summary
+
+Package: canvas-lms-qti-migration-plugin
+Architecture: all
+Section: non-free/misc
+Priority: extra
+Depends: ${misc:Depends}, canvas-lms, python (>= 2.5), python-vobject
+Description: Instructure Canvas LMS QTI migration plugin
+ This is a QTI migration plugin for Instructure's Canvas LMS.

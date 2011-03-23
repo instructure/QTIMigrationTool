@@ -1,0 +1,4 @@
+*.* var/rails/canvas-lms/vendor/QTIMigrationTool
+assessments/* var/rails/canvas-lms/vendor/QTIMigrationTool/assessments
+lib/* var/rails/canvas-lms/vendor/QTIMigrationTool/lib
+schemas/* var/rails/canvas-lms/vendor/QTIMigrationTool/schemas

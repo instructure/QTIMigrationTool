@@ -1,0 +1,5 @@
+canvas-lms-qti-migration-plugin (0.1-1) professional; urgency=low
+
+  * Initial packaging.
+
+ -- JT Olds <jt@instructure.com>  Wed, 23 Mar 2011 10:51:39 -0700

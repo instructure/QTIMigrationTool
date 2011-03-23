@@ -6,3 +6,7 @@ test/*
 .pydevproject
 *.pyc
 *.iml
+debian/canvas-lms-qti-migration-plugin.debhelper.log
+debian/canvas-lms-qti-migration-plugin.substvars
+debian/canvas-lms-qti-migration-plugin/
+debian/files
