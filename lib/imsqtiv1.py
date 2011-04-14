@@ -1996,7 +1996,7 @@ class BBQuestionType(BBBase):
 class BBMaxScore(BBBase):
 	def __init__(self,name,attrs,parent):
 		BBBase.__init__(self, name, attrs, parent)
-		self.CheckLocation((ItemMetadata,AssessmentMetadata, SectionMetadata),"<qmd_absolutescore_max>", False)
+		self.CheckLocation((ItemMetadata,AssessmentMetadata, SectionMetadata, QTIMetadataField),"<qmd_absolutescore_max>", False)
 
 	def CloseObject (self):
 		BBBase.CloseObject(self)
@@ -2575,6 +2575,10 @@ MDFieldMap={
 	'wct_questiontype':WCTQuestionType,
 	'wct_questioncategory':WCTQuestionCategory,
 	'assessmenttype':QMDAssessmentType,
+
+    # These are custom Respondus fields -- note they use qti_metadatafield
+    # rather than qtimetadatafield
+    'respondusapi_qpoints':BBMaxScore,
 	}
 class QTIMetadataField(QTIObjectV1):
 	"""
@@ -5386,6 +5390,7 @@ QTIASI_ELEMENTS={
         'qticomment':QTIComment,
         'qtimetadata':QTIMetadata,
         'qtimetadatafield':QTIMetadataField,
+        'qti_metadatafield':QTIMetadataField,
         'questestinterop':QuesTestInterop,
         'reference':Unsupported,
         'render_choice':RenderChoice,
