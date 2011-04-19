@@ -1787,6 +1787,7 @@ class QTIItem(InstructureHelperContainer):
 		self.resource.GetLOM().GetLifecycle().AddContributor(contributor)
 	
 	def AddCPFile (self,uri):
+		uri = string.replace(uri, "%%LINKPATH%%", "")
 		if self.files.has_key(uri):
 			# We've already added this file to the content package
 			return self.files[uri]
