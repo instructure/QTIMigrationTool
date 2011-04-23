@@ -324,6 +324,7 @@ class AssessmentSection:
 		self.randomOrdering=None
 		self.selectNumber=None
 		self.sourceBankRef=None
+		self.pointsPerItem=None
 		self.withReplacement=None
 		self.items = []
 		self.outcomeWeights=None
@@ -378,6 +379,9 @@ class AssessmentSection:
 
 	def SetSourceBankRef(self, value):
 		self.sourceBankRef = value
+
+	def SetPointsPerItem(self, value):
+		self.pointsPerItem = value
 	
 	def SetSequenceType(self, value):
 		"""Possible values: repeat, normal"""
@@ -402,15 +406,16 @@ class AssessmentSection:
 		if self.timeLimit: f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
 		if self.randomOrdering: f.write('\n<ordering shuffle="true"/>')
 		if self.itemSessionControl: self.itemSessionControl.WriteXML(f)
-		if self.selectNumber or self.withReplacement or self.sourceBankRef:
+		if self.selectNumber or self.withReplacement or self.sourceBankRef or self.pointsPerItem:
 			f.write('\n<selection')
 			if self.selectNumber: f.write(' select="%s"' % self.selectNumber)
 			if self.withReplacement: f.write(' withReplacement="%s"' % self.withReplacement)
-			if self.sourceBankRef:
-				f.write('>')
+			if self.sourceBankRef or self.pointsPerItem:
+				f.write('>\n')
 				# This isn't valid QTI 2.*
-				f.write('\n<sourcebank_ref>%s</sourcebank_ref>\n' % self.sourceBankRef)
-				f.write('</selection>')
+				if self.sourceBankRef: f.write('<sourcebank_ref>%s</sourcebank_ref>' % self.sourceBankRef)
+				if self.pointsPerItem: f.write('<points_per_item>%s</points_per_item>' % self.pointsPerItem)
+				f.write('\n</selection>')
 			else:
 				f.write(' />')
 		
@@ -1852,17 +1857,29 @@ class Calculated:
 		self.partial_credit_tolerance_type=None
 		self.var_sets=[]
 		self.vars=[]
+		self.formula_decimal_places=None
+		self.formulas=[]
 	
 	def add_var_set(self, vs):
 		self.var_sets.append(vs)
 	
 	def add_var(self, var):
 		self.vars.append(var)
+
+	def add_formula(self, formula):
+		self.formulas.append(formula)
 		
 	def WriteXML(self, f):
 		f.write('\n<itemproc_extension>')
 		f.write('\n<calculated>')
 		if self.formula: f.write('\n<formula>%s</formula>' % XMLString(self.formula))
+		if self.formulas:
+			decimals = ""
+			if self.formula_decimal_places: decimals = ' decimal_places="%s"' % self.formula_decimal_places
+			f.write('\n<formulas%s>' % decimals)
+			for formula in self.formulas:
+				f.write('<formula>%s</formula>' % formula)
+			f.write('\n</formulas>')
 		if self.answer_scale: f.write('\n<answer_scale>%s</answer_scale>' % XMLString(self.answer_scale))
 		if self.answer_tolerance: f.write('\n<answer_tolerance type="%s">%s</answer_tolerance>' % (self.answer_tolerance_type, XMLString(self.answer_tolerance)))
 		if self.unit_points_percent: f.write('\n<unit_points_percent>%s</unit_points_percent>' % XMLString(self.unit_points_percent))

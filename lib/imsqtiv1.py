@@ -351,6 +351,9 @@ class QuesTestInterop(QTIObjectV1):
 			return CURRENT_FILE_NAME
 		else:
 			return None
+
+	def GetBankName(self):
+		return self.GetBankId
 		
 	def AddResource (self,resource):
 		self.resources.append(resource)
@@ -463,6 +466,7 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		self.bb_question_type=None
 		self.question_type=None
 		self.bb_max_score=None
+		self.points_possible=None
 		self.calculated=None
 	
 	def GetInstructureHelperContainer(self):
@@ -484,6 +488,14 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		
 	def SetShowTotalScore(self, show):
 		self.showTotalScore = show
+
+	def SetPointsPossible(self, points):
+		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
+		self.instructureMetadata.AddMetaField("points_possible", points)
+
+	def SetAssessmentQuestionIdentiferref(self, ref):
+		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
+		self.instructureMetadata.AddMetaField("assessment_question_identifierref", ref)
 	
 	def SetAssessmentType(self, type):
 		self.assessmentType = type
@@ -519,6 +531,7 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		Short Response, True/False
 		"""
 		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
+		if self.question_type: return
 		self.bb_question_type = type
 		self.instructureMetadata.AddMetaField("bb_question_type", type)
 
@@ -538,7 +551,7 @@ class InstructureHelperContainer(QTIMetadataContainer):
 # QTIObjectBank
 # -------------
 #
-class QTIObjectBank(QTIObjectV1):
+class QTIObjectBank(InstructureHelperContainer):
 	"""
 	<!ELEMENT objectbank (qticomment? , qtimetadata* , (section | item)+)>
 
@@ -547,6 +560,7 @@ class QTIObjectBank(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		QTIObjectV1.__init__(self,name,attrs,parent)
 		self.question_bank = None
+		self.question_bank_name = None
 		self.CheckLocation((QuesTestInterop),"<objectbank>")
 		self.PrintWarning('Warning: objectbank not supported, looking inside for items')
 		self.ParseAttributes(attrs)
@@ -554,8 +568,17 @@ class QTIObjectBank(QTIObjectV1):
 	def SetAttribute_ident (self,id):
 		self.question_bank = id
 
+	def SetBankName(self, name):
+		self.question_bank_name = name
+
 	def GetBankId(self):
 		return self.question_bank
+
+	def GetBankName(self):
+		if self.question_bank_name:
+			return self.question_bank_name
+		else:
+			return self.question_bank
 
 	def AddSection (self,id):
 		pass
@@ -649,6 +672,9 @@ class CalculatedNode(QTIObjectV1):
 		
 	def add_var_set(self, var):
 		self.calc.add_var_set(var)
+
+	def add_formula (self, formula):
+		self.calc.formula = formula
 	
 	def CloseObject(self):
 		self.GetInstructureHelperContainer().set_calculated(self.calc)
@@ -663,15 +689,35 @@ class CalculatedFormula(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		self.CheckLocation((CalculatedNode),"<formula>")
+		self.CheckLocation((CalculatedNode, CalculatedFormulas),"<formula>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
-		self.parent.calc.formula = self.data
-		
+		self.parent.add_formula(self.data)
+
+# formulas
+# -------------
+#
+class CalculatedFormulas(QTIObjectV1):
+	"""
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.CheckLocation((CalculatedNode),"<formulas>")
+		self.ParseAttributes(attrs)
+
+	def SetAttribute_decimal_places(self, places):
+		self.parent.calc.formula_decimal_places = places
+
+	def add_formula (self, formula):
+		self.parent.calc.add_formula(formula)
+
+	def CloseObject (self):
+		pass
+
 # answer_scale
 # -------------
 #
@@ -1138,6 +1184,9 @@ class QTIAssessment(InstructureHelperContainer):
 
 	def GetBankId(self):
 		return self.assessment.identifier
+
+	def GetBankName(self):
+		return self.assessment.title
 	
 	def DeclareOutcome (self,decvar):
 		self.PrintWarning("Outcomes not supported on assessments: identifier: %s, type: %s, min: %s, max: %s" % (decvar.identifier,decvar.baseType, decvar.min, decvar.max))
@@ -1223,6 +1272,9 @@ class QTISection(InstructureHelperContainer):
 
 	def SetSourceBankRef(self, value):
 		self.section.SetSourceBankRef(value)
+
+	def SetPointsPerItem(self, value):
+		self.section.SetPointsPerItem(value)
 	
 	def SetSequenceType(self, value):
 		self.section.SetSequenceType(value)
@@ -1235,6 +1287,9 @@ class QTISection(InstructureHelperContainer):
 
 	def GetBankId(self):
 		return self.parent.GetBankId()
+
+	def GetBankName(self):
+		return self.parent.GetBankName()
 		
 	def GetItemV1 (self):
 		return self
@@ -1276,6 +1331,9 @@ class SelectionOrdering(QTIObjectV1):
 
 	def SetSourceBankRef(self, value):
 		if self.process: self.parent.SetSourceBankRef(value)
+
+	def SetPointsPerItem(self, value):
+		if self.process: self.parent.SetPointsPerItem(value)
 	
 	def SetSequenceType(self, value):
 		if self.process: self.parent.SetSequenceType(value)
@@ -1328,6 +1386,9 @@ class Selection(QTIObjectV1):
 
 	def SetSourceBankRef(self, value):
 		self.parent.SetSourceBankRef(value)
+
+	def SetPointsPerItem(self, value):
+		self.parent.SetPointsPerItem(value)
 		
 	def SetAttribute_sequence_type (self,value):
 		self.parent.SetSequenceType(value)
@@ -1372,7 +1433,42 @@ class SourceBankRef(QTIObjectV1):
 		self.data=self.data.strip()
 		if self.data: self.parent.SetSourceBankRef(self.data)
 
-	
+
+# SelectionExtension
+# --------
+#
+class SelectionExtension(QTIObjectV1):
+	"""
+	<!ELEMENT selection_extension (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.CheckLocation((Selection),"<selection_extension>")
+
+	def SetPointsPerItem(self, value):
+		self.parent.SetPointsPerItem(value)
+
+
+# PointsPerItem
+# --------
+#
+class PointsPerItem(QTIObjectV1):
+	"""
+	<!ELEMENT points_per_item (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.CheckLocation((SelectionExtension),"<points_per_item>")
+
+	def AddData (self,data):
+		self.data=self.data+data
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data: self.parent.SetPointsPerItem(self.data)
+
+
 # OutcomesProcessing
 # --------
 #
@@ -1536,7 +1632,7 @@ class QTIItem(InstructureHelperContainer):
 		self.fName=None
 		self.parent=parent
 		if hasattr(self.parent, 'question_bank') and self.parent.question_bank:
-			self.SetQuestionBank(self.parent.question_bank, self.parent.GetBankId())
+			self.SetQuestionBank(self.parent.GetBankName(), self.parent.GetBankId())
 		self.parser=self.GetParser()
 		self.item=AssessmentItem()
 		self.resource=CPResource()
@@ -2390,7 +2486,7 @@ class QMDItemType(QTIObjectV1):
 			self.PrintWarning("Warning: qmd_itemtype now replaced by qtiMetadata.interactionType in manifest")
 
 
-class WCTBase(QTIObjectV1):
+class CanvasBase(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
@@ -2402,6 +2498,70 @@ class WCTBase(QTIObjectV1):
 	def AddData (self,data):
 		self.data=self.data+data
 	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data:
+			self.PrintWarning("Converting proprietary canvas metadata field %s = %s" % (self.label, self.data))
+
+# points_possible
+# -----------
+#
+class PointsPossible(CanvasBase):
+	"""
+	<!ELEMENT points_possible (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		CanvasBase.__init__(self, name, attrs, parent)
+
+	def CloseObject (self):
+		CanvasBase.CloseObject(self)
+		if self.data:
+			self.container.SetPointsPossible(self.data)
+
+# assessment_question_identifierref
+# -----------
+#
+class AssessmentQuestionIdentiferref(CanvasBase):
+	"""
+	<!ELEMENT assessment_question_identifierref (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		CanvasBase.__init__(self, name, attrs, parent)
+
+	def CloseObject (self):
+		CanvasBase.CloseObject(self)
+		if self.data:
+			self.container.SetAssessmentQuestionIdentiferref(self.data)
+
+# bank_title
+# -----------
+#
+class BankTitle(CanvasBase):
+	"""
+	<!ELEMENT bank_title (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent = parent
+		CanvasBase.__init__(self, name, attrs, parent)
+
+	def CloseObject (self):
+		CanvasBase.CloseObject(self)
+		if self.data:
+			if hasattr(self.container, 'question_bank_name'):
+				self.container.question_bank_name = self.data
+
+class WCTBase(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.label = name
+		self.container = self.GetInstructureHelperContainer()
+		# itemmetadata
+		self.CheckLocation((ItemMetadata,QTIMetadataField),"<wct_results_showFeedback>", False)
+
+	def AddData (self,data):
+		self.data=self.data+data
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
@@ -2566,7 +2726,13 @@ MDFieldMap={
 	'question type':QMDItemType,
 	'status':QMDStatus,
 	'layoutstatus':QMDStatus,
-	
+
+	# Custom Canvas fields
+	'points_possible':PointsPossible,
+	'question_type':QMDItemType,
+	'bank_title':BankTitle,
+	'assessment_question_identifierref':AssessmentQuestionIdentiferref,
+
 	# These are custom WebCT (Blackboard Vista) fields
 	'wct_results_showfeedback':WCTShowFeedback,
 	'wct_results_showtotalscore':WCTShowTotalScore,
@@ -5315,6 +5481,7 @@ QTIASI_ELEMENTS={
         'flow_label':FlowLabel,
         'flow_mat':FlowMat,
         'formula':CalculatedFormula,
+        'formulas':CalculatedFormulas,
         'hint':Hint,
         'hintmaterial':HintMaterial,
         'interpretvar':InterpretVar,
@@ -5366,6 +5533,7 @@ QTIASI_ELEMENTS={
         'outcomes_processing':OutcomesProcessing,
         'partial_credit_points_percent':BB8PartialCreditPointsPercent,
         'partial_credit_tolerance':BB8PartialCreditTolerance,
+        'points_per_item':PointsPerItem,
         'presentation':Presentation,
         'presentation_material':Unsupported,
         'processing_parameter':Unsupported,
@@ -5420,7 +5588,7 @@ QTIASI_ELEMENTS={
         'sectionref':Unsupported,
         'selection':Selection,
         'selection_number':SelectionNumber,
-        'selection_extension':Unsupported,
+        'selection_extension':SelectionExtension,
         'selection_metadata':Unsupported,
         'selection_ordering':SelectionOrdering,
         'sequence_parameter':Unsupported,
@@ -5489,7 +5657,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 				print "Processing directory: : "+path
 				children=os.listdir(path)
 				self.ProcessFiles(path,children)
-			elif fileName[-4:].lower() in ['.xml', '.dat']:
+			elif fileName[-4:].lower() in ['.xml', '.dat', '.qti']:
 				print "Processing file: "+path
 				f=open(path,'r')
 				try:
