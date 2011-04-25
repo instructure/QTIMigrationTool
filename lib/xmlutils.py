@@ -28,6 +28,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
 import string
+import htmlentitydefs
 
 NMTOKEN_CHARS=string.ascii_letters+string.digits+"_-.:"
 NMSTART_CHARS=string.ascii_letters+"_"
@@ -219,7 +220,7 @@ class XMLParser:
 				value=unichr(int(self.ParseName(1)))
 		else:
 			name=self.ParseName()
-			value=self.entityMap.get(name.lower(),'?')
+			value=self.entityMap.get(name.lower(),unichr(htmlentitydefs.name2codepoint.get(name.lower(),63)))
 		# forgive the lack of a semi-colon
 		self.ParseChar(';')
 		return value
