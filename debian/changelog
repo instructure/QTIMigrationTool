@@ -1,3 +1,14 @@
+canvas-lms-qti-migration-plugin (0.1-2) professional; urgency=low
+
+  * [8db8a89] debianizing plugin
+  * [1eab0b1] support respondusapi_qpoints field
+  * [f71d578] remove the %%LINKPATH%% placeholder if respondus sends it,
+    refs #3202
+  * [f9068ad] added some canvas-specific conversions
+  * [e11336c] handle arbitrary html entities in questions
+
+ -- JT Olds <jt@instructure.com>  Tue, 26 Apr 2011 12:02:51 -0600
+
 canvas-lms-qti-migration-plugin (0.1-1) professional; urgency=low
 
   * Initial packaging.
