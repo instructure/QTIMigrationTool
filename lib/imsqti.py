@@ -693,10 +693,12 @@ class Block(Flow): pass
 
 class Inline(Flow): pass
 
+class HTML: pass
+
 SimpleInlineNames=['a','abbr','acronym','b','big','cite','code','dfn','em','i','kbd',
 	'q','samp','small','span','strong','sub','sup','tt','var']
 
-class SimpleInline(Inline):
+class SimpleInline(Inline,HTML):
 	def __init__ (self,name):
 		BodyElement.__init__(self)
 		self.name=name
@@ -723,7 +725,7 @@ class SimpleInline(Inline):
 		return ExtractImages(self.elements)
 	
 		
-class AtomicBlock(Block):
+class AtomicBlock(Block,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
 		self.elements=[]
@@ -741,7 +743,7 @@ class AtomicBlock(Block):
 		return ExtractImages(self.elements)
 
 
-class SimpleBlock(Block):
+class SimpleBlock(Block,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
 		self.elements=[]
@@ -856,7 +858,7 @@ def ExtractImages (elements):
 			i=i+1
 	return images
 
-class xhtml_div(Block):
+class xhtml_div(Block,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
 		self.elements=[]
@@ -890,7 +892,7 @@ class xhtml_blockquote(SimpleBlock):
 		f.write("</blockquote>")
 
 
-class xhtml_ul(Block):
+class xhtml_ul(Block,HTML):
 	def __init__ (self,name="ul"):
 		BodyElement.__init__(self)
 		self.listItems=[]
@@ -911,7 +913,7 @@ class xhtml_ul(Block):
 			listItem.WriteXML(f)
 		f.write('</'+self.name+'>')
 		
-class xhtml_li(BodyElement):
+class xhtml_li(BodyElement,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
 		self.elements=[]
@@ -953,7 +955,7 @@ class xhtml_pre(AtomicBlock):
 			element.WriteXML(f)
 		f.write("</pre>")
 								
-class xhtml_object(Inline):
+class xhtml_object(Inline,HTML):
 	def __init__ (self):
 		self.data=None
 		self.type=None
@@ -984,7 +986,7 @@ class xhtml_object(Inline):
 			f.write(' height="'+str(self.height)+'"')
 		f.write("/>")
 
-class xhtml_table(Block):
+class xhtml_table(Block,HTML):
 	def __init__(self):
 		BodyElement.__init__(self)
 		self.tableBody=[]
@@ -1015,7 +1017,7 @@ class xhtml_table(Block):
 			tbody.WriteXML(f)
 		f.write('</table>')
 
-class xhtml_tbody(BodyElement):
+class xhtml_tbody(BodyElement,HTML):
 	def __init__(self):
 		BodyElement.__init__(self)
 		self.rows=[]
@@ -1035,7 +1037,7 @@ class xhtml_tbody(BodyElement):
 			tr.WriteXML(f)
 		f.write('</tbody>')
 		
-class xhtml_tr(BodyElement):
+class xhtml_tr(BodyElement,HTML):
 	def __init__(self):
 		BodyElement.__init__(self)
 		self.cells=[]
@@ -1055,7 +1057,7 @@ class xhtml_tr(BodyElement):
 			tcell.WriteXML(f)
 		f.write('</tr>')
 
-class TableCell(BodyElement):
+class TableCell(BodyElement,HTML):
 	def __init__(self,name="td"):
 		BodyElement.__init__(self)
 		self.name=name
@@ -1073,7 +1075,7 @@ class TableCell(BodyElement):
 		f.write('</'+self.name+'>')			
 	
 	
-class xhtml_img(Inline):
+class xhtml_img(Inline,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
 		self.src=None
@@ -1110,11 +1112,11 @@ class xhtml_img(Inline):
 			f.write(' height="'+str(self.height)+'"')
 		f.write("/>")
 
-class xhtml_br(Inline):
+class xhtml_br(Inline,HTML):
 	def WriteXML (self,f):
 		f.write("<br/>\n")
 		
-class xhtml_text(Inline):
+class xhtml_text(Inline,HTML):
 	def __init__ (self,text=""):
 		self.text=text
 		

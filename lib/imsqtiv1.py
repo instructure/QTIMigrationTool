@@ -3022,48 +3022,29 @@ class FlowV1(QTIObjectV1):
 	def GetFlowLevel (self):
 		return self.flow_level
 	
+	def AppendHTMLContainer (self,content):
+		container=xhtml_div()
+		container.SetClass('html')
+		container.AppendElement(xhtml_text(content))
+		self.parent.AppendElement(container)
+	
 	def CloseObject (self):
-		pFlag=1
+		buffer=None
 		for child in self.children:
-			if not isinstance(child,Inline):
-				pFlag=0
-				break
-		if pFlag:
-			# All our children are inline, so we can be a simple <p>
-			element=xhtml_p()
-			if self.flowclass and self.flowclass.lower()!='block':
-				element.SetClass(self.flowclass)
-			for child in self.children:
-				element.AppendElement(child)
-			self.parent.AppendElement(element)
-		else:
-			divFlag=1
-			if self.flowclass and self.flowclass.lower()!='block':
-				element=xhtml_div()
-				element.SetClass(self.flowclass)
-			elif self.flow_level:
-				element=xhtml_div()
-				element.SetClass("flow_"+str(self.flow_level))
-			else:
-				element=self.parent
-				divFlag=0
-			# Complex content, group inlines into paragraphs
-			p=None
-			for child in self.children:
-				if isinstance(child,Inline):
-					if not p:
-						p=xhtml_p()
-					p.AppendElement(child)
+			if isinstance(child,HTML):
+				if not buffer:
+					buffer=StringIO.StringIO()
+				if isinstance(child,xhtml_text):
+					buffer.write(child.ExtractText())
 				else:
-					if p:
-						element.AppendElement(p)
-						p=None
-					element.AppendElement(child)
-			# left over p should be added, this was a bad bug!
-			if p:
-				element.AppendElement(p)
-			if divFlag:
-				self.parent.AppendElement(element)
+					child.WriteXML(buffer)
+			else:
+				if buffer:
+					self.AppendHTMLContainer(buffer.getvalue())
+					buffer=None
+				self.parent.AppendElement(child)
+		if buffer:
+			self.AppendHTMLContainer(buffer.getvalue())
 
 		
 # FlowMat
@@ -3537,14 +3518,7 @@ class MatText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 				span.AppendElement(element)
 				element=span
 		elif self.type=='text/html':
-			p=XMLParser()
-			try:
-				tokens=p.TokenizeString(self.data)
-				self.ParseTextTokens(tokens)
-			except XMLException:
-				self.PrintWarning("Warning: failed to make well-formed XML out of embedded text/html (%s: %s)"%(str(sys.exc_info()[0]),str(sys.exc_info()[1])))
-				self.PrintWarning("Warning: offending text/html will be left undecoded")
-				self.characters(self.data)
+			self.characters(self.data)
 			self.endElement('qtihtml')				
 			element=None
 		elif self.type=='text/rtf':
