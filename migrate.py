@@ -52,16 +52,18 @@ HELP_TEXT=[
 	"Usage: migrate.py [options] [--cpout=output directory] [input file|directory]",
 	"",
 	"Recognized options:",
-	"  --ucvars          : force upper case variable names",
-	"  --qmdextensions   : allows metadata extension fields",
-	"  --lang=<language> : set default language",
-	"  --dtdloc=<path>   : set the directory containing the QTI DTD",
-	"  --forcefibfloat   : force all fib's to float type",
-	"  --nocomment       : suppress comments in version 2 output",
-	"  --nogui           : run in batch mode only",
-	"  --help            : display this message (implies --nogui)",
-	"  --version         : display version information only (implies --nogui)"
-	"  --overwrite		 : If the files already exist overwrite them"
+	"  --ucvars           : force upper case variable names",
+	"  --qmdextensions    : allows metadata extension fields",
+	"  --lang=<language>  : set default language",
+	"  --dtdloc=<path>    : set the directory containing the QTI DTD",
+	"  --forcefibfloat    : force all fib's to float type",
+	"  --nocomment        : suppress comments in version 2 output",
+	"  --nogui            : run in batch mode only",
+	"  --help             : display this message (implies --nogui)",
+	"  --version          : display version information only (implies --nogui)"
+	"  --overwrite		  : If the files already exist overwrite them"
+	"  --pathprepend	  : A path to prepend to file references"
+	"  --createerrorfiles : If a referenced file is not found create a dummy file in its place"
 ]
 
 
@@ -110,6 +112,10 @@ if __name__ == '__main__':
 			NO_GUI=1
 		elif x.lower()=="--overwrite":
 			OVERWRITE=1
+		elif x[:14].lower()=="--pathprepend=":
+			options.prepend_path = x[14:]
+		elif x.lower()=="--createerrorfiles":
+			options.create_error_files = 1
 		else:
 			fileNames.append(x)
 	

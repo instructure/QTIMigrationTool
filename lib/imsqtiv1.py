@@ -34,7 +34,7 @@ MIGRATION_VERSION="Version: 2008-06-??"
 
 from types import *
 import string
-import os, sys
+import os, sys, re
 from xml.sax import make_parser, handler, SAXParseException
 import StringIO
 from random import randint
@@ -71,6 +71,8 @@ class QTIParserV1Options:
 		self.noComment=0
 		self.dtdDir=''
 		self.cpPath=''
+		self.prepend_path=None
+		self.create_error_files=None
 		
 		
 # QTIException Class
@@ -1882,7 +1884,7 @@ class QTIItem(InstructureHelperContainer):
 	def AddContributor(self,contributor):
 		self.resource.GetLOM().GetLifecycle().AddContributor(contributor)
 	
-	def AddCPFile (self,uri):
+	def AddCPFile (self,uri, prepend_path=None):
 		uri = string.replace(uri, "%%LINKPATH%%", "")
 		if self.files.has_key(uri):
 			# We've already added this file to the content package
@@ -1891,15 +1893,21 @@ class QTIItem(InstructureHelperContainer):
 		if RelativeURL(uri):
 			root=self.GetRoot()
 			path=root.ResolveURI(uri)
-			# find the last path component
-			dName,fName=os.path.split(path)
-			# Use this file name in the content package
-			fName=root.cp.GetUniqueFileName(fName)
-			cpLocation=EncodePathSegment(fName)
-			# But, what about the data!!
 			cpf.SetDataPath(path)
+			if os.path.exists(cpf.dataPath):
+				# find the last path component
+				dName,fName=os.path.split(path)
+				# Use this file name in the content package
+				fName=root.cp.GetUniqueFileName(fName)
+				cpLocation=EncodePathSegment(fName)
+			else:
+				# if the file doesn't exist in this package just leave the path alone
+				cpLocation=uri
 		else:
 			cpLocation=uri
+		#todo - add prepend path if set
+		if prepend_path:
+			cpLocation = "%s/%s" % (prepend_path, cpLocation)
 		cpf.SetHREF(cpLocation)
 		self.resource.AddFile(cpf,0)
 		self.files[uri]=cpLocation
@@ -3024,6 +3032,7 @@ class FlowV1(QTIObjectV1):
 	
 	def AppendHTMLContainer (self,content):
 		container=xhtml_div()
+		container.escaped = True
 		container.SetClass('html')
 		container.AppendElement(xhtml_text(content))
 		self.parent.AppendElement(container)
@@ -3031,7 +3040,7 @@ class FlowV1(QTIObjectV1):
 	def CloseObject (self):
 		buffer=None
 		for child in self.children:
-			if isinstance(child,HTML):
+			if isinstance(child,HTML) and not child.escaped:
 				if not buffer:
 					buffer=StringIO.StringIO()
 				if isinstance(child,xhtml_text):
@@ -3155,6 +3164,7 @@ class MatThing(QTIObjectV1):
 		self.data=""
 		self.width=None
 		self.height=None
+		self.prepend_path=None
 		self.ParseAttributes(attrs)
 		# material, altmaterial, reference
 		self.CheckLocation((Material, WCTMatchingTextExt),"<"+name+">")
@@ -3187,7 +3197,7 @@ class MatThing(QTIObjectV1):
 		return element
 	
 	def AddCPFile (self):
-		self.uri=self.GetItemV1().AddCPFile(self.uri)
+		self.uri=self.GetItemV1().AddCPFile(self.uri,self.prepend_path)
 		
 	def MakeImage (self):
 		element=xhtml_img()
@@ -3197,6 +3207,8 @@ class MatThing(QTIObjectV1):
 			element.SetWidth(self.width)
 		if self.height:
 			element.SetHeight(self.height)
+		if self.label:
+			element.SetAlt(self.label)
 		return element
 
 	def ParseTextTokens(self,tokens):
@@ -3564,10 +3576,55 @@ class RawMaterial(QTIObjectV1):
 # MatImage
 # --------
 #
+class MatApplication(MatThing):
+	"""
+	<!ELEMENT matapplication (#PCDATA)>
+	
+	<!ATTLIST matapplication  apptype
+						 %I_Apptype;
+						 %I_Label;
+						 %I_Uri;
+						 %I_Entityref;
+						 %I_Embedded; >
+
+	MatApplication isn't actually supported. Some BB QTI uses this
+	for images so it'll try to make an image if the extension is
+	recognized as an image extension
+	"""
+	def __init__(self,name,attrs,parent):
+		MatThing.__init__(self,name,attrs,parent)
+		if not self.type:
+			self.type="image/jpeg"
+		self.embedded='Inline'
+
+	def SetAttribute_apptype (self,value):
+		pass
+
+	def SetAttribute_embedded (self,value):
+		self.embedded=value
+	
+	def CloseObject (self):
+		if self.uri and not re.search(r'\.(jpg|png|gif)$', self.uri, re.I):
+			self.PrintWarning("matapplication elements not supported")
+			return
+			
+		element=None
+		if self.entityRef:
+			self.PrintWarning("Unsupported: inclusion of material through external entities: ignored "+self.entityRef)
+		elif not self.uri:
+			self.PrintWarning("Unsupported: inclusion of inline images")
+		else:
+			element=self.MakeImage()
+		if element:
+			self.parent.AppendElement(element)
+
+# MatImage
+# --------
+#
 class MatImage(MatThing):
 	"""
 	<!ELEMENT matimage (#PCDATA)>
-	
+
 	<!ATTLIST matimage  imagtype    CDATA  'image/jpeg'
 						 %I_Label;
 						 %I_Height;
@@ -3583,13 +3640,13 @@ class MatImage(MatThing):
 		if not self.type:
 			self.type="image/jpeg"
 		self.embedded='base64'
-		
+
 	def SetAttribute_imagtype (self,value):
 		self.type=value
-		
+
 	def SetAttribute_y0 (self,value):
 		self.PrintWarning("Warning: discarding y0 coordinate on matimage")
-								
+
 	def SetAttribute_x0 (self,value):
 		self.PrintWarning("Warning: discarding x0 coordinate on matimage")
 
@@ -3601,7 +3658,7 @@ class MatImage(MatThing):
 
 	def SetAttribute_embedded (self,value):
 		self.embedded=value
-	
+
 	def CloseObject (self):
 		element=None
 		if self.entityRef:
@@ -3613,7 +3670,7 @@ class MatImage(MatThing):
 				element=self.MakeObject()
 			else:
 				element=self.MakeImage()
-		if element:			
+		if element:
 			self.parent.AppendElement(element)
 
 
@@ -5472,7 +5529,7 @@ QTIASI_ELEMENTS={
         'mat_extension':WCTMatExtension,
         'mat_formattedtext':BBMatFormattedText,
         'matapplet':Unsupported,
-        'matapplication':Unsupported,
+        'matapplication':MatApplication,
         'mataudio':MatAudio,
         'matbreak':MatBreak,
         'matemtext':MatEmText,
@@ -5641,7 +5698,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 
 	def DumpCP (self):
 		if self.options.cpPath:
-			self.cp.DumpToDirectory(self.options.cpPath)
+			self.cp.DumpToDirectory(self.options.cpPath, self.options.create_error_files)
 
 	def Parse (self,f,path):
 		global CURRENT_FILE_NAME
@@ -5687,6 +5744,8 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 					self.cObject.SetCP(self.cp)
 					self.cObject.SetPath(self.currPath)
 					self.cObject.SetParser(self)
+				if self.options.prepend_path and isinstance(self.cObject,(MatThing)):
+					self.cObject.prepend_path = self.options.prepend_path
 			else:
 				self.cObject=Unsupported(name,attrs,parent)
 			if isinstance(self.cObject,Unsupported):

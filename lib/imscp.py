@@ -96,7 +96,7 @@ class ContentPackage:
 			self.lom=LOM()
 		return self.lom
 
-	def DumpToDirectory (self,path):
+	def DumpToDirectory (self,path, create_error_files=None):
 		if not os.path.exists(path):
 			os.makedirs(path)
 		temp_path = os.path.join(path,"assessmentTests")
@@ -112,7 +112,7 @@ class ContentPackage:
 		self.WriteManifestXML(f)
 		f.close()
 		for r in self.resources:
-			r.DumpToDirectory(path)
+			r.DumpToDirectory(path, create_error_files)
 
 	def WriteManifestXML (self,f):
 		f.write('<?xml version="1.0"?>')
@@ -197,9 +197,9 @@ class CPResource:
 		if entryPoint:
 			self.entryPoint=cpf
 
-	def DumpToDirectory (self,path):
+	def DumpToDirectory (self,path,create_error_files=None):
 		for f in self.files:
-			f.DumpToDirectory(path)
+			f.DumpToDirectory(path,create_error_files)
 
 	def WriteManifestXML (self,f):
 		f.write('\n\t<resource identifier="'+self.id+'"')
@@ -240,7 +240,7 @@ class CPFile:
 	def SetDataPath (self,dataPath):
 		self.dataPath=dataPath
 		
-	def DumpToDirectory (self,path):
+	def DumpToDirectory (self,path,create_error_files=None):
 		if RelativeURL(self.href):
 			filepath=ResolveCPURI(path,self.href)
 			print "Writing file: "+filepath
@@ -253,9 +253,10 @@ class CPFile:
 					copyfile(self.dataPath,filepath)
 				except IOError:
 					print 'Problem copying "%s" -> "%s"'%(self.dataPath,filepath)
-					f=codecs.open(filepath,'w',"utf8")
-					f.write("Data Missing\n")
-					f.close()
+					if create_error_files:
+						f=codecs.open(filepath,'w',"utf8")
+						f.write("Data Missing\n")
+						f.close()
 
 	def WriteResourceHREF (self,f):
 		if self.href:

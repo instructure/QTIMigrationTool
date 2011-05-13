@@ -693,7 +693,9 @@ class Block(Flow): pass
 
 class Inline(Flow): pass
 
-class HTML: pass
+class HTML:
+	def __init__ (self):
+		self.escaped = False
 
 SimpleInlineNames=['a','abbr','acronym','b','big','cite','code','dfn','em','i','kbd',
 	'q','samp','small','span','strong','sub','sup','tt','var']
@@ -701,6 +703,7 @@ SimpleInlineNames=['a','abbr','acronym','b','big','cite','code','dfn','em','i','
 class SimpleInline(Inline,HTML):
 	def __init__ (self,name):
 		BodyElement.__init__(self)
+		HTML.__init__(self)
 		self.name=name
 		self.elements=[]
 		
@@ -728,6 +731,7 @@ class SimpleInline(Inline,HTML):
 class AtomicBlock(Block,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
+		HTML.__init__(self)
 		self.elements=[]
 		
 	def AppendElement(self,element):
@@ -746,6 +750,7 @@ class AtomicBlock(Block,HTML):
 class SimpleBlock(Block,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
+		HTML.__init__(self)
 		self.elements=[]
 		
 	def AppendElement(self,element):
@@ -861,8 +866,9 @@ def ExtractImages (elements):
 class xhtml_div(Block,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
+		HTML.__init__(self)
 		self.elements=[]
-		
+
 	def AppendElement (self,element):
 		assert not (element is None),"Adding None to xhtml_div"
 		self.elements.append(element)
@@ -895,6 +901,7 @@ class xhtml_blockquote(SimpleBlock):
 class xhtml_ul(Block,HTML):
 	def __init__ (self,name="ul"):
 		BodyElement.__init__(self)
+		HTML.__init__(self)
 		self.listItems=[]
 		self.name=name
 	
@@ -916,6 +923,7 @@ class xhtml_ul(Block,HTML):
 class xhtml_li(BodyElement,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
+		HTML.__init__(self)
 		self.elements=[]
 	
 	def AppendElement (self,element):
@@ -957,6 +965,7 @@ class xhtml_pre(AtomicBlock):
 								
 class xhtml_object(Inline,HTML):
 	def __init__ (self):
+		HTML.__init__(self)
 		self.data=None
 		self.type=None
 		self.height=None
@@ -989,6 +998,7 @@ class xhtml_object(Inline,HTML):
 class xhtml_table(Block,HTML):
 	def __init__(self):
 		BodyElement.__init__(self)
+		HTML.__init__(self)
 		self.tableBody=[]
 		self.summary=None
 	
@@ -1020,6 +1030,7 @@ class xhtml_table(Block,HTML):
 class xhtml_tbody(BodyElement,HTML):
 	def __init__(self):
 		BodyElement.__init__(self)
+		HTML.__init__(self)
 		self.rows=[]
 	
 	def AppendElement (self,element):
@@ -1040,6 +1051,7 @@ class xhtml_tbody(BodyElement,HTML):
 class xhtml_tr(BodyElement,HTML):
 	def __init__(self):
 		BodyElement.__init__(self)
+		HTML.__init__(self)
 		self.cells=[]
 	
 	def AppendElement (self,element):
@@ -1060,6 +1072,7 @@ class xhtml_tr(BodyElement,HTML):
 class TableCell(BodyElement,HTML):
 	def __init__(self,name="td"):
 		BodyElement.__init__(self)
+		HTML.__init__(self)
 		self.name=name
 		self.elements=[]
 	
@@ -1078,6 +1091,7 @@ class TableCell(BodyElement,HTML):
 class xhtml_img(Inline,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
+		HTML.__init__(self)
 		self.src=None
 		self.alt=""
 		self.longdesc=None
@@ -1113,11 +1127,15 @@ class xhtml_img(Inline,HTML):
 		f.write("/>")
 
 class xhtml_br(Inline,HTML):
+	def __init__ (self):
+		HTML.__init__(self)
+		
 	def WriteXML (self,f):
 		f.write("<br/>\n")
 		
 class xhtml_text(Inline,HTML):
 	def __init__ (self,text=""):
+		HTML.__init__(self)
 		self.text=text
 		
 	def SetText (self, text):
