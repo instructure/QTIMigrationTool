@@ -1,3 +1,10 @@
+canvas-lms-qti-migration-plugin (0.1-4) professional; urgency=low
+
+  * [65787af] bumping changelog
+  * [efd44e8] convert blackboard image references
+
+ -- JT Olds <jt@instructure.com>  Wed, 18 May 2011 10:23:05 -0600
+
 canvas-lms-qti-migration-plugin (0.1-3) professional; urgency=low
 
   * [3ec2356] bumping changelog
