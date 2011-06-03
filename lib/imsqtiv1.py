@@ -3021,6 +3021,7 @@ class FlowV1(QTIObjectV1):
 		self.flowclass=None
 		self.CheckLocation((FlowV1,Presentation),"<flow>")
 		self.ParseAttributes(attrs)
+		self.div_container=None
 		if isinstance(self.parent,FlowV1):
 			self.flow_level=parent.GetFlowLevel()+1
 		else:
@@ -3035,14 +3036,24 @@ class FlowV1(QTIObjectV1):
 	
 	def GetFlowLevel (self):
 		return self.flow_level
+
+	def AppendToParent(self, element):
+		if self.flowclass == 'RESPONSE_BLOCK' or self.flowclass == 'RIGHT_MATCH_BLOCK':
+			if not self.div_container:
+				self.div_container = xhtml_div()
+				self.div_container.escaped = True
+				self.div_container.SetClass(self.flowclass)
+			self.div_container.AppendElement(element)
+		else:
+			self.parent.AppendElement(element)
 	
 	def AppendHTMLContainer (self,content):
 		container=xhtml_div()
 		container.escaped = True
 		container.SetClass('html')
 		container.AppendElement(xhtml_text(content))
-		self.parent.AppendElement(container)
-	
+		self.AppendToParent(container)
+
 	def CloseObject (self):
 		buffer=None
 		for child in self.children:
@@ -3057,9 +3068,11 @@ class FlowV1(QTIObjectV1):
 				if buffer:
 					self.AppendHTMLContainer(buffer.getvalue())
 					buffer=None
-				self.parent.AppendElement(child)
+				self.AppendToParent(child)
 		if buffer:
 			self.AppendHTMLContainer(buffer.getvalue())
+		if self.div_container:
+			self.parent.AppendElement(self.div_container)
 
 		
 # FlowMat
@@ -3079,6 +3092,7 @@ class FlowMat(FlowV1):
 		self.CheckLocation((FlowMat,ItemFeedback,ResponseLabel,Rubric,Objectives,SolutionMaterial,HintMaterial),"<flow_mat>")
 		self.ParseAttributes(attrs)
 		self.flow_level=parent.GetFlowLevel()+1
+		self.div_container=None
 		self.children=[]
 		
 		
