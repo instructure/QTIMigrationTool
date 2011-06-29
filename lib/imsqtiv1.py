@@ -292,6 +292,8 @@ class QTIObjectV1:
 				raise QTIException(eInvalidStructure,tag)
 			else:
 				print "Tag (%s) in unexpected location - parent: (%s)" % (tag, self.parent)
+			return False
+		return True
 
 
 # Unsupported
@@ -4812,7 +4814,7 @@ class Hint(QTIObjectV1):
 		self.feedbackstyle="complete"
 		self.ParseAttributes(attrs)
 		# itemfeedback
-		self.CheckLocation((ItemFeedback),"<hint>")
+		self.in_correct_location = self.CheckLocation((ItemFeedback),"<hint>", False)
 		self.div=xhtml_div()
 		if self.feedbackstyle!="complete":
 			hintclass='hint.'+self.feedbackstyle
@@ -4831,7 +4833,8 @@ class Hint(QTIObjectV1):
 		self.div.AppendElement(element)
 	
 	def CloseObject (self):
-		self.parent.AppendElement(self.div)
+		if self.in_correct_location:
+			self.parent.AppendElement(self.div)
 
 
 # HintMaterial
