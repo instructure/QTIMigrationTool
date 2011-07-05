@@ -1,0 +1,2395 @@
+<!---->
+<!---->
+<!---->
+<!--	*******************************************************	-->
+<!--						-->
+<!--	TITLE:		IMS_QTIv1p1.dtd		-->
+<!--	DESCRIPTION:		IMS Question and Test Interoperability	-->
+<!--						-->
+<!--						-->
+<!--	REVISION HISTORY:				-->
+<!--	Date	        Author		Comments		-->
+<!--	====	        ======		========		-->
+<!--	9th March 2001	Colin Smythe	Third release of the	-->
+<!--				QTI-XML binding.	-->
+<!--				This specification has	-->
+<!--				been approved as a Final 	-->
+<!--				Specification.		-->
+<!--						-->
+<!--	DTD Structure				-->
+<!--	=============				-->
+<!--						-->
+<!--	The elements of this document have been organised to follow	-->
+<!--	a similar structure to that found in the Q&TI Information		-->
+<!--	Model.					-->
+<!--						-->
+<!--	Comments for the element will proceed the element in the		-->
+<!--	following format:				-->
+<!--						-->
+<!--	Explanation:					-->
+<!--		Text for explanation.			-->
+<!--	Type					-->
+<!--		Text for the typing.			-->
+<!--	Notes					-->
+<!--		Text for notes.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--						-->
+<!--	Please use the following as the index to follow this DTD.		-->
+<!--						-->
+<!--	Document Root (i.e. QUESTESTINTEROP)			-->
+<!--	Entities					-->
+<!--	Elements common to all the major roots			-->
+<!--						-->
+<!--	Main Objects and their elements will follow			-->
+<!--						-->
+<!--	ASSESSMENT root				-->
+<!--		Assessment elements.			-->
+<!--	SECTION root					-->
+<!--		Section elements.			-->
+<!--	ITEM ROOT					-->
+<!--		Item elements.			-->
+<!--						-->
+<!--	*******************************************************	-->
+<!--	*******************************************************	-->
+<!--	*******************************************************	-->
+<!--	    	   ###  This is the Root element. ###		-->
+<!--						-->
+<!ELEMENT questestinterop  (qticomment? ,  (assessment | section | item )+ 
+)>
+
+<!---->
+<!---->
+<!--      	 #############################################	-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!---->
+<!---->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--						-->
+<!--	ENTITIES					-->
+<!--						-->
+<!--	The entities are:				-->
+<!--						-->
+<!--	1.	Title - the title of an object.			-->
+<!--	2.	Label - element labelling.			-->
+<!--	3.	Ident - the required unique element identifier.	-->
+<!--	4.	View - the view mode.			-->
+<!--	5.	FeedbackSwitch - setting mode for feedback.	-->
+<!--	6.	HintsSwitch - setting mode for hints.		-->
+<!--	7.	SolutionsSwitch - setting mode for solutions.	-->
+<!--	8.	Rcardinality - the class of number of user responses.	-->
+<!--	9.	Rtiming - the provision for duration information.	-->
+<!--	10.	Uri - Universal Resource Indicator.		-->
+<!--	11.	X0 - top left-hand x-coordinate.		-->
+<!--	12.	Height - the length of the y-axis size.		-->
+<!--	13.	Y0 - top left-hand Y-coordinate.		-->
+<!--	14.	Width - the length of the x-axis size.		-->
+<!--	15.	Embedded - embedding of information in the file.	-->
+<!--	16.	CharSet - the supported character set.		-->
+<!--	17.	LinkRefId - link reference to a declared identifier.	-->
+<!--	18.	VarName - variable name to be used (required).	-->
+<!--	19.	RespIdent - Response-type reference identity.	-->
+<!--	20.	Continue - Continuation of processing.		-->
+<!--	21.	ScoreModel - Scoring model to be used.		-->
+<!--	22.	MinNumber- the minimum number of expected responses.	-->
+<!--	23.	MaxNumber - the max number of expected responses.	-->
+<!--	24.	FeedbackStyle - the types of solution/hint feedback.	-->
+<!--	25.	Case - case sensitive comparisons indicator.	-->
+<!--	26.	Entityref - entity reference identifier.	-->
+<!--	27.	Class - Type of block indicator.		-->
+<!--	27.	xml:lang - Type of language.			-->
+<!--	27.	xml:space - Space preservation indicator.	-->
+<!--						-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The title for the related object.  Normally upto 256		-->
+<!--	characters long.				-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Title " title CDATA  #IMPLIED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The label used to support search and editing.  It is also 		-->
+<!--	used as the optional identifier.			-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Label " label CDATA  #IMPLIED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The unique identifier for the element.  This declaration is		-->
+<!--	used when the ident is required.			-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Ident " ident CDATA  #REQUIRED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The actors who require a view of the data.			-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_View " view  (All | Administrator | AdminAuthority | Assessor 
+| 
+Author | Candidate | InvigilatorProctor | Psychometrician | Scorer | Tutor 
+)  'All'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The permitted display of feedback.			-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_FeedbackSwitch " feedbackswitch  (Yes | No )  'Yes'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The permitted display of hints.			-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_HintSwitch " hintswitch  (Yes | No )  'Yes'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The permitted display of solutions.			-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_SolutionSwitch " solutionswitch  (Yes | No )  'Yes'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The classification of the number of responses.		-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Rcardinality " rcardinality  (Single | Multiple | Ordered )  
+'Single'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	To enable time based response measurement.		-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Rtiming " rtiming  (Yes | No )  'No'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Universal Resource Locator.				-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Uri " uri CDATA  #IMPLIED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Top left-hand X-coordinate.				-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_X0 " x0 CDATA  #IMPLIED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Top left-hand Y-coordinate.				-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Y0 " y0 CDATA  #IMPLIED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The length of the y-axis size.			-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Height " height CDATA  #IMPLIED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The length of the x-axis size.			-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Width " width CDATA  #IMPLIED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The coding for the embedded data.			-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Embedded " embedded CDATA  'base64'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The identifier to which this link is referenced.		-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_LinkRefId " linkrefid CDATA  #REQUIRED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The variable name to be used (required).			-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_VarName " varname CDATA  'SCORE'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The response identifier to which the comparison refers.		-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_RespIdent " respident CDATA  #REQUIRED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The instruction for continued score processing.		-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Continue " continue  (Yes | No )  'No'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The character sets repertoires supported.			-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_CharSet " charset CDATA  'ascii-us'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The scoring model to be supported.  'SumofScores' is the		-->
+<!--	default scoring algorithm.				-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_ScoreModel " scoremodel CDATA  'SumofScores'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The minimum number of expected responses from the user.	-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_MinNumber " minnumber CDATA  #IMPLIED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The maximum number of expected responses from the user.	-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_MaxNumber " maxnumber CDATA  #IMPLIED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The type of feedback styles for hints and solutions.		-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_FeedbackStyle " feedbackstyle  (Complete | Incremental | 
+Multilevel | Proprietary )  'Complete'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The type of feedback styles for hints and solutions.		-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Case " case  (Yes | No )  'No'">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Entity reference identifier.					-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_EntityRef " entityref ENTITY  #IMPLIED">
+
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	The type of block structure indicator.				-->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ENTITY % I_Class " class CDATA 'Block'">
+
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--						-->
+<!--	The QTI specific META-DATA used bythe Assessments, Sections	-->
+<!--	and Items.					-->
+<!--						-->
+<!--	The Meta-data elements are:				-->
+<!--						-->
+<!--	1.	qmd_absolutescore - absolute scoring supported.	-->
+<!--	2.	qmd_assessmenttype - type of assessment to be taken.	-->
+<!--	3.	qmd_computerscored - automated Item scoring.	-->
+<!--	4.	qmd_feedbackpermitted - provision of feedback.	-->
+<!--	5.	qmd_hintspermitted - provision of hints.		-->
+<!--	6.	qmd_itemtype - the type of Item e.g. multiple-choice.	-->
+<!--	7.	qmd_maximumscore - the maximum Item score possible.	-->
+<!--	8.	qmd_numberofitems - the number of Items contained.	-->
+<!--	9.	qmd_renderingtype - type of rendering used in the Item.	-->
+<!--	10.	qmd_responsetype - type of Item response expected.	-->
+<!--	11.	qmd_scoringpermitted - support for scoring of the Item.	-->
+<!--	12.	qmd_scoretype - the type of Assessment scoring used.	-->
+<!--	13.	qmd_sectionsincluded - inc. of Sections in the Section.	-->
+<!--	14.	qmd_solutionspermitted - provision of solutions.	-->
+<!--	15.	qmd_selectionselection - provision of Section selection.	-->
+<!--	16.	qmd_sectionsequence - provision of Section sequencing.	-->
+<!--	17.	qmd_itemselection - provision of Item selection.	-->
+<!--	18.	qmd_itemsequence - provision of Item sequencing.	-->
+<!--	19.	qmd_status - development status of the Item.	-->
+<!--	20.	qmd_timedependence - timing of the Item response.	-->
+<!--	21.	qmd_timelimit - max time for completion of the A/S/I.	-->
+<!--	22.	qmd_toolvendor - vendor tool of source Assessment.	-->
+<!--	23.	qmd_topic - topic covered by the Item.		-->
+<!--	24.	qmd_material - types of content used.		-->
+<!--	25.	qmd_typeofsolution - type of solutions available.	-->
+<!--	26.	qmd_levelofdifficulty - education application level.	-->
+<!--	27.	qmd_weighting - the weighting of the Item score.	-->
+<!--						-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Range of scoring for the Assessment.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The range of scores that the user may attain i.e.	-->
+<!--		max score and min score.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_absolutescore  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The role of the Assessment.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The options are: "Examination", "Survey", "Tutorial",	-->
+<!--		"Self-assessment", "Proprietary".		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_assessmenttype  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Whether or not the Item can be scored by computer.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Yes/No entry.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_computerscored  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Whether or not feedback is available.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Yes/No entry.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_feedbackpermitted  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Whether or not hints are available.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Yes/No entry.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_hintspermitted  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The type of Item used.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The options are: "Logical Identifier", "XY-coordinate",	-->
+<!--		"String", "Numerical" and "Logical Group".		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_itemtype  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The maximum score possible from that Item.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		An integer or real number.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_maximumscore  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The number of Items contained by the object.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		An integer number.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_numberofitems  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The type of rendering used within the Item.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The options are: "Choice", "Hotspot", "Slider",	-->
+<!--		"String", and "Proprietary".			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_renderingtype  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The class of response expected for the Item.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The options are: "SIngle", "Multiple" or "Ordered".	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_responsetype  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Whether or not scroing is used.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Yes/No entry.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_scoringpermitted  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The type of scoring used.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The options are: "Absolute", "Percentage", "Unscored"	-->
+<!--		and "Multidimensional".			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_scoretype  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Whether or not Sections are included available.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Yes/No entry.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_sectionsincluded  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Whether or not solutions are available.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Yes/No entry.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_solutionspermitted  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Support for Section selection.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Yes/No support for Section selection.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_sectionselection  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Support for Section sequencing.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Yes/No support for Section sequencing.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_sectionsequence  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Support for Item selection.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Yes/No support for Item selection.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_itemselection  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Support for Item sequencing.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Yes/No support for Item sequencing.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_itemsequence  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The status of the Item.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The options are: "Experimental", "Normal" or "Retired".	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_status  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Whether or not the response are timed.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		A Yes/No statement.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_timedependence  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The number of minutes or an unlimited duration.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Either an integer number of minutes or the string	-->
+<!--		"Unlimited".				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_timelimit  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The name of the vendor of the tool creating the	-->
+<!--		Assessment.				-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_toolvendor  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		A brief description of the topic covered by the Item.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Text-based description of the Item's topic.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_topic  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The type of material used within the Item.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The style of the list is as per the MIME formats.	-->
+<!--		The full range of text, video, audio, etc. formats used.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_material  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The type of solution available in the Item.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The options to be used are: "Complete", "Incremental",	-->
+<!--		"Multilevel" and "Proprietary".		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_typeofsolution  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The education level for which the Item is intended.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The options are: "Pre-school", "School" or "HE/FE",	-->
+<!--		"Vocational" and "Professional Development".	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_levelofdifficulty  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The weighting of the Item score.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The weighting that  is applied to the scoring algorithm	-->
+<!--		used for the Item.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qmd_weighting  (#PCDATA )>
+
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--						-->
+<!--	ELEMENTS used by more than one object.			-->
+<!--	Refer to the information model for specific information		-->
+<!--	on these common elements.				-->
+<!--						-->
+<!--	The common elements are:				-->
+<!--						-->
+<!--	1.	qticomment - QTI comments within the XML file.	-->
+<!--	2.	material - information to be presented to the user.	-->
+<!--	3.	matbreak - block break marker.	-->
+<!--	4.	mattext - textual information to be presented.	-->
+<!--	5.	matemtext - emphasised text to be presented.	-->
+<!--	6.	matimage - graphics/images to be presented.	-->
+<!--	7.	mataudio - audio to be presented.		-->
+<!--	8.	matvideo - video to be presented.		-->
+<!--	9.	matapplet- Java applets to be invoked.		-->
+<!--	10.	matapplication - applications to be invoked.		-->
+<!--	11.	matref - ref to internal material defined elsewhere.	-->
+<!--	12.	altmaterial - alternative material to be displayed.	-->
+<!--	13.	decvar - variable declarations.		-->
+<!--	14.	setvar - setting the value of a variable.		-->
+<!--	15.	conditionvar - conditions to be applied to variables.	-->
+<!--	16.	interpretvar - interpretations for variables.	-->
+<!--	17.	varequal - variable equivalence test.		-->
+<!--	18.	varlt - variable less than test.		-->
+<!--	19.	varlte - variable less than or equal to test.		-->
+<!--	20.	vargt - variable greater than test.		-->
+<!--	21.	vargte - variable greater than or equal to test.	-->
+<!--	22.	varsubset - variable is contained.		-->
+<!--	23.	varinside - variable XY-value is inside an area.	-->
+<!--	24.	durequal - duration equivalence test.		-->
+<!--	25.	durlt - duration less than test.		-->
+<!--	26.	durlte - duration less than or equal to test.		-->
+<!--	27.	durgt - duration greater than test.		-->
+<!--	28.	durgte - duration greater than or equal to test.	-->
+<!--	29.	not - logical 'NOT' test.			-->
+<!--	30.	and - logical 'AND' of contained elements.		-->
+<!--	31.	or - logical 'OR' of contained elements.		-->
+<!--	32.	other - catch-all response handler.		-->
+<!--	33.	unanswered - unanswered response handler.	-->
+<!--	34.	duration - duration of the activity.		-->
+<!--	35.	displayfeedback - display feedback trigger.		-->
+<!--	36.	scorecondition - display feedback trigger.		-->
+<!--	37.	scores - Assessment/Section level scoring.		-->
+<!--	38.	objectives - Assessment/Section/Item objectives.	-->
+<!--	39.	rubric - Assessment/Section/Item rubric.		-->
+<!--	40.	flow_mat - Block control encapuslating the material.	-->
+<!--	41.	qtimetadata - QTI specific and definable metadata.	-->
+<!--	42.	vocabulary - Linkage to the external vocabulary.	-->
+<!--	43.	qtimetadatafield - generic QTI meta-data field container.-->
+<!--	44.	fieldlabel - the name of the QTI meta-data field.	-->
+<!--	44.	fieldentry - the data entry of the QTI meta-data field.	-->
+<!--						-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Comments used to annotate the XML file.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Comments should be used to aid human readability of	-->
+<!--		the XML file itself.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qticomment  (#PCDATA )>
+<!ATTLIST qticomment  e-dtype NMTOKEN  #FIXED 'string' >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The container for material to be presented.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Each type of material has its own sub-element.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT material  (qticomment? ,  (mattext | matemtext | matimage | 
+mataudio | matvideo | matapplet | matapplication | matref | matbreak | 
+mat_extension )+ , altmaterial? )>
+<!ATTLIST material  %I_Label; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Textual material to be presented.		-->
+<!--	Type:					-->
+<!--		PCDATA				-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT mattext  (#PCDATA )>
+<!ATTLIST mattext  texttype    CDATA  'text/plain'
+                   %I_Label;
+                   %I_CharSet;
+                   %I_Uri;
+                   xml:space    (Preserved | Default )  'Default'
+                   xml:lang    CDATA  #IMPLIED
+                   %I_EntityRef; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Emphasised textual material to be presented.	-->
+<!--		The nature of emphasis is outside the scope of the	-->
+<!--		specification			.	-->
+<!--	Type:					-->
+<!--		PCDATA				-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT matemtext  (#PCDATA )>
+<!ATTLIST matemtext  texttype    CDATA  'text/plain'
+                     %I_Label;
+                     %I_CharSet;
+                     %I_Uri;
+                     xml:space    (Preserved | Default )  'Default'
+                     xml:lang    CDATA  #IMPLIED
+                     %I_EntityRef; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Graphic/image material to be presented.		-->
+<!--	Type:					-->
+<!--		PCDATA				-->
+<!--	Notes:					-->
+<!--		Default type is jpeg.  The parser must be capable of	-->
+<!--		 handling others in the format of '***/***'.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT matimage  (#PCDATA )>
+<!ATTLIST matimage  imagtype    CDATA  'image/jpeg'
+                    %I_Label;
+                    %I_Height;
+                    %I_Uri;
+                    %I_Embedded;
+                    %I_Width;
+                    %I_Y0;
+                    %I_X0;
+                    %I_EntityRef; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Audio material to be presented.		-->
+<!--	Type:					-->
+<!--		PCDATA				-->
+<!--	Notes:					-->
+<!--		Default type is basic.  The parsers must be capable	-->
+<!--		of handling other types in the form '***/***'.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT mataudio  (#PCDATA )>
+<!ATTLIST mataudio  audiotype   CDATA  'audio/base'
+                    %I_Label;
+                    %I_Uri;
+                    %I_Embedded;
+                    %I_EntityRef; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Video material to be presented.		-->
+<!--	Type:					-->
+<!--		PCDATA				-->
+<!--	Notes:					-->
+<!--		Default type is 'avi'.  The parsers must be capable	-->
+<!--		of handling other types in the form '***/***'.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT matvideo  (#PCDATA )>
+<!ATTLIST matvideo  videotype   CDATA  'video/avi'
+                    %I_Label;
+                    %I_Uri;
+                    %I_Width;
+                    %I_Height;
+                    %I_Y0;
+                    %I_X0;
+                    %I_Embedded;
+                    %I_EntityRef; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Java applet material to be presented.		-->
+<!--	Type:					-->
+<!--		PCDATA				-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT matapplet  (#PCDATA )>
+<!ATTLIST matapplet  %I_Label;
+                     %I_Uri;
+                     %I_Y0;
+                     %I_Height;
+                     %I_Width;
+                     %I_X0;
+                     %I_Embedded;
+                     %I_EntityRef; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Application material to be presented.		-->
+<!--	Type:					-->
+<!--		PCDATA				-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT matapplication  (#PCDATA )>
+<!ATTLIST matapplication  apptype     CDATA  #IMPLIED
+                          %I_Label;
+                          %I_Uri;
+                          %I_Embedded;
+                          %I_EntityRef; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Material divider.			-->
+<!--	Type:					-->
+<!--		Empty				-->
+<!--	Notes:					-->
+<!--		Usage of this should be restricted.  Usage of	-->
+<!--		flow elements is preferred.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT matbreak EMPTY>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Reference to material that is defined elsewhere	-->
+<!--		within the file.				-->
+<!--	Type:					-->
+<!--		Empty				-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT matref EMPTY>
+<!ATTLIST matref  %I_LinkRefId; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Alternative material to be displayed if the primary	-->
+<!--		material cannot be rendered.			-->
+<!--	Type:					-->
+<!--		PCDATA				-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT altmaterial  (qticomment? ,  (mattext | matemtext | matimage | 
+mataudio | matvideo | matapplet | matapplication | matref | matbreak | 
+mat_extension )+ )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Declaration of variables to be used.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Each type of variable must be declared before it is	-->
+<!--		used.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT decvar  (#PCDATA )>
+<!ATTLIST decvar  %I_VarName;
+                  vartype     (Integer | 
+                               String | 
+                               Decimal | 
+                               Scientific | 
+                               Boolean | 
+                               Enumerated | 
+                               Set )  'Integer'
+                  defaultval CDATA  #IMPLIED
+                  minvalue   CDATA  #IMPLIED
+                  maxvalue   CDATA  #IMPLIED
+                  members    CDATA  #IMPLIED >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The type of processing to be applied to the variable.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The variable must have be defined.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT setvar  (#PCDATA )>
+<!ATTLIST setvar  %I_VarName;
+                  action     (Set | Add | Subtract | Multiply | Divide )  
+'Set' >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The interpretation to be applied to the variable in	-->
+<!--		terms relevant to an actor.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The variable must have be defined.  This element will	-->
+<!--		be refined in Version 2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT interpretvar  (material )>
+<!ATTLIST interpretvar  %I_View;
+                        %I_VarName; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The conditions to be applied to the variables as a	-->
+<!--		part of their processing.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Each of the conditions provides a boolean test.	-->
+<!--		Consecutive conditions are linked as an 'AND'	-->
+<!--		condition.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT conditionvar  (not | and | or | unanswered | other | varequal | 
+varlt | varlte | vargt | vargte | varsubset | varinside | durequal | durlt 
+| durlte | durgt | durgte | var_extension )+>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		To invert the value of the enclosed variable test.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT not  (and | or | not | unanswered | other | varequal | varlt | 
+varlte | vargt | vargte | varsubset | varinside | durequal | durlt | 
+durlte | durgt | durgte )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The logical 'AND' operation.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Returns a 'True' statement if all conditions are	-->
+<!--		'True'.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT and  (not | and | or | unanswered | other | varequal | varlt | 
+varlte | vargt | vargte | varsubset | varinside | durequal | durlt | 
+durlte | durgt | durgte )+>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The logical 'OR' operation.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Returns a 'True' statement if one conditions is	-->
+<!--		'True'.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT or  (not | and | or | unanswered | other | varequal | varlt | 
+varlte | vargt | vargte | varsubset | varinside | durequal | durlt | 
+durlte | durgt | durgte )+>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Variable equivalence comparison test.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' is returned if equivalent.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT varequal  (#PCDATA )>
+<!ATTLIST varequal  %I_Case;
+                    %I_RespIdent; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Variable less than comparison test.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' is returned if less than the value.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT varlt  (#PCDATA )>
+<!ATTLIST varlt  %I_RespIdent; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Variable less than or equal to comparison test.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' returned if less than or equal to the value.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT varlte  (#PCDATA )>
+<!ATTLIST varlte  %I_RespIdent; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Variable greater than comparison test.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' is returned if greater than the value.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT vargt  (#PCDATA )>
+<!ATTLIST vargt  %I_RespIdent; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Variable greater than or equal to comparison test.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' returned if greater or equal to the value.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT vargte  (#PCDATA )>
+<!ATTLIST vargte  %I_RespIdent; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Variable comparison to a predefined set.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' returned if a member of the set.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT varsubset  (#PCDATA )>
+<!ATTLIST varsubset  %I_Case;
+                     %I_RespIdent;
+                     setmatch     (Exact | Partial )  'Exact' >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Determination if variable is within a defined area.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' returned if the XY-coord is within the area.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT varinside  (#PCDATA )>
+<!ATTLIST varinside  areatype     (Ellipse | Rectangle | Bounded )  
+#REQUIRED
+                     %I_RespIdent; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Duration equivalence comparison test.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' is returned if equivalent.		-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT durequal  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Duration less than comparison test.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' is returned if less than the value.		-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT durlt  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Duration less than or equal to comparison test.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' is returned if less than the value.		-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT durlte  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Duration greater than comparison test.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' is returned if greater than the value.		-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT durgt  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Duration greater than or equal to comparison test.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' returned if greater or equal to the value.	-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT durgte  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Condition for an unanswered response.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' returned if no response supplied.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT unanswered  (#PCDATA )>
+<!ATTLIST unanswered  %I_RespIdent; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Condition for conditions not defined.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		'True' returned if not defined condition occurs.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT other  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Permitted duration of the activity.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Defined as per ISO8601.  Use the text based layout	-->
+<!--		with the corresponding interpretation.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT duration  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Display feedback trigger.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT displayfeedback  (#PCDATA )>
+<!ATTLIST displayfeedback  feedbacktype  (Response | Solution | Hint )  
+'Response'
+                           %I_LinkRefId; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT scorecondition  (qticomment? , conditionvar , setvar* , 
+displayfeedback* , scorecondition_extension? )>
+<!ATTLIST scorecondition  %I_Title;
+                          %I_Continue; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Creation of the response scoring variables.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The assessment accumulated processing variable group.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT scores  (qticomment? ,  (decvar | interpretvar )+ )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Assessment/Section/Item objectives presented to the	-->
+<!--		user.				-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Each objective will be defined with respect to a	-->
+<!--		view e.g. tutor, candidate, etc.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT objectives  (qticomment? ,  (material+ | flow_mat+ ) )>
+<!ATTLIST objectives  %I_View; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The view specific description of how to attempt the	-->
+<!--		questions.				-->
+<!--	Type:					-->
+<!--		Standard CONTENT.			-->
+<!--	Notes:					-->
+<!--		Will not normally contain content specific to a	-->
+<!--		question.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT rubric  (qticomment? ,  (material+ | flow_mat+ ) )>
+<!ATTLIST rubric  %I_View; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The block structure encapuslating material.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		A V1.1 addition.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT flow_mat  (flow_mat | material )+>
+<!ATTLIST flow_mat  %I_Class; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The container for the QTI-specific meta-data	-->
+<!--		that can be defined using an agreed vocabulary.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		A V1.1 addition.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qtimetadata  (vocabulary? , qtimetadatafield+ )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The container for the external file	-->
+<!--		containing the relevant vocabulary.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		A V1.1 addition.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT vocabulary EMPTY>
+<!ATTLIST vocabulary  %I_Uri;
+                      %I_EntityRef; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The container for each QTI-specific meta-data	-->
+<!--		entry.				-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		A V1.1 addition.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT qtimetadatafield  (fieldlabel , fieldentry )>
+<!ATTLIST qtimetadatafield  xml:lang CDATA  #IMPLIED >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The container for each QTI-specific meta-data	-->
+<!--		entry label i.e. the name of the field.		-->
+<!--	Type:					-->
+<!--		PCDATA				-->
+<!--	Notes:					-->
+<!--		A V1.1 addition.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT fieldlabel  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The container for each QTI-specific meta-data	-->
+<!--		entry label i.e. the name of the field.		-->
+<!--	Type:					-->
+<!--		PCDATA				-->
+<!--	Notes:					-->
+<!--		A V1.1 addition.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT fieldentry  (#PCDATA )>
+
+<!---->
+<!---->
+<!---->
+<!---->
+<!--	ELEMENTS extensions that have been made available.		-->
+<!--	Refer to the information model for specific information		-->
+<!--	on these extensions.				-->
+<!--						-->
+<!--	The extension elements are:				-->
+<!--						-->
+<!--	1.	mat_extension - proprietary extension for material.	-->
+<!--	2.	vart_extension - proprietary extension for conditions.	-->
+<!--	3.	response_extension - responses proprietary extension.	-->
+<!--	4.	render_extension - rendering proprietary extension.	-->
+<!--	5.	assesscon_extension - Assessm't condition ext'sion.	-->
+<!--	6.	assessproc_extension - Assessm't processing ext'sion.	-->
+<!--	7.	sectionproc_extension - Section processing extension.	-->
+<!--	8.	Iitemproc_extension - Item processing extension.	-->
+<!--	9.	respcond_extension - response condition extension.	-->
+<!--	10.	condition_extension - condition extension.		-->
+<!--						-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Proprietary extension support for materials.	-->
+<!--	Type:					-->
+<!--		Any valid element, PCDATA.			-->
+<!--	Notes:					-->
+<!--		Acts as a high level element for any extensions to	-->
+<!--		the data objects.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT mat_extension ANY>
+
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Proprietary extension support for variable condition	-->
+<!--		comparisons.				-->
+<!--	Type:					-->
+<!--		Any valid element, PCDATA.			-->
+<!--	Notes:					-->
+<!--		Acts as a high level element for any extensions to	-->
+<!--		the data objects.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT var_extension ANY>
+
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Proprietary extension support for response types.	-->
+<!--	Type:					-->
+<!--		Any valid element, PCDATA.			-->
+<!--	Notes:					-->
+<!--		Acts as a high level element for any extensions to	-->
+<!--		the response objects.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT response_extension ANY>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Proprietary extension support for rendering types.	-->
+<!--	Type:					-->
+<!--		Any valid element, PCDATA.			-->
+<!--	Notes:					-->
+<!--		Acts as a high level element for any extensions to	-->
+<!--		the rendering objects.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT render_extension ANY>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Proprietary extension support Assessment processing.	-->
+<!--	Type:					-->
+<!--		Any valid element, PCDATA.			-->
+<!--	Notes:					-->
+<!--		Acts as an extension element for any extensions to	-->
+<!--		Assessment processing.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT assessproc_extension ANY>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Proprietary extension support Section processing.	-->
+<!--	Type:					-->
+<!--		Any valid element, PCDATA.			-->
+<!--	Notes:					-->
+<!--		Acts as an extension element for any extensions to	-->
+<!--		Section processing.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT sectionproc_extension ANY>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Proprietary extension support Item processing.	-->
+<!--	Type:					-->
+<!--		Any valid element, PCDATA.			-->
+<!--	Notes:					-->
+<!--		Acts as an extension element for any extensions to	-->
+<!--		Item processing.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT itemproc_extension ANY>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Proprietary extension support response conditions.	-->
+<!--	Type:					-->
+<!--		Any valid element, PCDATA.			-->
+<!--	Notes:					-->
+<!--		Acts as an extension element for any extensions to	-->
+<!--		Item conditions in Item processing.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT respcond_extension ANY>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Proprietary extension to support scoring conditions.	-->
+<!--	Type:					-->
+<!--		Any valid element, PCDATA.			-->
+<!--	Notes:					-->
+<!--		Acts as an extension element for any extensions to	-->
+<!--		Score conditions in Section/Assessment processing.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT scorecondition_extension ANY>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Proprietary extension to support conditions.	-->
+<!--	Type:					-->
+<!--		Any valid element, PCDATA.			-->
+<!--	Notes:					-->
+<!--		Acts as an extension element for any extensions to	-->
+<!--		Section/Assessment processing.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT condition_extension ANY>
+
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--						-->
+<!--	Main Objects					-->
+<!--	============				-->
+<!--						-->
+<!--  	The main objects are:				-->
+<!--						-->
+<!--	1	Assessment				-->
+<!--	2	Section				-->
+<!--	3	Item				-->
+<!--											-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--	    	###  This is the ASSESSMENT object. ###		-->
+<!--						-->
+<!--      	                   ###############################	-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--											-->
+<!--	The Assessment object contains all of the information to		-->
+<!--	make the use of individual Items meaningful i.e. apart from	-->
+<!--	the Items the object includes the relationship between the		-->
+<!--	Items, the group evaluation processing and the 		-->
+<!--	corresponding feedback.				-->
+<!--						-->
+<!--						-->
+<!--	Defined Elements				-->
+<!--	================				-->
+<!--						-->
+<!--	1.	assessmentmetadata			-->
+<!--	2.	assessmentcontrol			-->
+<!--	3.	assessprocessing			-->
+<!--	4.	scores				-->
+<!--	5.	assesscondition			-->
+<!--	6.	assessfeedback			-->
+<!--	7.	sectionselection			-->
+<!--	8.	sectionsequence			-->
+<!--	9.	sectionref				-->
+<!--						-->
+<!--	Defined Attributes				-->
+<!--	==================				-->
+<!--						-->
+<!--	1.	Title - title of the assessment		-->
+<!--	2.	Identity - mandatory label for the Assessment	-->
+<!--											-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT assessment  (qticomment? , duration? , assessmentmetadata? , 
+objectives* , rubric* , assessmentcontrol* , assessprocessing? , 
+assessproc_extension? , assessfeedback* ,  (sectionref | section )+ , 
+sectionselection* , sectionsequence* )>
+<!ATTLIST assessment  %I_Ident;
+                      %I_Title; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Assessment metadata descriptions.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Defined as per the metadata definition.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT assessmentmetadata  (qtimetadata* , qmd_absolutescore? , 
+qmd_assessmenttype? , qmd_feedbackpermitted? , qmd_hintspermitted? , 
+qmd_scoretype? , qmd_solutionspermitted? , qmd_sectionselection? , 
+qmd_sectionsequence? , qmd_itemselection? , qmd_itemsequence? , 
+qmd_timelimit? , qmd_toolvendor? , qmd_material* )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Switches to be set for the Assessment.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		These switches should be used to control the	-->
+<!--		operation of the Assessment related conditions.	-->
+<!--		These switches are defined per actor.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT assessmentcontrol  (qticomment? )>
+<!ATTLIST assessmentcontrol  %I_HintSwitch;
+                             %I_SolutionSwitch;
+                             %I_View;
+                             %I_FeedbackSwitch; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Assessment accumulated processing and feedback.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		This element is similar in nature to the		-->
+<!--		ResProcessing and SectionProcessing elements.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT assessprocessing  (qticomment? , scores , scorecondition* , 
+condition_extension? )>
+<!ATTLIST assessprocessing  %I_ScoreModel; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Feedback of the assessment processing conclusion.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The feedback will be determined by the conditions.	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT assessfeedback  (qticomment? ,  (material+ | flow_mat+ ) )>
+<!ATTLIST assessfeedback  %I_View;
+                          %I_Ident;
+                          %I_Title; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		To pull into scope the Sections that are not defined	-->
+<!--		within this Assessment block.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The referenced Section must be available somewhere	-->
+<!--		otherwise execution errors will occur.  Binding is	-->
+<!--		outside the scope of this specification.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT sectionref  (#PCDATA )>
+<!ATTLIST sectionref  %I_LinkRefId; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Deciding which Sections are required.		-->
+<!--	Type:					-->
+<!--		For further study in V2.0.			-->
+<!--	Notes:					-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT sectionselection  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Deciding the sequencing of the Sections.		-->
+<!--	Type:					-->
+<!--		For further study in V2.0.			-->
+<!--	Notes:					-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT sectionsequence  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--	    	###  This is the SECTION object. ###		-->
+<!--						-->
+<!--      	              #############################		-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--						-->
+<!--	The Section object contains all of the information to		-->
+<!--	meaningfully group together Items i.e. apart from the		-->
+<!--	Items the object includes the relationships between the		-->
+<!--	Items and the selection criteria of the Items.		-->
+<!--						-->
+<!--						-->
+<!--	Defined Elements				-->
+<!--	=============				-->
+<!--						-->
+<!--	1.	sectionmetadata			-->
+<!--	2.	sectionprecondition			-->
+<!--	3.	sectionpostcondition			-->
+<!--	4.	sectioncontrol				-->
+<!--	5.	itemref				-->
+<!--	6.	itemselection				-->
+<!--	7.	itemsequence				-->
+<!--	8.	sectionprocessing			-->
+<!--	9.	sectionfeedback			-->
+<!--						-->
+<!--	Defined Attributes				-->
+<!--	==================				-->
+<!--						-->
+<!--	1.	Title - title of the Section			-->
+<!--	2.	Ident - the unique Section identifier		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT section  (qticomment? , duration? , sectionmetadata? , 
+sectionprecondition* , sectionpostcondition* , objectives* , rubric* , 
+sectioncontrol* ,  (sectionref | section )* , sectionselection* , 
+sectionsequence* , sectionprocessing? , sectionproc_extension? , 
+sectionfeedback* ,  (itemref | item )* , itemselection* , itemsequence* )>
+<!ATTLIST section  %I_Ident;
+                   %I_Title; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Section metadata descriptions.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Defined as per the metadata definition.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT sectionmetadata  (qtimetadata* , qmd_numberofitems? , 
+qmd_sectionsincluded? , qmd_sectionselection? , qmd_sectionsequence? , 
+qmd_itemselection? , qmd_itemsequence? , qmd_timelimit? , qmd_material* )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Precondition decision before activating the Section.	-->
+<!--	Type:					-->
+<!--		For further study in V2.0.			-->
+<!--	Notes:					-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT sectionprecondition  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Postcondition decision activated after the Section 	-->
+<!--		has been completed.			-->
+<!--	Type:					-->
+<!--		For further study in V2.0.			-->
+<!--	Notes:					-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT sectionpostcondition  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Switches to be set for the Section.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		These switches should be used to control the	-->
+<!--		operation of the Section related conditions.		-->
+<!--		Defined per actor.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT sectioncontrol  (qticomment? )>
+<!ATTLIST sectioncontrol  %I_FeedbackSwitch;
+                          %I_HintSwitch;
+                          %I_SolutionSwitch;
+                          %I_View; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		To pull into scope the Items that are not defined	-->
+<!--		within this Section block.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The referenced Item must be available somewhere	-->
+<!--		otherwise execution errors will occur.  Binding is	-->
+<!--		outside the scope of this specification.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT itemref  (#PCDATA )>
+<!ATTLIST itemref  %I_LinkRefId; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Deciding which Items are required.		-->
+<!--	Type:					-->
+<!--		For further study in V2.0.			-->
+<!--	Notes:					-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT itemselection  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Deciding the sequence Items are to be used.	-->
+<!--	Type:					-->
+<!--		For further study in V2.0.			-->
+<!--	Notes:					-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT itemsequence  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Processing of the Section accumulated responses and	-->
+<!--		scores.				-->
+<!--	Type:					-->
+<!--		For further study in V2.0.			-->
+<!--	Notes:					-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT sectionprocessing  (qticomment? , scores , scorecondition+ , 
+condition_extension? )>
+<!ATTLIST sectionprocessing  %I_ScoreModel; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Feedback of the Section processing conclusions.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT sectionfeedback  (qticomment? ,  (material+ | flow_mat+ ) )>
+<!ATTLIST sectionfeedback  %I_View;
+                           %I_Ident;
+                           %I_Title; >
+<!---->
+<!---->
+<!--	+++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--	    	    ###  This is the Item object. ###		-->
+<!--						-->
+<!--      	     	   #########################		-->
+<!--	**********************************************************	-->
+<!--	**********************************************************	-->
+<!--						-->
+<!--	An Item object contains all of the information for the 		-->
+<!--	presentation of a question and its subsequent processing		-->
+<!--	to the user.  The structure of the Item includes the actual	-->
+<!--	question and its presentation format, the range of possible	-->
+<!--	responses, the ways in which the responses are to be		-->
+<!--	processed, and the possible solutions and hints to the		-->
+<!--	Item. 					-->
+<!--						-->
+<!--						-->
+<!--	Defined Elements				-->
+<!--	================				-->
+<!--						-->
+<!--	1.	itemmetadata				-->
+<!--	2.	itemcontrol				-->
+<!--	3.	itemprecondition			-->
+<!--	4.	itempostcondition			-->
+<!--	5.	itemrubric				-->
+<!--	6.	presentation				-->
+<!--	7.	response_lid				-->
+<!--	8.	response_xy				-->
+<!--	9.	response_str				-->
+<!--	10.	response_num			-->
+<!--	11.	response_grp				-->
+<!--	12.	response_label			-->
+<!--	13.	render_choice				-->
+<!--	14.	render_hotspot			-->
+<!--	15.	render_slider				-->
+<!--	16.	render_fib				-->
+<!--	17.	resprocessing				-->
+<!--	18.	respcondition				-->
+<!--	19.	outcomes				-->
+<!--	20.	itemfeedback				-->
+<!--	21.	solution				-->
+<!--	22.	solutionmaterial			-->
+<!--	23.	hint				-->
+<!--	24.	hintmaterial				-->
+<!--						-->
+<!--						-->
+<!--	Defined Attributes				-->
+<!--	==================				-->
+<!--						-->
+<!--	1.	title - title of the Item			-->
+<!--	2.	ident - the unique Item identifier		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT item  (qticomment? , duration? , itemmetadata? , objectives* , 
+itemcontrol* , itemprecondition* , itempostcondition* ,  (itemrubric | 
+rubric )* , presentation? , resprocessing* , itemproc_extension? , 
+itemfeedback* )>
+<!ATTLIST item  maxattempts CDATA  #IMPLIED
+                %I_Label;
+                %I_Ident;
+                %I_Title; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Item metadata descriptions.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Defined as per the metadata definition.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT itemmetadata  (qtimetadata* , qmd_computerscored? , 
+qmd_feedbackpermitted? , qmd_hintspermitted? , qmd_itemtype? , 
+qmd_levelofdifficulty? , qmd_maximumscore? , qmd_renderingtype* , 
+qmd_responsetype* , qmd_scoringpermitted? , qmd_solutionspermitted? , 
+qmd_status? , qmd_timedependence? , qmd_timelimit? , qmd_toolvendor? , 
+qmd_topic? , qmd_weighting? , qmd_material* , qmd_typeofsolution? )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Switches to be set for the Item.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		These switches should be used to control the	-->
+<!--		operation of the Section related conditions.		-->
+<!--		Defined per actor.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT itemcontrol  (qticomment? )>
+<!ATTLIST itemcontrol  %I_FeedbackSwitch;
+                       %I_HintSwitch;
+                       %I_SolutionSwitch;
+                       %I_View; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Precondition decision before activating the Item.	-->
+<!--	Type:					-->
+<!--		For further study in V2.0.			-->
+<!--	Notes:					-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT itemprecondition  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Postcondition decision after the Item has been 	-->
+<!--		completed.				-->
+<!--	Type:					-->
+<!--		For further study in V2.0.			-->
+<!--	Notes:					-->
+<!--		For further study in V2.0.			-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT itempostcondition  (#PCDATA )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The view specific description of how to attempt the	-->
+<!--		questions.				-->
+<!--	Type:					-->
+<!--		Standard CONTENT.			-->
+<!--	Notes:					-->
+<!--		Will not normally contain content specific to a	-->
+<!--		question.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT itemrubric  (material )>
+<!ATTLIST itemrubric  %I_View; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The question response and rendering container.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Each Presentation will consist of response types	-->
+<!--		and rendering forms  A simple presentation has just 	-->
+<!--		one ResponseType whereas complex responses will be 	-->
+<!--		based upon several ResponseTypes.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT presentation  (qticomment? ,  (flow |  (material | response_lid 
+| response_xy | response_str | response_num | response_grp | 
+response_extension )+ ) )>
+<!ATTLIST presentation  %I_Label; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The core block structuring component.	-->
+<!--						-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Logical identifier of the selected response(s).	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT flow  (flow | material | response_lid | response_xy | 
+response_str | response_num | response_grp | response_extension )+>
+<!ATTLIST flow  %I_Class; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The LID type of response expected and its possible	-->
+<!--		rendering.				-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Logical identifier of the selected response(s).	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT response_lid  (material? ,  (render_choice | render_hotspot | 
+render_slider | render_fib | render_extension ) , material? )>
+<!ATTLIST response_lid  %I_Rcardinality;
+                        %I_Rtiming;
+                        %I_Ident; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The XY type of response expected and its possible	-->
+<!--		renderings.				-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		XY co-ordinates of the selected response(s).	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT response_xy  (material? ,  (render_choice | render_hotspot | 
+render_slider | render_fib | render_extension ) , material? )>
+<!ATTLIST response_xy  %I_Rcardinality;
+                       %I_Rtiming;
+                       %I_Ident; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The STR type of response expected and its possible	-->
+<!--		renderings.				-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The string entered by the user as the response(s).	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT response_str  (material? ,  (render_choice | render_hotspot | 
+render_slider | render_fib | render_extension ) , material? )>
+<!ATTLIST response_str  %I_Rcardinality;
+                        %I_Ident;
+                        %I_Rtiming; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The NUM type of response expected and its possible	-->
+<!--		renderings.				-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The number entered by the user as the response(s).	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT response_num  (material? ,  (render_choice | render_hotspot | 
+render_slider | render_fib | render_extension ) , material? )>
+<!ATTLIST response_num  numtype         (Integer | Decimal | Scientific )  
+'Integer'
+                        %I_Rcardinality;
+                        %I_Ident;
+                        %I_Rtiming; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The GRP type of response expected and its possible	-->
+<!--		renderings.				-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The grouped identifiers of the selected response(s).	-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT response_grp  (material? ,  (render_choice | render_hotspot | 
+render_slider | render_fib | render_extension ) , material? )>
+<!ATTLIST response_grp  %I_Rcardinality;
+                        %I_Ident;
+                        %I_Rtiming; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The range of possible responses available.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		The attributes used depend upon the form of	-->
+<!--		rendering.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT response_label  (#PCDATA | qticomment | material | flow_mat )*>
+<!ATTLIST response_label  rshuffle    (Yes | No )  'Yes'
+                          rarea       (Ellipse | Rectangle | Bounded )  
+'Ellipse'
+                          rrange      (Exact | Range )  'Exact'
+                          labelrefid CDATA  #IMPLIED
+                          %I_Ident; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The flow structure encapsulating response_label.-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT flow_label  (flow_label | response_label )+>
+<!ATTLIST flow_label  %I_Class; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Proprietary extension for unanswered Response labels.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT response_na ANY>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Classical multiple choice, multiple response and	-->
+<!--		true/false selection list.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT render_choice  ( ( (material | response_label )* |  
+(response_label | flow_label )* ) , response_na? )>
+<!ATTLIST render_choice  shuffle      (Yes | No )  'No'
+                         %I_MinNumber;
+                         %I_MaxNumber; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The image hot spot rendering.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Defines the images to which the responses are	-->
+<!--		referenced.				-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT render_hotspot  ( ( (material | response_label )* |  
+(response_label | flow_label )* ) , response_na? )>
+<!ATTLIST render_hotspot  %I_MaxNumber;
+                          %I_MinNumber;
+                          showdraw     (Yes | No )  'No' >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Slider rendering format.			-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT render_slider  ( ( (material | response_label )* |  
+(response_label | flow_label )* ) , response_na? )>
+<!ATTLIST render_slider  orientation  (Horizontal | Vertical )  
+'Horizontal'
+                         lowerbound  CDATA  #REQUIRED
+                         upperbound  CDATA  #REQUIRED
+                         step        CDATA  #IMPLIED
+                         startval    CDATA  #IMPLIED
+                         steplabel    (Yes | No )  'No'
+                         %I_MaxNumber;
+                         %I_MinNumber; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The Fill-in-blank (FIB) rendering.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT render_fib  ( ( (material | response_label )* |  (response_label 
+| flow_label )* ) , response_na? )>
+<!ATTLIST render_fib  encoding    CDATA  'UTF_8'
+                      fibtype      (String | Integer | Decimal | 
+Scientific )  'String'
+                      rows        CDATA  #IMPLIED
+                      maxchars    CDATA  #IMPLIED
+                      prompt       (Box | Dashline | Asterisk | Underline 
+)  #IMPLIED
+                      columns     CDATA  #IMPLIED
+                      %I_CharSet;
+                      %I_MaxNumber;
+                      %I_MinNumber; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Evaluation processing of the user Item responses.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT resprocessing  (qticomment? , outcomes ,  (respcondition | 
+itemproc_extension )+ )>
+<!ATTLIST resprocessing  %I_ScoreModel; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Declaration of the Item scoring variables.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT outcomes  (qticomment? ,  (decvar | interpretvar )+ )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Control of the Item response evaluation.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT respcondition  (qticomment? , conditionvar , setvar* , 
+displayfeedback* , respcond_extension? )>
+<!ATTLIST respcondition  %I_Continue;
+                         %I_Title; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Feedback in response to the evaluation.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		Feedback in response to a trigger of response,	-->
+<!--		processing, hints and solutions.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT itemfeedback  ( (material+ | flow_mat+ ) | solution+ | hint+ )>
+<!ATTLIST itemfeedback  %I_View;
+                        %I_Ident;
+                        %I_Title; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The Solution to be revealed to the user.		-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--		If the type is 'Complete' then only a single		-->
+<!--		SOLUTIONMATERIAL should be supplied.  If the type is	-->
+<!-- 		'Multilevel' then each SOLUTIONMATERIAL is treated as	-->
+<!--		a separate solution.  If the type is 'Incremental'	-->
+<!--		then a series of steps are presented.		-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT solution  (qticomment? , solutionmaterial+ )>
+<!ATTLIST solution  %I_FeedbackStyle; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Container for the set of contents to be revealed as	-->
+<!--		a solution.				-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT solutionmaterial  (material+ | flow_mat+ )>
+
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		The Hint that can be presented to the user.	-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT hint  (qticomment? , hintmaterial+ )>
+<!ATTLIST hint  %I_FeedbackStyle; >
+<!---->
+<!---->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!--	Explanation:					-->
+<!--		Container for the set of contents to be revealed as	-->
+<!--		a hint.				-->
+<!--	Type:					-->
+<!--						-->
+<!--	Notes:					-->
+<!--						-->
+<!--						-->
+<!--	++++++++++++++++++++++++++++++++++++++++++++++++++++++	-->
+<!ELEMENT hintmaterial  (material+ | flow_mat+ )>
+

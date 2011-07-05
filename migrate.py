@@ -118,6 +118,9 @@ if __name__ == '__main__':
 			options.create_error_files = 1
 		else:
 			fileNames.append(x)
+
+	if not options.dtdDir:
+		options.dtdDir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'schemas'))
 	
 	if options.cpPath and os.path.exists(options.cpPath):
 		if os.path.isdir(options.cpPath):

@@ -1,0 +1,2923 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!--
+    IPR, License and Distribution Notices
+    This machine readable file is derived from IMS specification IMS Question and Test Interoperability XML Binding Version 2.0 Final Specification
+    found at http://www.imsglobal.org/question/ and the original IMS schema binding or code base 
+    http://www.imsglobal.org/question/qti_v2p0/imsqti_bindv2p0.html.
+    
+    Recipients of this document are requested to submit, with their comments, notification of any relevant patent 
+    claims or other intellectual property rights of which they may be aware that might be infringed by the schema 
+    binding contained in this document.
+    
+    IMS takes no position regarding the validity or scope of any intellectual property or other rights that might be 
+    claimed to pertain to the implementation or use of the technology described in this document or the extent to 
+    which any license under such rights might or might not be available; neither does it represent that it has made 
+    any effort to identify any such rights. Information on IMS’s procedures with respect to rights in IMS specifications 
+    can be found at the IMS Intellectual Property Rights web page: http://www.imsglobal.org/ipr/imsipr_policyFinal.pdf.
+    
+    Copyright © IMS Global Learning Consortium 1999-2007. All Rights Reserved.
+    
+    License Notice for Users
+    Users of products or services that include this document are hereby granted a worldwide, royalty-free, 
+    non-exclusive license to use this document.
+    
+    Distribution Notice for Developers
+    Developers of products or services that provide distribution of this document as is or with modifications are 
+    required to register with the IMS community on the IMS website as described in the following two paragraphs:
+    
+    - If you wish to distribute this document as is, with no modifications, you are hereby granted permission to copy, 
+    display and distribute the contents of this document in any medium for any purpose without fee or royalty provided 
+    that you include this IPR, License and Distribution notice in its entirety on ALL copies, or portions thereof, that you 
+    make and you complete a valid license registration with IMS and receive an email from IMS granting the license. 
+    To register, follow the instructions on the IMS website: http://www.imsglobal.org/specificationdownload.cfm. Once 
+    registered you are granted permission to transfer unlimited distribution rights of this document for the purposes 
+    of third-party or other distribution of your product or service that incorporates this document as long as this IPR, 
+    License and Distribution notice remains in place in its entirety.
+    
+    - If you wish to create and distribute a derived work from this document, you are hereby granted permission to copy, 
+    display and distribute the contents of the derived work in any medium for any purpose without fee or royalty provided 
+    that you include this IPR, License and Distribution notice in its entirety on ALL copies, or portions thereof, that you 
+    make and you complete a valid profile registration with IMS and receive an email from IMS granting the license. To 
+    register, follow the instructions on the IMS website: http://www.imsglobal.org/profile/. Once registered you are 
+    granted permission to transfer unlimited distribution rights of the derived work for the purposes of third-party or 
+    other distribution of your product or service that incorporates the derived work as long as this IPR, License and 
+    Distribution notice remains in place in its entirety.
+    
+    The limited permissions granted above are perpetual and will not be revoked by IMS or its successors or assigns.
+    
+    THIS SPECIFICATION IS BEING OFFERED WITHOUT ANY WARRANTY WHATSOEVER, AND IN PARTICULAR, 
+    ANY WARRANTY OF NONINFRINGEMENT IS EXPRESSLY DISCLAIMED. ANY USE OF THIS SPECIFICATION 
+    SHALL BE MADE ENTIRELY AT THE IMPLEMENTER’S OWN RISK, AND NEITHER THE CONSORTIUM, NOR 
+    ANY OF ITS MEMBERS OR SUBMITTERS, SHALL HAVE ANY LIABILITY WHATSOEVER TO ANY IMPLEMENTER 
+    OR THIRD PARTY FOR ANY DAMAGES OF ANY NATURE WHATSOEVER, DIRECTLY OR INDIRECTLY, ARISING 
+    FROM THE USE OF THIS SPECIFICATION.
+-->
+<!-- ***********************************************************************************-->
+<!--                                                                                    -->
+<!-- Author:    Steve Lay                                                               -->
+<!-- Version:   2.0.0                                                                   -->
+<!-- Date:      10th February, 2005                                                     -->
+<!--                                                                                    -->
+<!-- Comments:  This is the DTD for the IMS QTI (Item) v2.0 specification.       		-->
+<!-- 			This version replaces the IMS QTI XSD v1.2.1 for the Item parts of      -->
+<!--			that specification.														-->
+<!--                                                                                    -->
+<!-- History:	First release of the v2 specification.									-->
+<!--                                                                                    -->
+<!-- ================================================================================== -->
+
+<!-- Root Element Attributes for Schema compatibility -->
+
+<!ENTITY % nsAttrGroup
+"	xmlns				CDATA	'http://www.imsglobal.org/xsd/imsqti_v2p0'
+	xmlns:xsi			CDATA	'http://www.w3.org/2001/XMLSchema-instance'
+	xmlns:m	CDATA	'http://www.w3.org/1998/Math/MathML'
+	xsi:schemaLocation	CDATA	#IMPLIED
+	">
+
+
+<!-- Inclusion of MathML schema -->
+
+<!ENTITY % mathml-charent.module "IGNORE" >
+<!ENTITY % MATHML.prefixed "INCLUDE" >
+
+<!ENTITY % mathml2.dtd
+     PUBLIC "-//W3C//DTD MathML 2.0//EN" "http://www.w3.org/Math/DTD/mathml2/mathml2.dtd" >
+     
+%mathml2.dtd;
+      
+<!-- Abstract Classes -->
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % associableChoice.ElementGroup "gap|gapText|gapImg|associableHotspot|simpleAssociableChoice">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % atomicBlock.ElementGroup "pre|h2|h3|h1|h6|h4|h5|p|address">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % atomicInline.ElementGroup "img|br">
+
+<!ENTITY % block.ElementGroup "positionObjectStage|customInteraction|drawingInteraction|gapMatchInteraction|matchInteraction|graphicGapMatchInteraction|hotspotInteraction|graphicOrderInteraction|selectPointInteraction|graphicAssociateInteraction|sliderInteraction|choiceInteraction|hottextInteraction|orderInteraction|extendedTextInteraction|uploadInteraction|associateInteraction|pre|h2|h3|h1|h6|h4|h5|p|address|dl|ol|hr|rubricBlock|blockquote|feedbackBlock|ul|templateBlock|table|div|m:math">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % blockInteraction.ElementGroup "drawingInteraction|gapMatchInteraction|matchInteraction|graphicGapMatchInteraction|hotspotInteraction|graphicOrderInteraction|selectPointInteraction|graphicAssociateInteraction|sliderInteraction|choiceInteraction|hottextInteraction|orderInteraction|extendedTextInteraction|uploadInteraction|associateInteraction">
+
+<!ENTITY % blockStatic.ElementGroup "pre|h2|h3|h1|h6|h4|h5|p|address|dl|ol|hr|rubricBlock|blockquote|feedbackBlock|ul|templateBlock|table|div|m:math">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % bodyElement.ElementGroup "pre|h2|h3|h1|h6|h4|h5|p|address|prompt|dt|dd|td|th|itemBody|table|img|br|ul|tr|tbody|rubricBlock|blockquote|feedbackBlock|li|tfoot|thead|dl|hr|object|hottext|gap|gapText|gapImg|associableHotspot|simpleAssociableChoice|hotspotChoice|inlineChoice|simpleChoice|em|a|code|span|sub|acronym|big|tt|kbd|q|i|dfn|feedbackInline|abbr|strong|sup|var|small|samp|b|cite|textEntryInteraction|inlineChoiceInteraction|endAttemptInteraction|positionObjectInteraction|customInteraction|drawingInteraction|gapMatchInteraction|matchInteraction|graphicGapMatchInteraction|hotspotInteraction|graphicOrderInteraction|selectPointInteraction|graphicAssociateInteraction|sliderInteraction|choiceInteraction|hottextInteraction|orderInteraction|extendedTextInteraction|uploadInteraction|associateInteraction|ol|colgroup|printedVariable|caption|templateBlock|templateInline|div|col">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % choice.ElementGroup "hottext|gap|gapText|gapImg|associableHotspot|simpleAssociableChoice|hotspotChoice|inlineChoice|simpleChoice">
+
+<!ENTITY % dlElement.ElementGroup "dt|dd">
+
+<!ENTITY % expression.ElementGroup "and|gt|ordered|divide|customOperator|random|substring|variable|equalRounded|integerToFloat|null|index|integerDivide|gte|durationLT|contains|member|lt|correct|match|product|multiple|power|mapResponsePoint|mapResponse|randomFloat|stringMatch|not|integerModulus|subtract|durationGTE|anyN|round|baseValue|default|inside|equal|fieldValue|randomInteger|isNull|patternMatch|lte|sum|truncate|or|delete">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % feedbackElement.ElementGroup "feedbackInline|feedbackBlock">
+
+<!ENTITY % flow.ElementGroup "pre|h2|h3|h1|h6|h4|h5|p|address|dl|ol|img|br|ul|hr|printedVariable|object|rubricBlock|blockquote|feedbackBlock|hottext|em|a|code|span|sub|acronym|big|tt|kbd|q|i|dfn|feedbackInline|abbr|strong|sup|var|small|samp|b|cite|templateInline|templateBlock|table|div|m:math|textEntryInteraction|inlineChoiceInteraction|endAttemptInteraction|customInteraction|drawingInteraction|gapMatchInteraction|matchInteraction|graphicGapMatchInteraction|hotspotInteraction|graphicOrderInteraction|selectPointInteraction|graphicAssociateInteraction|sliderInteraction|choiceInteraction|hottextInteraction|orderInteraction|extendedTextInteraction|uploadInteraction|associateInteraction">
+
+<!ENTITY % flowStatic.ElementGroup "pre|h2|h3|h1|h6|h4|h5|p|address|dl|ol|img|br|ul|hr|printedVariable|object|rubricBlock|blockquote|feedbackBlock|hottext|em|a|code|span|sub|acronym|big|tt|kbd|q|i|dfn|feedbackInline|abbr|strong|sup|var|small|samp|b|cite|templateInline|templateBlock|table|div|m:math">
+
+<!ENTITY % gapChoice.ElementGroup "gapText|gapImg">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % graphicInteraction.ElementGroup "graphicGapMatchInteraction|hotspotInteraction|graphicOrderInteraction|selectPointInteraction|graphicAssociateInteraction">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % hotspot.ElementGroup "hotspotChoice|associableHotspot">
+
+<!ENTITY % inline.ElementGroup "textEntryInteraction|inlineChoiceInteraction|endAttemptInteraction|hottext|img|br|printedVariable|object|gap|em|a|code|span|sub|acronym|big|tt|kbd|q|i|dfn|feedbackInline|abbr|strong|sup|var|small|samp|b|cite|templateInline|m:math">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % inlineInteraction.ElementGroup "textEntryInteraction|inlineChoiceInteraction|endAttemptInteraction">
+
+<!ENTITY % inlineStatic.ElementGroup "hottext|img|br|printedVariable|object|gap|em|a|code|span|sub|acronym|big|tt|kbd|q|i|dfn|feedbackInline|abbr|strong|sup|var|small|samp|b|cite|templateInline|m:math">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % interaction.ElementGroup "textEntryInteraction|inlineChoiceInteraction|endAttemptInteraction|positionObjectInteraction|customInteraction|drawingInteraction|gapMatchInteraction|matchInteraction|graphicGapMatchInteraction|hotspotInteraction|graphicOrderInteraction|selectPointInteraction|graphicAssociateInteraction|sliderInteraction|choiceInteraction|hottextInteraction|orderInteraction|extendedTextInteraction|uploadInteraction|associateInteraction">
+
+<!ENTITY % itemStatistic.ElementGroup "ordinaryStatistic|categorizedStatistic">
+
+<!ENTITY % objectFlow.ElementGroup "pre|h2|h3|h1|h6|h4|h5|p|address|dl|ol|img|br|ul|hr|printedVariable|object|rubricBlock|blockquote|feedbackBlock|hottext|em|a|code|span|sub|acronym|big|tt|kbd|q|i|dfn|feedbackInline|abbr|strong|sup|var|small|samp|b|cite|templateInline|templateBlock|table|div|m:math|textEntryInteraction|inlineChoiceInteraction|endAttemptInteraction|customInteraction|drawingInteraction|gapMatchInteraction|matchInteraction|graphicGapMatchInteraction|hotspotInteraction|graphicOrderInteraction|selectPointInteraction|graphicAssociateInteraction|sliderInteraction|choiceInteraction|hottextInteraction|orderInteraction|extendedTextInteraction|uploadInteraction|associateInteraction|param">
+
+<!ENTITY % responseRule.ElementGroup "setOutcomeValue|responseCondition|exitResponse">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % simpleBlock.ElementGroup "rubricBlock|blockquote|feedbackBlock">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % simpleInline.ElementGroup "em|a|code|span|sub|acronym|big|tt|kbd|q|i|dfn|feedbackInline|abbr|strong|sup|var|small|samp|b|cite">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % stringInteraction.ElementGroup "textEntryInteraction|extendedTextInteraction">
+
+<!ENTITY % tableCell.ElementGroup "td|th">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % templateElement.ElementGroup "templateBlock|templateInline">
+
+<!ENTITY % templateRule.ElementGroup "setTemplateValue|exitTemplate|templateCondition|setDefaultValue|setCorrectResponse">
+
+<!-- Following definition is not used but improves readability of the binding document -->
+<!ENTITY % variableDeclaration.ElementGroup "responseDeclaration|outcomeDeclaration|templateDeclaration">
+
+<!-- Datatypes -->
+
+
+<!-- Enumeration: baseType -->
+
+<!ENTITY % baseType.Type "(boolean|directedPair|duration|file|float|identifier|integer|pair|point|string|uri)">
+
+
+<!-- Datatype: boolean -->
+
+<!ENTITY % boolean.Type "CDATA">
+
+
+<!-- Enumeration: cardinality -->
+
+<!ENTITY % cardinality.Type "(multiple|ordered|record|single)">
+
+
+<!-- Datatype: coords -->
+
+<!ENTITY % coords.Type "CDATA">
+
+
+<!-- Datatype: date -->
+
+<!ENTITY % date.Type "CDATA">
+
+
+<!-- Enumeration: feedbackType -->
+
+<!ENTITY % feedbackType.Type "(adaptive|nonadaptive|none)">
+
+<!ELEMENT feedbackType	(#PCDATA)>
+
+
+<!-- Datatype: float -->
+
+<!ENTITY % float.Type "CDATA">
+
+
+<!-- Datatype: identifier -->
+
+<!ENTITY % identifier.Type "NMTOKEN">
+
+
+<!-- Datatype: integer -->
+
+<!ENTITY % integer.Type "NMTOKEN">
+
+
+<!-- Enumeration: interactionType -->
+
+<!ENTITY % interactionType.Type "(associateInteraction|choiceInteraction|customInteraction|drawingInteraction|endAttemptInteraction|extendedTextInteraction|gapMatchInteraction|graphicAssociateInteraction|graphicGapMatchInteraction|graphicOrderInteraction|hotspotInteraction|hottextInteraction|inlineChoiceInteraction|matchInteraction|orderInteraction|positionObjectInteraction|selectPointInteraction|sliderInteraction|textEntryInteraction|uploadInteraction)">
+
+<!ELEMENT interactionType	(#PCDATA)>
+
+
+<!-- Datatype: language -->
+
+<!ENTITY % language.Type "CDATA">
+
+
+<!-- Datatype: length -->
+
+<!ENTITY % length.Type "CDATA">
+
+
+<!-- Datatype: mimeType -->
+
+<!ENTITY % mimeType.Type "CDATA">
+
+
+<!-- Enumeration: orientation -->
+
+<!ENTITY % orientation.Type "(horizontal|vertical)">
+
+
+<!-- Enumeration: paramType -->
+
+<!ENTITY % paramType.Type "(DATA|REF)">
+
+
+<!-- Enumeration: roundingMode -->
+
+<!ENTITY % roundingMode.Type "(decimalPlaces|significantFigures)">
+
+
+<!-- Enumeration: shape -->
+
+<!ENTITY % shape.Type "(circle|default|ellipse|poly|rect)">
+
+
+<!-- Enumeration: showHide -->
+
+<!ENTITY % showHide.Type "(hide|show)">
+
+
+<!-- Datatype: sign -->
+
+<!ENTITY % sign.Type "CDATA">
+
+
+<!-- Datatype: string -->
+
+<!ENTITY % string.Type "CDATA">
+
+
+<!-- Datatype: string256 -->
+
+<!ENTITY % string256.Type "CDATA">
+
+
+<!-- Datatype: styleclass -->
+
+<!ENTITY % styleclass.Type "CDATA">
+
+
+<!-- Enumeration: tableCellScope -->
+
+<!ENTITY % tableCellScope.Type "(col|colgroup|row|rowgroup)">
+
+
+<!-- Enumeration: toleranceMode -->
+
+<!ENTITY % toleranceMode.Type "(absolute|exact|relative)">
+
+
+<!-- Datatype: uri -->
+
+<!ENTITY % uri.Type "CDATA">
+
+
+<!-- Enumeration: view -->
+
+<!ENTITY % view.Type "(author|candidate|proctor|scorer|tutor)">
+
+<!-- Classes -->
+
+
+<!-- Class: bodyElement -->
+
+<!ENTITY % bodyElement.AttrGroup
+"	id		%identifier.Type;		#IMPLIED
+	class		CDATA		#IMPLIED
+	xml:lang		%language.Type;		#IMPLIED
+	label		%string256.Type;		#IMPLIED
+	">
+
+
+<!-- Class: objectFlow -->
+
+
+<!-- Class: flow -->
+
+
+<!-- Class: flowStatic -->
+
+
+<!-- Class: inline -->
+
+
+<!-- Class: inlineStatic -->
+
+
+<!-- Class: simpleInline -->
+
+<!ENTITY % simpleInline.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % simpleInline.ContentGroup
+"((%inline.ElementGroup;)*)">
+
+
+<!-- Class: a -->
+
+<!ENTITY % a.AttrGroup
+"	%simpleInline.AttrGroup;
+	href		%uri.Type;		#REQUIRED
+	type		%mimeType.Type;		#IMPLIED
+	">
+
+<!ENTITY % a.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT a	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST a	%a.AttrGroup; >
+
+
+<!-- Class: abbr -->
+
+<!ENTITY % abbr.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % abbr.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT abbr	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST abbr	%abbr.AttrGroup; >
+
+
+<!-- Class: acronym -->
+
+<!ENTITY % acronym.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % acronym.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT acronym	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST acronym	%acronym.AttrGroup; >
+
+
+<!-- Pseudo-class: adaptive -->
+
+<!ELEMENT adaptive	(#PCDATA)>
+
+
+<!-- Class: block -->
+
+
+<!-- Class: blockStatic -->
+
+
+<!-- Class: atomicBlock -->
+
+<!ENTITY % atomicBlock.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % atomicBlock.ContentGroup
+"((%inline.ElementGroup;)*)">
+
+
+<!-- Class: address -->
+
+<!ENTITY % address.AttrGroup
+"	%atomicBlock.AttrGroup;
+	">
+
+<!ENTITY % address.ContentGroup
+"(%atomicBlock.ContentGroup;)">
+
+<!ELEMENT address	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST address	%address.AttrGroup; >
+
+
+<!-- Class: expression -->
+
+
+<!-- Class: and -->
+
+<!ENTITY % and.ContentGroup
+"((%expression.ElementGroup;)+)">
+
+<!ELEMENT and	(%and.ContentGroup;) >
+
+
+<!-- Class: anyN -->
+
+<!ENTITY % anyN.AttrGroup
+"	min		%integer.Type;		#REQUIRED
+	max		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % anyN.ContentGroup
+"((%expression.ElementGroup;)+)">
+
+<!ELEMENT anyN	(%anyN.ContentGroup;) >
+
+<!ATTLIST anyN	%anyN.AttrGroup; >
+
+
+<!-- Class: areaMapEntry -->
+
+<!ENTITY % areaMapEntry.AttrGroup
+"	shape		%shape.Type;		#REQUIRED
+	coords		%coords.Type;		#REQUIRED
+	mappedValue		%float.Type;		#REQUIRED
+	">
+
+<!ELEMENT areaMapEntry	EMPTY >
+
+<!ATTLIST areaMapEntry	%areaMapEntry.AttrGroup; >
+
+
+<!-- Class: areaMapping -->
+
+<!ENTITY % areaMapping.AttrGroup
+"	lowerBound		%float.Type;		#IMPLIED
+	upperBound		%float.Type;		#IMPLIED
+	defaultValue		%float.Type;		#REQUIRED
+	">
+
+<!ENTITY % areaMapping.ContentGroup
+"(areaMapEntry+)">
+
+<!ELEMENT areaMapping	(%areaMapping.ContentGroup;) >
+
+<!ATTLIST areaMapping	%areaMapping.AttrGroup; >
+
+
+<!-- Class: assessmentItem -->
+
+<!ENTITY % assessmentItem.AttrGroup
+"	identifier		%string.Type;		#REQUIRED
+	title		%string.Type;		#REQUIRED
+	label		%string256.Type;		#IMPLIED
+	xml:lang		%language.Type;		#IMPLIED
+	adaptive		%boolean.Type;		#REQUIRED
+	timeDependent		%boolean.Type;		#REQUIRED
+	toolName		%string256.Type;		#IMPLIED
+	toolVersion		%string256.Type;		#IMPLIED
+	">
+
+<!ENTITY % assessmentItem.ContentGroup
+"(responseDeclaration*,outcomeDeclaration*,templateDeclaration*,templateProcessing?,stylesheet*,itemBody?,responseProcessing?,modalFeedback*)">
+
+<!ELEMENT assessmentItem	(%assessmentItem.ContentGroup;) >
+
+<!ATTLIST assessmentItem	%assessmentItem.AttrGroup;	%nsAttrGroup; >
+
+
+<!-- Class: choice -->
+
+<!ENTITY % choice.AttrGroup
+"	%bodyElement.AttrGroup;
+	identifier		%identifier.Type;		#REQUIRED
+	fixed		%boolean.Type;		#IMPLIED
+	">
+
+
+<!-- Class: associableChoice -->
+
+<!ENTITY % associableChoice.AttrGroup
+"	%choice.AttrGroup;
+	matchGroup		CDATA		#IMPLIED
+	">
+
+
+<!-- Class: hotspot -->
+
+<!ENTITY % hotspot.AttrGroup
+"	shape		%shape.Type;		#REQUIRED
+	coords		%coords.Type;		#REQUIRED
+	hotspotLabel		%string256.Type;		#IMPLIED
+	">
+
+
+<!-- Class: associableHotspot -->
+
+<!ENTITY % associableHotspot.AttrGroup
+"	%associableChoice.AttrGroup;
+	%hotspot.AttrGroup;
+	matchMax		%integer.Type;		#REQUIRED
+	">
+
+<!ELEMENT associableHotspot	EMPTY >
+
+<!ATTLIST associableHotspot	%associableHotspot.AttrGroup; >
+
+
+<!-- Class: interaction -->
+
+<!ENTITY % interaction.AttrGroup
+"	%bodyElement.AttrGroup;
+	responseIdentifier		%identifier.Type;		#REQUIRED
+	">
+
+
+<!-- Class: blockInteraction -->
+
+<!ENTITY % blockInteraction.AttrGroup
+"	%interaction.AttrGroup;
+	">
+
+<!ENTITY % blockInteraction.ContentGroup
+"(prompt?)">
+
+
+<!-- Class: associateInteraction -->
+
+<!ENTITY % associateInteraction.AttrGroup
+"	%blockInteraction.AttrGroup;
+	shuffle		%boolean.Type;		#REQUIRED
+	maxAssociations		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % associateInteraction.ContentGroup
+"(%blockInteraction.ContentGroup;,simpleAssociableChoice+)">
+
+<!ELEMENT associateInteraction	(%associateInteraction.ContentGroup;) >
+
+<!ATTLIST associateInteraction	%associateInteraction.AttrGroup; >
+
+
+<!-- Class: atomicInline -->
+
+<!ENTITY % atomicInline.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+
+<!-- Class: b -->
+
+<!ENTITY % b.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % b.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT b	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST b	%b.AttrGroup; >
+
+
+<!-- Class: bankProfile -->
+
+<!ENTITY % bankProfile.ContentGroup
+"(usageDataVocabulary*,metadataProfile)">
+
+<!ELEMENT bankProfile	(%bankProfile.ContentGroup;) >
+
+<!ATTLIST bankProfile	%nsAttrGroup; >
+
+
+<!-- Class: baseValue -->
+
+<!ENTITY % baseValue.AttrGroup
+"	baseType		%baseType.Type;		#REQUIRED
+	">
+
+<!ELEMENT baseValue	(#PCDATA)>
+
+<!ATTLIST baseValue	%baseValue.AttrGroup; >
+
+
+<!-- Class: big -->
+
+<!ENTITY % big.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % big.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT big	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST big	%big.AttrGroup; >
+
+
+<!-- Class: simpleBlock -->
+
+<!ENTITY % simpleBlock.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % simpleBlock.ContentGroup
+"((%block.ElementGroup;)*)">
+
+
+<!-- Class: blockquote -->
+
+<!ENTITY % blockquote.AttrGroup
+"	%simpleBlock.AttrGroup;
+	cite		%uri.Type;		#IMPLIED
+	">
+
+<!ENTITY % blockquote.ContentGroup
+"(%simpleBlock.ContentGroup;)">
+
+<!ELEMENT blockquote	(%blockquote.ContentGroup;) >
+
+<!ATTLIST blockquote	%blockquote.AttrGroup; >
+
+
+<!-- Class: br -->
+
+<!ENTITY % br.AttrGroup
+"	%atomicInline.AttrGroup;
+	">
+
+<!ELEMENT br	EMPTY >
+
+<!ATTLIST br	%br.AttrGroup; >
+
+
+<!-- Class: caption -->
+
+<!ENTITY % caption.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % caption.ContentGroup
+"((%inline.ElementGroup;)*)">
+
+<!ELEMENT caption	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST caption	%caption.AttrGroup; >
+
+
+<!-- Class: itemStatistic -->
+
+<!ENTITY % itemStatistic.AttrGroup
+"	name		%identifier.Type;		#REQUIRED
+	glossary		%uri.Type;		#IMPLIED
+	context		%uri.Type;		#REQUIRED
+	caseCount		%integer.Type;		#IMPLIED
+	stdError		%float.Type;		#IMPLIED
+	stdDeviation		%float.Type;		#IMPLIED
+	lastUpdated		%date.Type;		#IMPLIED
+	">
+
+<!ENTITY % itemStatistic.ContentGroup
+"(targetObject+)">
+
+
+<!-- Class: categorizedStatistic -->
+
+<!ENTITY % categorizedStatistic.AttrGroup
+"	%itemStatistic.AttrGroup;
+	">
+
+<!ENTITY % categorizedStatistic.ContentGroup
+"(%itemStatistic.ContentGroup;,mapping)">
+
+<!ELEMENT categorizedStatistic	(%categorizedStatistic.ContentGroup;) >
+
+<!ATTLIST categorizedStatistic	%categorizedStatistic.AttrGroup; >
+
+
+<!-- Class: choiceInteraction -->
+
+<!ENTITY % choiceInteraction.AttrGroup
+"	%blockInteraction.AttrGroup;
+	shuffle		%boolean.Type;		#REQUIRED
+	maxChoices		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % choiceInteraction.ContentGroup
+"(%blockInteraction.ContentGroup;,simpleChoice+)">
+
+<!ELEMENT choiceInteraction	(%choiceInteraction.ContentGroup;) >
+
+<!ATTLIST choiceInteraction	%choiceInteraction.AttrGroup; >
+
+
+<!-- Class: cite -->
+
+<!ENTITY % cite.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % cite.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT cite	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST cite	%cite.AttrGroup; >
+
+
+<!-- Class: code -->
+
+<!ENTITY % code.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % code.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT code	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST code	%code.AttrGroup; >
+
+
+<!-- Class: col -->
+
+<!ENTITY % col.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ELEMENT col	EMPTY >
+
+<!ATTLIST col	%col.AttrGroup; >
+
+
+<!-- Class: colgroup -->
+
+<!ENTITY % colgroup.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % colgroup.ContentGroup
+"(col*)">
+
+<!ELEMENT colgroup	(%colgroup.ContentGroup;) >
+
+<!ATTLIST colgroup	%colgroup.AttrGroup; >
+
+
+<!-- Pseudo-class: composite -->
+
+<!ELEMENT composite	(#PCDATA)>
+
+
+<!-- Class: contains -->
+
+<!ENTITY % contains.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT contains	(%contains.ContentGroup;) >
+
+
+<!-- Class: contentProfile -->
+
+<!ENTITY % contentProfile.ContentGroup
+"(composite,adaptive,timeDependent,templates,textElements,listElements,objectElements,objectType*,presentationElements,tableElements,imageElement,imageType*,hypertextElement,mathElement,mathVariable,feedbackIntegrated,feedbackModal,rubric,printedVariables,interactionType*,responseRules,rpTemplate*,rounding,regexp,metadataProfile)">
+
+<!ELEMENT contentProfile	(%contentProfile.ContentGroup;) >
+
+<!ATTLIST contentProfile	%nsAttrGroup; >
+
+
+<!-- Class: correct -->
+
+<!ENTITY % correct.AttrGroup
+"	identifier		%identifier.Type;		#REQUIRED
+	">
+
+<!ELEMENT correct	EMPTY >
+
+<!ATTLIST correct	%correct.AttrGroup; >
+
+
+<!-- Class: correctResponse -->
+
+<!ENTITY % correctResponse.AttrGroup
+"	interpretation		%string.Type;		#IMPLIED
+	">
+
+<!ENTITY % correctResponse.ContentGroup
+"(value+)">
+
+<!ELEMENT correctResponse	(%correctResponse.ContentGroup;) >
+
+<!ATTLIST correctResponse	%correctResponse.AttrGroup; >
+
+
+<!-- Class: customInteraction -->
+
+<!ENTITY % customInteraction.AttrGroup
+"	%interaction.AttrGroup;
+	">
+
+<!ELEMENT customInteraction	EMPTY >
+
+<!ATTLIST customInteraction	%customInteraction.AttrGroup; >
+
+
+<!-- Class: customOperator -->
+
+<!ENTITY % customOperator.AttrGroup
+"	class		%identifier.Type;		#IMPLIED
+	definition		%uri.Type;		#IMPLIED
+	">
+
+<!ENTITY % customOperator.ContentGroup
+"((%expression.ElementGroup;)*)">
+
+<!ELEMENT customOperator	(%customOperator.ContentGroup;) >
+
+<!ATTLIST customOperator	%customOperator.AttrGroup; >
+
+
+<!-- Class: dlElement -->
+
+<!ENTITY % dlElement.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+
+<!-- Class: dd -->
+
+<!ENTITY % dd.AttrGroup
+"	%dlElement.AttrGroup;
+	">
+
+<!ENTITY % dd.ContentGroup
+"((%flow.ElementGroup;)*)">
+
+<!ELEMENT dd	(#PCDATA|%flow.ElementGroup;)* >
+
+<!ATTLIST dd	%dd.AttrGroup; >
+
+
+<!-- Class: default -->
+
+<!ENTITY % default.AttrGroup
+"	identifier		%identifier.Type;		#REQUIRED
+	">
+
+<!ELEMENT default	EMPTY >
+
+<!ATTLIST default	%default.AttrGroup; >
+
+
+<!-- Class: defaultValue -->
+
+<!ENTITY % defaultValue.AttrGroup
+"	interpretation		%string.Type;		#IMPLIED
+	">
+
+<!ENTITY % defaultValue.ContentGroup
+"(value+)">
+
+<!ELEMENT defaultValue	(%defaultValue.ContentGroup;) >
+
+<!ATTLIST defaultValue	%defaultValue.AttrGroup; >
+
+
+<!-- Class: delete -->
+
+<!ENTITY % delete.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT delete	(%delete.ContentGroup;) >
+
+
+<!-- Class: dfn -->
+
+<!ENTITY % dfn.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % dfn.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT dfn	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST dfn	%dfn.AttrGroup; >
+
+
+<!-- Class: div -->
+
+<!ENTITY % div.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % div.ContentGroup
+"((%flow.ElementGroup;)*)">
+
+<!ELEMENT div	(#PCDATA|%flow.ElementGroup;)* >
+
+<!ATTLIST div	%div.AttrGroup; >
+
+
+<!-- Class: divide -->
+
+<!ENTITY % divide.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT divide	(%divide.ContentGroup;) >
+
+
+<!-- Class: dl -->
+
+<!ENTITY % dl.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % dl.ContentGroup
+"((%dlElement.ElementGroup;)*)">
+
+<!ELEMENT dl	(%dl.ContentGroup;) >
+
+<!ATTLIST dl	%dl.AttrGroup; >
+
+
+<!-- Class: drawingInteraction -->
+
+<!ENTITY % drawingInteraction.AttrGroup
+"	%blockInteraction.AttrGroup;
+	">
+
+<!ENTITY % drawingInteraction.ContentGroup
+"(%blockInteraction.ContentGroup;,object)">
+
+<!ELEMENT drawingInteraction	(%drawingInteraction.ContentGroup;) >
+
+<!ATTLIST drawingInteraction	%drawingInteraction.AttrGroup; >
+
+
+<!-- Class: dt -->
+
+<!ENTITY % dt.AttrGroup
+"	%dlElement.AttrGroup;
+	">
+
+<!ENTITY % dt.ContentGroup
+"((%inline.ElementGroup;)*)">
+
+<!ELEMENT dt	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST dt	%dt.AttrGroup; >
+
+
+<!-- Class: durationGTE -->
+
+<!ENTITY % durationGTE.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT durationGTE	(%durationGTE.ContentGroup;) >
+
+
+<!-- Class: durationLT -->
+
+<!ENTITY % durationLT.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT durationLT	(%durationLT.ContentGroup;) >
+
+
+<!-- Class: em -->
+
+<!ENTITY % em.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % em.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT em	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST em	%em.AttrGroup; >
+
+
+<!-- Class: inlineInteraction -->
+
+<!ENTITY % inlineInteraction.AttrGroup
+"	%interaction.AttrGroup;
+	">
+
+
+<!-- Class: endAttemptInteraction -->
+
+<!ENTITY % endAttemptInteraction.AttrGroup
+"	%inlineInteraction.AttrGroup;
+	title		%string.Type;		#REQUIRED
+	">
+
+<!ELEMENT endAttemptInteraction	EMPTY >
+
+<!ATTLIST endAttemptInteraction	%endAttemptInteraction.AttrGroup; >
+
+
+<!-- Class: equal -->
+
+<!ENTITY % equal.AttrGroup
+"	toleranceMode		%toleranceMode.Type;		#REQUIRED
+	tolerance		CDATA		#IMPLIED
+	">
+
+<!ENTITY % equal.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT equal	(%equal.ContentGroup;) >
+
+<!ATTLIST equal	%equal.AttrGroup; >
+
+
+<!-- Class: equalRounded -->
+
+<!ENTITY % equalRounded.AttrGroup
+"	roundingMode		%roundingMode.Type;		#REQUIRED
+	figures		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % equalRounded.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT equalRounded	(%equalRounded.ContentGroup;) >
+
+<!ATTLIST equalRounded	%equalRounded.AttrGroup; >
+
+
+<!-- Class: responseRule -->
+
+
+<!-- Class: exitResponse -->
+
+<!ELEMENT exitResponse	EMPTY >
+
+
+<!-- Class: templateRule -->
+
+
+<!-- Class: exitTemplate -->
+
+<!ELEMENT exitTemplate	EMPTY >
+
+
+<!-- Class: stringInteraction -->
+
+<!ENTITY % stringInteraction.AttrGroup
+"	base		%integer.Type;		#IMPLIED
+	stringIdentifier		%identifier.Type;		#IMPLIED
+	expectedLength		%integer.Type;		#IMPLIED
+	patternMask		%string.Type;		#IMPLIED
+	placeholderText		%string.Type;		#IMPLIED
+	">
+
+
+<!-- Class: extendedTextInteraction -->
+
+<!ENTITY % extendedTextInteraction.AttrGroup
+"	%blockInteraction.AttrGroup;
+	%stringInteraction.AttrGroup;
+	maxStrings		%integer.Type;		#IMPLIED
+	expectedLines		%integer.Type;		#IMPLIED
+	">
+
+<!ENTITY % extendedTextInteraction.ContentGroup
+"(%blockInteraction.ContentGroup;)">
+
+<!ELEMENT extendedTextInteraction	(%extendedTextInteraction.ContentGroup;) >
+
+<!ATTLIST extendedTextInteraction	%extendedTextInteraction.AttrGroup; >
+
+
+<!-- Class: feedbackElement -->
+
+<!ENTITY % feedbackElement.AttrGroup
+"	outcomeIdentifier		%identifier.Type;		#REQUIRED
+	showHide		%showHide.Type;		#REQUIRED
+	identifier		%identifier.Type;		#REQUIRED
+	">
+
+
+<!-- Class: feedbackBlock -->
+
+<!ENTITY % feedbackBlock.AttrGroup
+"	%feedbackElement.AttrGroup;
+	%simpleBlock.AttrGroup;
+	">
+
+<!ENTITY % feedbackBlock.ContentGroup
+"(%simpleBlock.ContentGroup;)">
+
+<!ELEMENT feedbackBlock	(%feedbackBlock.ContentGroup;) >
+
+<!ATTLIST feedbackBlock	%feedbackBlock.AttrGroup; >
+
+
+<!-- Class: feedbackInline -->
+
+<!ENTITY % feedbackInline.AttrGroup
+"	%feedbackElement.AttrGroup;
+	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % feedbackInline.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT feedbackInline	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST feedbackInline	%feedbackInline.AttrGroup; >
+
+
+<!-- Pseudo-class: feedbackIntegrated -->
+
+<!ELEMENT feedbackIntegrated	(#PCDATA)>
+
+
+<!-- Pseudo-class: feedbackModal -->
+
+<!ELEMENT feedbackModal	(#PCDATA)>
+
+
+<!-- Class: fieldValue -->
+
+<!ENTITY % fieldValue.AttrGroup
+"	fieldIdentifier		%identifier.Type;		#REQUIRED
+	">
+
+<!ENTITY % fieldValue.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT fieldValue	(%fieldValue.ContentGroup;) >
+
+<!ATTLIST fieldValue	%fieldValue.AttrGroup; >
+
+
+<!-- Class: gap -->
+
+<!ENTITY % gap.AttrGroup
+"	%associableChoice.AttrGroup;
+	">
+
+<!ELEMENT gap	EMPTY >
+
+<!ATTLIST gap	%gap.AttrGroup; >
+
+
+<!-- Class: gapChoice -->
+
+<!ENTITY % gapChoice.AttrGroup
+"	%associableChoice.AttrGroup;
+	matchMax		%integer.Type;		#REQUIRED
+	">
+
+
+<!-- Class: gapImg -->
+
+<!ENTITY % gapImg.AttrGroup
+"	%gapChoice.AttrGroup;
+	objectLabel		%string.Type;		#IMPLIED
+	">
+
+<!ENTITY % gapImg.ContentGroup
+"(object)">
+
+<!ELEMENT gapImg	(%gapImg.ContentGroup;) >
+
+<!ATTLIST gapImg	%gapImg.AttrGroup; >
+
+
+<!-- Class: gapMatchInteraction -->
+
+<!ENTITY % gapMatchInteraction.AttrGroup
+"	%blockInteraction.AttrGroup;
+	shuffle		%boolean.Type;		#REQUIRED
+	">
+
+<!ENTITY % gapMatchInteraction.ContentGroup
+"(%blockInteraction.ContentGroup;,(%gapChoice.ElementGroup;)+,(%blockStatic.ElementGroup;)+)">
+
+<!ELEMENT gapMatchInteraction	(%gapMatchInteraction.ContentGroup;) >
+
+<!ATTLIST gapMatchInteraction	%gapMatchInteraction.AttrGroup; >
+
+
+<!-- Class: gapText -->
+
+<!ENTITY % gapText.AttrGroup
+"	%gapChoice.AttrGroup;
+	">
+
+<!ELEMENT gapText	(#PCDATA)>
+
+<!ATTLIST gapText	%gapText.AttrGroup; >
+
+
+<!-- Class: graphicInteraction -->
+
+<!ENTITY % graphicInteraction.AttrGroup
+"	%blockInteraction.AttrGroup;
+	">
+
+<!ENTITY % graphicInteraction.ContentGroup
+"(%blockInteraction.ContentGroup;,object)">
+
+
+<!-- Class: graphicAssociateInteraction -->
+
+<!ENTITY % graphicAssociateInteraction.AttrGroup
+"	%graphicInteraction.AttrGroup;
+	maxAssociations		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % graphicAssociateInteraction.ContentGroup
+"(%graphicInteraction.ContentGroup;,associableHotspot+)">
+
+<!ELEMENT graphicAssociateInteraction	(%graphicAssociateInteraction.ContentGroup;) >
+
+<!ATTLIST graphicAssociateInteraction	%graphicAssociateInteraction.AttrGroup; >
+
+
+<!-- Class: graphicGapMatchInteraction -->
+
+<!ENTITY % graphicGapMatchInteraction.AttrGroup
+"	%graphicInteraction.AttrGroup;
+	">
+
+<!ENTITY % graphicGapMatchInteraction.ContentGroup
+"(%graphicInteraction.ContentGroup;,gapImg+,associableHotspot+)">
+
+<!ELEMENT graphicGapMatchInteraction	(%graphicGapMatchInteraction.ContentGroup;) >
+
+<!ATTLIST graphicGapMatchInteraction	%graphicGapMatchInteraction.AttrGroup; >
+
+
+<!-- Class: graphicOrderInteraction -->
+
+<!ENTITY % graphicOrderInteraction.AttrGroup
+"	%graphicInteraction.AttrGroup;
+	">
+
+<!ENTITY % graphicOrderInteraction.ContentGroup
+"(%graphicInteraction.ContentGroup;,hotspotChoice+)">
+
+<!ELEMENT graphicOrderInteraction	(%graphicOrderInteraction.ContentGroup;) >
+
+<!ATTLIST graphicOrderInteraction	%graphicOrderInteraction.AttrGroup; >
+
+
+<!-- Class: gt -->
+
+<!ENTITY % gt.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT gt	(%gt.ContentGroup;) >
+
+
+<!-- Class: gte -->
+
+<!ENTITY % gte.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT gte	(%gte.ContentGroup;) >
+
+
+<!-- Class: h1 -->
+
+<!ENTITY % h1.AttrGroup
+"	%atomicBlock.AttrGroup;
+	">
+
+<!ENTITY % h1.ContentGroup
+"(%atomicBlock.ContentGroup;)">
+
+<!ELEMENT h1	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST h1	%h1.AttrGroup; >
+
+
+<!-- Class: h2 -->
+
+<!ENTITY % h2.AttrGroup
+"	%atomicBlock.AttrGroup;
+	">
+
+<!ENTITY % h2.ContentGroup
+"(%atomicBlock.ContentGroup;)">
+
+<!ELEMENT h2	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST h2	%h2.AttrGroup; >
+
+
+<!-- Class: h3 -->
+
+<!ENTITY % h3.AttrGroup
+"	%atomicBlock.AttrGroup;
+	">
+
+<!ENTITY % h3.ContentGroup
+"(%atomicBlock.ContentGroup;)">
+
+<!ELEMENT h3	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST h3	%h3.AttrGroup; >
+
+
+<!-- Class: h4 -->
+
+<!ENTITY % h4.AttrGroup
+"	%atomicBlock.AttrGroup;
+	">
+
+<!ENTITY % h4.ContentGroup
+"(%atomicBlock.ContentGroup;)">
+
+<!ELEMENT h4	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST h4	%h4.AttrGroup; >
+
+
+<!-- Class: h5 -->
+
+<!ENTITY % h5.AttrGroup
+"	%atomicBlock.AttrGroup;
+	">
+
+<!ENTITY % h5.ContentGroup
+"(%atomicBlock.ContentGroup;)">
+
+<!ELEMENT h5	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST h5	%h5.AttrGroup; >
+
+
+<!-- Class: h6 -->
+
+<!ENTITY % h6.AttrGroup
+"	%atomicBlock.AttrGroup;
+	">
+
+<!ENTITY % h6.ContentGroup
+"(%atomicBlock.ContentGroup;)">
+
+<!ELEMENT h6	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST h6	%h6.AttrGroup; >
+
+
+<!-- Class: hotspotChoice -->
+
+<!ENTITY % hotspotChoice.AttrGroup
+"	%choice.AttrGroup;
+	%hotspot.AttrGroup;
+	">
+
+<!ELEMENT hotspotChoice	EMPTY >
+
+<!ATTLIST hotspotChoice	%hotspotChoice.AttrGroup; >
+
+
+<!-- Class: hotspotInteraction -->
+
+<!ENTITY % hotspotInteraction.AttrGroup
+"	%graphicInteraction.AttrGroup;
+	maxChoices		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % hotspotInteraction.ContentGroup
+"(%graphicInteraction.ContentGroup;,hotspotChoice+)">
+
+<!ELEMENT hotspotInteraction	(%hotspotInteraction.ContentGroup;) >
+
+<!ATTLIST hotspotInteraction	%hotspotInteraction.AttrGroup; >
+
+
+<!-- Class: hottext -->
+
+<!ENTITY % hottext.AttrGroup
+"	%choice.AttrGroup;
+	">
+
+<!ENTITY % hottext.ContentGroup
+"((%inlineStatic.ElementGroup;)*)">
+
+<!ELEMENT hottext	(#PCDATA|%inlineStatic.ElementGroup;)* >
+
+<!ATTLIST hottext	%hottext.AttrGroup; >
+
+
+<!-- Class: hottextInteraction -->
+
+<!ENTITY % hottextInteraction.AttrGroup
+"	%blockInteraction.AttrGroup;
+	maxChoices		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % hottextInteraction.ContentGroup
+"(%blockInteraction.ContentGroup;,(%blockStatic.ElementGroup;)+)">
+
+<!ELEMENT hottextInteraction	(%hottextInteraction.ContentGroup;) >
+
+<!ATTLIST hottextInteraction	%hottextInteraction.AttrGroup; >
+
+
+<!-- Class: hr -->
+
+<!ENTITY % hr.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ELEMENT hr	EMPTY >
+
+<!ATTLIST hr	%hr.AttrGroup; >
+
+
+<!-- Pseudo-class: hypertextElement -->
+
+<!ELEMENT hypertextElement	(#PCDATA)>
+
+
+<!-- Class: i -->
+
+<!ENTITY % i.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % i.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT i	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST i	%i.AttrGroup; >
+
+
+<!-- Pseudo-class: imageElement -->
+
+<!ELEMENT imageElement	(#PCDATA)>
+
+
+<!-- Pseudo-class: imageType -->
+
+<!ELEMENT imageType	(#PCDATA)>
+
+
+<!-- Class: img -->
+
+<!ENTITY % img.AttrGroup
+"	%atomicInline.AttrGroup;
+	src		%uri.Type;		#REQUIRED
+	alt		%string256.Type;		#REQUIRED
+	longdesc		%uri.Type;		#IMPLIED
+	height		%length.Type;		#IMPLIED
+	width		%length.Type;		#IMPLIED
+	">
+
+<!ELEMENT img	EMPTY >
+
+<!ATTLIST img	%img.AttrGroup; >
+
+
+<!-- Pseudo-class: imsmd -->
+
+<!ELEMENT imsmd	(#PCDATA)>
+
+
+<!-- Pseudo-class: imsqtimd -->
+
+<!ELEMENT imsqtimd	(#PCDATA)>
+
+
+<!-- Class: index -->
+
+<!ENTITY % index.AttrGroup
+"	n		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % index.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT index	(%index.ContentGroup;) >
+
+<!ATTLIST index	%index.AttrGroup; >
+
+
+<!-- Class: inlineChoice -->
+
+<!ENTITY % inlineChoice.AttrGroup
+"	%choice.AttrGroup;
+	">
+
+<!ELEMENT inlineChoice	(#PCDATA)>
+
+<!ATTLIST inlineChoice	%inlineChoice.AttrGroup; >
+
+
+<!-- Class: inlineChoiceInteraction -->
+
+<!ENTITY % inlineChoiceInteraction.AttrGroup
+"	%inlineInteraction.AttrGroup;
+	shuffle		%boolean.Type;		#REQUIRED
+	">
+
+<!ENTITY % inlineChoiceInteraction.ContentGroup
+"(inlineChoice+)">
+
+<!ELEMENT inlineChoiceInteraction	(%inlineChoiceInteraction.ContentGroup;) >
+
+<!ATTLIST inlineChoiceInteraction	%inlineChoiceInteraction.AttrGroup; >
+
+
+<!-- Class: inside -->
+
+<!ENTITY % inside.AttrGroup
+"	shape		%shape.Type;		#REQUIRED
+	coords		%coords.Type;		#REQUIRED
+	">
+
+<!ENTITY % inside.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT inside	(%inside.ContentGroup;) >
+
+<!ATTLIST inside	%inside.AttrGroup; >
+
+
+<!-- Class: integerDivide -->
+
+<!ENTITY % integerDivide.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT integerDivide	(%integerDivide.ContentGroup;) >
+
+
+<!-- Class: integerModulus -->
+
+<!ENTITY % integerModulus.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT integerModulus	(%integerModulus.ContentGroup;) >
+
+
+<!-- Class: integerToFloat -->
+
+<!ENTITY % integerToFloat.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT integerToFloat	(%integerToFloat.ContentGroup;) >
+
+
+<!-- Class: isNull -->
+
+<!ENTITY % isNull.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT isNull	(%isNull.ContentGroup;) >
+
+
+<!-- Class: itemBody -->
+
+<!ENTITY % itemBody.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % itemBody.ContentGroup
+"((%block.ElementGroup;)*)">
+
+<!ELEMENT itemBody	(%itemBody.ContentGroup;) >
+
+<!ATTLIST itemBody	%itemBody.AttrGroup; >
+
+
+<!-- Class: itemSession -->
+
+<!ENTITY % itemSession.AttrGroup
+"	completionStatus		%identifier.Type;		#REQUIRED
+	duration		%float.Type;		#IMPLIED
+	">
+
+<!ENTITY % itemSession.ContentGroup
+"()">
+
+
+<!-- Pseudo-class: itemTemplate -->
+
+<!ELEMENT itemTemplate	(#PCDATA)>
+
+
+<!-- Class: itemVariable -->
+
+<!ENTITY % itemVariable.AttrGroup
+"	identifier		%identifier.Type;		#REQUIRED
+	">
+
+<!ENTITY % itemVariable.ContentGroup
+"(value*)">
+
+
+<!-- Class: kbd -->
+
+<!ENTITY % kbd.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % kbd.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT kbd	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST kbd	%kbd.AttrGroup; >
+
+
+<!-- Class: li -->
+
+<!ENTITY % li.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % li.ContentGroup
+"((%flow.ElementGroup;)*)">
+
+<!ELEMENT li	(#PCDATA|%flow.ElementGroup;)* >
+
+<!ATTLIST li	%li.AttrGroup; >
+
+
+<!-- Pseudo-class: listElements -->
+
+<!ELEMENT listElements	(#PCDATA)>
+
+
+<!-- Pseudo-class: lomMetadata -->
+
+<!ELEMENT lomMetadata	(#PCDATA)>
+
+
+<!-- Class: lt -->
+
+<!ENTITY % lt.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT lt	(%lt.ContentGroup;) >
+
+
+<!-- Class: lte -->
+
+<!ENTITY % lte.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT lte	(%lte.ContentGroup;) >
+
+
+<!-- Class: mapEntry -->
+
+<!ENTITY % mapEntry.AttrGroup
+"	mapKey		CDATA		#REQUIRED
+	mappedValue		%float.Type;		#REQUIRED
+	">
+
+<!ELEMENT mapEntry	EMPTY >
+
+<!ATTLIST mapEntry	%mapEntry.AttrGroup; >
+
+
+<!-- Class: mapResponse -->
+
+<!ENTITY % mapResponse.AttrGroup
+"	identifier		%identifier.Type;		#REQUIRED
+	">
+
+<!ELEMENT mapResponse	EMPTY >
+
+<!ATTLIST mapResponse	%mapResponse.AttrGroup; >
+
+
+<!-- Class: mapResponsePoint -->
+
+<!ENTITY % mapResponsePoint.AttrGroup
+"	identifier		%identifier.Type;		#REQUIRED
+	">
+
+<!ELEMENT mapResponsePoint	EMPTY >
+
+<!ATTLIST mapResponsePoint	%mapResponsePoint.AttrGroup; >
+
+
+<!-- Class: mapping -->
+
+<!ENTITY % mapping.AttrGroup
+"	lowerBound		%float.Type;		#IMPLIED
+	upperBound		%float.Type;		#IMPLIED
+	defaultValue		%float.Type;		#REQUIRED
+	">
+
+<!ENTITY % mapping.ContentGroup
+"(mapEntry+)">
+
+<!ELEMENT mapping	(%mapping.ContentGroup;) >
+
+<!ATTLIST mapping	%mapping.AttrGroup; >
+
+
+<!-- Class: match -->
+
+<!ENTITY % match.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT match	(%match.ContentGroup;) >
+
+
+<!-- Class: matchInteraction -->
+
+<!ENTITY % matchInteraction.AttrGroup
+"	%blockInteraction.AttrGroup;
+	shuffle		%boolean.Type;		#REQUIRED
+	maxAssociations		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % matchInteraction.ContentGroup
+"(%blockInteraction.ContentGroup;,simpleMatchSet,simpleMatchSet)">
+
+<!ELEMENT matchInteraction	(%matchInteraction.ContentGroup;) >
+
+<!ATTLIST matchInteraction	%matchInteraction.AttrGroup; >
+
+
+<!-- Pseudo-class: mathElement -->
+
+<!ELEMENT mathElement	(#PCDATA)>
+
+
+<!-- Pseudo-class: mathVariable -->
+
+<!ELEMENT mathVariable	(#PCDATA)>
+
+
+<!-- Class: member -->
+
+<!ENTITY % member.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT member	(%member.ContentGroup;) >
+
+
+<!-- Class: metadataProfile -->
+
+<!ENTITY % metadataProfile.ContentGroup
+"(imsmd,lomMetadata,imsqtimd)">
+
+<!ELEMENT metadataProfile	(%metadataProfile.ContentGroup;) >
+
+
+<!-- Class: modalFeedback -->
+
+<!ENTITY % modalFeedback.AttrGroup
+"	outcomeIdentifier		%identifier.Type;		#REQUIRED
+	showHide		%showHide.Type;		#REQUIRED
+	identifier		%identifier.Type;		#REQUIRED
+	title		%string.Type;		#IMPLIED
+	">
+
+<!ENTITY % modalFeedback.ContentGroup
+"((%flowStatic.ElementGroup;)*)">
+
+<!ELEMENT modalFeedback	(#PCDATA|%flowStatic.ElementGroup;)* >
+
+<!ATTLIST modalFeedback	%modalFeedback.AttrGroup; >
+
+
+<!-- Class: multiple -->
+
+<!ENTITY % multiple.ContentGroup
+"((%expression.ElementGroup;)*)">
+
+<!ELEMENT multiple	(%multiple.ContentGroup;) >
+
+
+<!-- Class: not -->
+
+<!ENTITY % not.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT not	(%not.ContentGroup;) >
+
+
+<!-- Class: null -->
+
+<!ELEMENT null	EMPTY >
+
+
+<!-- Class: object -->
+
+<!ENTITY % object.AttrGroup
+"	%bodyElement.AttrGroup;
+	data		%string.Type;		#REQUIRED
+	type		%mimeType.Type;		#REQUIRED
+	width		%length.Type;		#IMPLIED
+	height		%length.Type;		#IMPLIED
+	">
+
+<!ENTITY % object.ContentGroup
+"((%objectFlow.ElementGroup;)*)">
+
+<!ELEMENT object	(#PCDATA|%objectFlow.ElementGroup;)* >
+
+<!ATTLIST object	%object.AttrGroup; >
+
+
+<!-- Pseudo-class: objectElements -->
+
+<!ELEMENT objectElements	(#PCDATA)>
+
+
+<!-- Pseudo-class: objectType -->
+
+<!ELEMENT objectType	(#PCDATA)>
+
+
+<!-- Class: ol -->
+
+<!ENTITY % ol.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % ol.ContentGroup
+"(li*)">
+
+<!ELEMENT ol	(%ol.ContentGroup;) >
+
+<!ATTLIST ol	%ol.AttrGroup; >
+
+
+<!-- Class: or -->
+
+<!ENTITY % or.ContentGroup
+"((%expression.ElementGroup;)+)">
+
+<!ELEMENT or	(%or.ContentGroup;) >
+
+
+<!-- Class: orderInteraction -->
+
+<!ENTITY % orderInteraction.AttrGroup
+"	%blockInteraction.AttrGroup;
+	shuffle		%boolean.Type;		#REQUIRED
+	orientation		%orientation.Type;		#IMPLIED
+	">
+
+<!ENTITY % orderInteraction.ContentGroup
+"(%blockInteraction.ContentGroup;,simpleChoice+)">
+
+<!ELEMENT orderInteraction	(%orderInteraction.ContentGroup;) >
+
+<!ATTLIST orderInteraction	%orderInteraction.AttrGroup; >
+
+
+<!-- Class: ordered -->
+
+<!ENTITY % ordered.ContentGroup
+"((%expression.ElementGroup;)*)">
+
+<!ELEMENT ordered	(%ordered.ContentGroup;) >
+
+
+<!-- Class: ordinaryStatistic -->
+
+<!ENTITY % ordinaryStatistic.AttrGroup
+"	%itemStatistic.AttrGroup;
+	">
+
+<!ENTITY % ordinaryStatistic.ContentGroup
+"(%itemStatistic.ContentGroup;,value)">
+
+<!ELEMENT ordinaryStatistic	(%ordinaryStatistic.ContentGroup;) >
+
+<!ATTLIST ordinaryStatistic	%ordinaryStatistic.AttrGroup; >
+
+
+<!-- Class: variableDeclaration -->
+
+<!ENTITY % variableDeclaration.AttrGroup
+"	identifier		%identifier.Type;		#REQUIRED
+	cardinality		%cardinality.Type;		#REQUIRED
+	baseType		%baseType.Type;		#IMPLIED
+	">
+
+<!ENTITY % variableDeclaration.ContentGroup
+"(defaultValue?)">
+
+
+<!-- Class: outcomeDeclaration -->
+
+<!ENTITY % outcomeDeclaration.AttrGroup
+"	%variableDeclaration.AttrGroup;
+	interpretation		%string.Type;		#IMPLIED
+	longInterpretation		%uri.Type;		#IMPLIED
+	normalMaximum		%float.Type;		#IMPLIED
+	">
+
+<!ENTITY % outcomeDeclaration.ContentGroup
+"(%variableDeclaration.ContentGroup;)">
+
+<!ELEMENT outcomeDeclaration	(%outcomeDeclaration.ContentGroup;) >
+
+<!ATTLIST outcomeDeclaration	%outcomeDeclaration.AttrGroup; >
+
+
+<!-- Class: outcomeVariable -->
+
+<!ENTITY % outcomeVariable.AttrGroup
+"	%itemVariable.AttrGroup;
+	">
+
+<!ENTITY % outcomeVariable.ContentGroup
+"(%itemVariable.ContentGroup;)">
+
+
+<!-- Class: p -->
+
+<!ENTITY % p.AttrGroup
+"	%atomicBlock.AttrGroup;
+	">
+
+<!ENTITY % p.ContentGroup
+"(%atomicBlock.ContentGroup;)">
+
+<!ELEMENT p	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST p	%p.AttrGroup; >
+
+
+<!-- Class: param -->
+
+<!ENTITY % param.AttrGroup
+"	name		%string.Type;		#REQUIRED
+	value		%string.Type;		#REQUIRED
+	valuetype		%paramType.Type;		#REQUIRED
+	type		%mimeType.Type;		#IMPLIED
+	">
+
+<!ELEMENT param	EMPTY >
+
+<!ATTLIST param	%param.AttrGroup; >
+
+
+<!-- Class: patternMatch -->
+
+<!ENTITY % patternMatch.AttrGroup
+"	pattern		%string.Type;		#REQUIRED
+	">
+
+<!ENTITY % patternMatch.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT patternMatch	(%patternMatch.ContentGroup;) >
+
+<!ATTLIST patternMatch	%patternMatch.AttrGroup; >
+
+
+<!-- Class: positionObjectInteraction -->
+
+<!ENTITY % positionObjectInteraction.AttrGroup
+"	%interaction.AttrGroup;
+	centerPoint		CDATA		#IMPLIED
+	maxChoices		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % positionObjectInteraction.ContentGroup
+"(object)">
+
+<!ELEMENT positionObjectInteraction	(%positionObjectInteraction.ContentGroup;) >
+
+<!ATTLIST positionObjectInteraction	%positionObjectInteraction.AttrGroup; >
+
+
+<!-- Class: positionObjectStage -->
+
+<!ENTITY % positionObjectStage.ContentGroup
+"(object,positionObjectInteraction+)">
+
+<!ELEMENT positionObjectStage	(%positionObjectStage.ContentGroup;) >
+
+
+<!-- Class: power -->
+
+<!ENTITY % power.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT power	(%power.ContentGroup;) >
+
+
+<!-- Class: pre -->
+
+<!ENTITY % pre.AttrGroup
+"	%atomicBlock.AttrGroup;
+	">
+
+<!ENTITY % pre.ContentGroup
+"(%atomicBlock.ContentGroup;)">
+
+<!ELEMENT pre	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST pre	%pre.AttrGroup; >
+
+
+<!-- Pseudo-class: presentationElements -->
+
+<!ELEMENT presentationElements	(#PCDATA)>
+
+
+<!-- Class: printedVariable -->
+
+<!ENTITY % printedVariable.AttrGroup
+"	%bodyElement.AttrGroup;
+	identifier		%identifier.Type;		#REQUIRED
+	format		%string256.Type;		#IMPLIED
+	base		%integer.Type;		#IMPLIED
+	">
+
+<!ELEMENT printedVariable	EMPTY >
+
+<!ATTLIST printedVariable	%printedVariable.AttrGroup; >
+
+
+<!-- Pseudo-class: printedVariables -->
+
+<!ELEMENT printedVariables	(#PCDATA)>
+
+
+<!-- Class: product -->
+
+<!ENTITY % product.ContentGroup
+"((%expression.ElementGroup;)+)">
+
+<!ELEMENT product	(%product.ContentGroup;) >
+
+
+<!-- Class: prompt -->
+
+<!ENTITY % prompt.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % prompt.ContentGroup
+"((%inlineStatic.ElementGroup;)*)">
+
+<!ELEMENT prompt	(#PCDATA|%inlineStatic.ElementGroup;)* >
+
+<!ATTLIST prompt	%prompt.AttrGroup; >
+
+
+<!-- Class: q -->
+
+<!ENTITY % q.AttrGroup
+"	%simpleInline.AttrGroup;
+	cite		%uri.Type;		#IMPLIED
+	">
+
+<!ENTITY % q.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT q	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST q	%q.AttrGroup; >
+
+
+<!-- Class: qtiMetadata -->
+
+<!ENTITY % qtiMetadata.ContentGroup
+"(itemTemplate?,timeDependent?,composite?,interactionType*,feedbackType?,solutionAvailable?,toolName?,toolVersion?,toolVendor?)">
+
+<!ELEMENT qtiMetadata	(%qtiMetadata.ContentGroup;) >
+
+<!ATTLIST qtiMetadata	%nsAttrGroup; >
+
+
+<!-- Class: random -->
+
+<!ENTITY % random.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT random	(%random.ContentGroup;) >
+
+
+<!-- Class: randomFloat -->
+
+<!ENTITY % randomFloat.AttrGroup
+"	min		%float.Type;		#REQUIRED
+	max		%float.Type;		#REQUIRED
+	">
+
+<!ELEMENT randomFloat	EMPTY >
+
+<!ATTLIST randomFloat	%randomFloat.AttrGroup; >
+
+
+<!-- Class: randomInteger -->
+
+<!ENTITY % randomInteger.AttrGroup
+"	min		%integer.Type;		#REQUIRED
+	max		%integer.Type;		#REQUIRED
+	step		%integer.Type;		#IMPLIED
+	">
+
+<!ELEMENT randomInteger	EMPTY >
+
+<!ATTLIST randomInteger	%randomInteger.AttrGroup; >
+
+
+<!-- Pseudo-class: regexp -->
+
+<!ELEMENT regexp	(#PCDATA)>
+
+
+<!-- Class: responseCondition -->
+
+<!ENTITY % responseCondition.ContentGroup
+"(responseIf,responseElseIf*,responseElse?)">
+
+<!ELEMENT responseCondition	(%responseCondition.ContentGroup;) >
+
+
+<!-- Class: responseDeclaration -->
+
+<!ENTITY % responseDeclaration.AttrGroup
+"	%variableDeclaration.AttrGroup;
+	">
+
+<!ENTITY % responseDeclaration.ContentGroup
+"(%variableDeclaration.ContentGroup;,correctResponse?,mapping?,areaMapping?)">
+
+<!ELEMENT responseDeclaration	(%responseDeclaration.ContentGroup;) >
+
+<!ATTLIST responseDeclaration	%responseDeclaration.AttrGroup; >
+
+
+<!-- Class: responseElse -->
+
+<!ENTITY % responseElse.ContentGroup
+"((%responseRule.ElementGroup;)*)">
+
+<!ELEMENT responseElse	(%responseElse.ContentGroup;) >
+
+
+<!-- Class: responseElseIf -->
+
+<!ENTITY % responseElseIf.ContentGroup
+"((%expression.ElementGroup;),(%responseRule.ElementGroup;)*)">
+
+<!ELEMENT responseElseIf	(%responseElseIf.ContentGroup;) >
+
+
+<!-- Class: responseIf -->
+
+<!ENTITY % responseIf.ContentGroup
+"((%expression.ElementGroup;),(%responseRule.ElementGroup;)*)">
+
+<!ELEMENT responseIf	(%responseIf.ContentGroup;) >
+
+
+<!-- Class: responseProcessing -->
+
+<!ENTITY % responseProcessing.AttrGroup
+"	template		%uri.Type;		#IMPLIED
+	templateLocation		%uri.Type;		#IMPLIED
+	">
+
+<!ENTITY % responseProcessing.ContentGroup
+"((%responseRule.ElementGroup;)*)">
+
+<!ELEMENT responseProcessing	(%responseProcessing.ContentGroup;) >
+
+<!ATTLIST responseProcessing	%responseProcessing.AttrGroup;	%nsAttrGroup; >
+
+
+<!-- Pseudo-class: responseRules -->
+
+<!ELEMENT responseRules	(#PCDATA)>
+
+
+<!-- Class: responseVariable -->
+
+<!ENTITY % responseVariable.AttrGroup
+"	%itemVariable.AttrGroup;
+	">
+
+<!ENTITY % responseVariable.ContentGroup
+"(%itemVariable.ContentGroup;)">
+
+
+<!-- Class: round -->
+
+<!ENTITY % round.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT round	(%round.ContentGroup;) >
+
+
+<!-- Pseudo-class: rounding -->
+
+<!ELEMENT rounding	(#PCDATA)>
+
+
+<!-- Pseudo-class: rpTemplate -->
+
+<!ELEMENT rpTemplate	(#PCDATA)>
+
+
+<!-- Pseudo-class: rubric -->
+
+<!ELEMENT rubric	(#PCDATA)>
+
+
+<!-- Class: rubricBlock -->
+
+<!ENTITY % rubricBlock.AttrGroup
+"	%simpleBlock.AttrGroup;
+	view		CDATA		#REQUIRED
+	">
+
+<!ENTITY % rubricBlock.ContentGroup
+"(%simpleBlock.ContentGroup;)">
+
+<!ELEMENT rubricBlock	(%rubricBlock.ContentGroup;) >
+
+<!ATTLIST rubricBlock	%rubricBlock.AttrGroup; >
+
+
+<!-- Class: samp -->
+
+<!ENTITY % samp.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % samp.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT samp	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST samp	%samp.AttrGroup; >
+
+
+<!-- Class: selectPointInteraction -->
+
+<!ENTITY % selectPointInteraction.AttrGroup
+"	%graphicInteraction.AttrGroup;
+	maxChoices		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % selectPointInteraction.ContentGroup
+"(%graphicInteraction.ContentGroup;)">
+
+<!ELEMENT selectPointInteraction	(%selectPointInteraction.ContentGroup;) >
+
+<!ATTLIST selectPointInteraction	%selectPointInteraction.AttrGroup; >
+
+
+<!-- Class: sessionContext -->
+
+
+<!-- Class: setCorrectResponse -->
+
+<!ENTITY % setCorrectResponse.AttrGroup
+"	identifier		%identifier.Type;		#REQUIRED
+	">
+
+<!ENTITY % setCorrectResponse.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT setCorrectResponse	(%setCorrectResponse.ContentGroup;) >
+
+<!ATTLIST setCorrectResponse	%setCorrectResponse.AttrGroup; >
+
+
+<!-- Class: setDefaultValue -->
+
+<!ENTITY % setDefaultValue.AttrGroup
+"	identifier		%identifier.Type;		#REQUIRED
+	">
+
+<!ENTITY % setDefaultValue.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT setDefaultValue	(%setDefaultValue.ContentGroup;) >
+
+<!ATTLIST setDefaultValue	%setDefaultValue.AttrGroup; >
+
+
+<!-- Class: setOutcomeValue -->
+
+<!ENTITY % setOutcomeValue.AttrGroup
+"	identifier		%identifier.Type;		#REQUIRED
+	">
+
+<!ENTITY % setOutcomeValue.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT setOutcomeValue	(%setOutcomeValue.ContentGroup;) >
+
+<!ATTLIST setOutcomeValue	%setOutcomeValue.AttrGroup; >
+
+
+<!-- Class: setTemplateValue -->
+
+<!ENTITY % setTemplateValue.AttrGroup
+"	identifier		%identifier.Type;		#REQUIRED
+	">
+
+<!ENTITY % setTemplateValue.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT setTemplateValue	(%setTemplateValue.ContentGroup;) >
+
+<!ATTLIST setTemplateValue	%setTemplateValue.AttrGroup; >
+
+
+<!-- Class: simpleAssociableChoice -->
+
+<!ENTITY % simpleAssociableChoice.AttrGroup
+"	%associableChoice.AttrGroup;
+	matchMax		%integer.Type;		#REQUIRED
+	">
+
+<!ENTITY % simpleAssociableChoice.ContentGroup
+"((%flowStatic.ElementGroup;)*)">
+
+<!ELEMENT simpleAssociableChoice	(#PCDATA|%flowStatic.ElementGroup;)* >
+
+<!ATTLIST simpleAssociableChoice	%simpleAssociableChoice.AttrGroup; >
+
+
+<!-- Class: simpleChoice -->
+
+<!ENTITY % simpleChoice.AttrGroup
+"	%choice.AttrGroup;
+	">
+
+<!ENTITY % simpleChoice.ContentGroup
+"((%flowStatic.ElementGroup;)*)">
+
+<!ELEMENT simpleChoice	(#PCDATA|%flowStatic.ElementGroup;)* >
+
+<!ATTLIST simpleChoice	%simpleChoice.AttrGroup; >
+
+
+<!-- Class: simpleMatchSet -->
+
+<!ENTITY % simpleMatchSet.ContentGroup
+"(simpleAssociableChoice*)">
+
+<!ELEMENT simpleMatchSet	(%simpleMatchSet.ContentGroup;) >
+
+
+<!-- Class: sliderInteraction -->
+
+<!ENTITY % sliderInteraction.AttrGroup
+"	%blockInteraction.AttrGroup;
+	lowerBound		%float.Type;		#REQUIRED
+	upperBound		%float.Type;		#REQUIRED
+	step		%integer.Type;		#IMPLIED
+	stepLabel		%boolean.Type;		#IMPLIED
+	orientation		%orientation.Type;		#IMPLIED
+	reverse		%boolean.Type;		#IMPLIED
+	">
+
+<!ENTITY % sliderInteraction.ContentGroup
+"(%blockInteraction.ContentGroup;)">
+
+<!ELEMENT sliderInteraction	(%sliderInteraction.ContentGroup;) >
+
+<!ATTLIST sliderInteraction	%sliderInteraction.AttrGroup; >
+
+
+<!-- Class: small -->
+
+<!ENTITY % small.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % small.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT small	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST small	%small.AttrGroup; >
+
+
+<!-- Pseudo-class: solutionAvailable -->
+
+<!ELEMENT solutionAvailable	(#PCDATA)>
+
+
+<!-- Class: span -->
+
+<!ENTITY % span.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % span.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT span	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST span	%span.AttrGroup; >
+
+
+<!-- Class: stringMatch -->
+
+<!ENTITY % stringMatch.AttrGroup
+"	caseSensitive		%boolean.Type;		#REQUIRED
+	substring		%boolean.Type;		#REQUIRED
+	">
+
+<!ENTITY % stringMatch.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT stringMatch	(%stringMatch.ContentGroup;) >
+
+<!ATTLIST stringMatch	%stringMatch.AttrGroup; >
+
+
+<!-- Class: strong -->
+
+<!ENTITY % strong.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % strong.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT strong	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST strong	%strong.AttrGroup; >
+
+
+<!-- Class: stylesheet -->
+
+<!ENTITY % stylesheet.AttrGroup
+"	href		%uri.Type;		#REQUIRED
+	type		%mimeType.Type;		#REQUIRED
+	media		%string.Type;		#IMPLIED
+	title		%string.Type;		#IMPLIED
+	">
+
+<!ELEMENT stylesheet	EMPTY >
+
+<!ATTLIST stylesheet	%stylesheet.AttrGroup; >
+
+
+<!-- Class: sub -->
+
+<!ENTITY % sub.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % sub.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT sub	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST sub	%sub.AttrGroup; >
+
+
+<!-- Class: substring -->
+
+<!ENTITY % substring.AttrGroup
+"	caseSensitive		%boolean.Type;		#REQUIRED
+	">
+
+<!ENTITY % substring.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT substring	(%substring.ContentGroup;) >
+
+<!ATTLIST substring	%substring.AttrGroup; >
+
+
+<!-- Class: subtract -->
+
+<!ENTITY % subtract.ContentGroup
+"((%expression.ElementGroup;),(%expression.ElementGroup;))">
+
+<!ELEMENT subtract	(%subtract.ContentGroup;) >
+
+
+<!-- Class: sum -->
+
+<!ENTITY % sum.ContentGroup
+"((%expression.ElementGroup;)+)">
+
+<!ELEMENT sum	(%sum.ContentGroup;) >
+
+
+<!-- Class: sup -->
+
+<!ENTITY % sup.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % sup.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT sup	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST sup	%sup.AttrGroup; >
+
+
+<!-- Class: table -->
+
+<!ENTITY % table.AttrGroup
+"	%bodyElement.AttrGroup;
+	summary		%string.Type;		#IMPLIED
+	">
+
+<!ENTITY % table.ContentGroup
+"(caption?,col*,colgroup*,thead?,tfoot?,tbody+)">
+
+<!ELEMENT table	(%table.ContentGroup;) >
+
+<!ATTLIST table	%table.AttrGroup; >
+
+
+<!-- Class: tableCell -->
+
+<!ENTITY % tableCell.AttrGroup
+"	%bodyElement.AttrGroup;
+	headers		CDATA		#IMPLIED
+	scope		%tableCellScope.Type;		#IMPLIED
+	abbr		%string.Type;		#IMPLIED
+	axis		%string.Type;		#IMPLIED
+	rowspan		%integer.Type;		#IMPLIED
+	colspan		%integer.Type;		#IMPLIED
+	">
+
+<!ENTITY % tableCell.ContentGroup
+"((%flow.ElementGroup;)*)">
+
+
+<!-- Pseudo-class: tableElements -->
+
+<!ELEMENT tableElements	(#PCDATA)>
+
+
+<!-- Class: targetObject -->
+
+<!ENTITY % targetObject.AttrGroup
+"	identifier		%string.Type;		#REQUIRED
+	partIdentifier		%identifier.Type;		#IMPLIED
+	">
+
+<!ELEMENT targetObject	EMPTY >
+
+<!ATTLIST targetObject	%targetObject.AttrGroup; >
+
+
+<!-- Class: tbody -->
+
+<!ENTITY % tbody.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % tbody.ContentGroup
+"(tr+)">
+
+<!ELEMENT tbody	(%tbody.ContentGroup;) >
+
+<!ATTLIST tbody	%tbody.AttrGroup; >
+
+
+<!-- Class: td -->
+
+<!ENTITY % td.AttrGroup
+"	%tableCell.AttrGroup;
+	">
+
+<!ENTITY % td.ContentGroup
+"(%tableCell.ContentGroup;)">
+
+<!ELEMENT td	(#PCDATA|%flow.ElementGroup;)* >
+
+<!ATTLIST td	%td.AttrGroup; >
+
+
+<!-- Class: templateElement -->
+
+<!ENTITY % templateElement.AttrGroup
+"	%bodyElement.AttrGroup;
+	templateIdentifier		%identifier.Type;		#REQUIRED
+	showHide		%showHide.Type;		#REQUIRED
+	identifier		%identifier.Type;		#REQUIRED
+	">
+
+
+<!-- Class: templateBlock -->
+
+<!ENTITY % templateBlock.AttrGroup
+"	%templateElement.AttrGroup;
+	">
+
+<!ENTITY % templateBlock.ContentGroup
+"((%blockStatic.ElementGroup;)*)">
+
+<!ELEMENT templateBlock	(%templateBlock.ContentGroup;) >
+
+<!ATTLIST templateBlock	%templateBlock.AttrGroup; >
+
+
+<!-- Class: templateCondition -->
+
+<!ENTITY % templateCondition.ContentGroup
+"(templateIf,templateElseIf*,templateElse?)">
+
+<!ELEMENT templateCondition	(%templateCondition.ContentGroup;) >
+
+
+<!-- Class: templateDeclaration -->
+
+<!ENTITY % templateDeclaration.AttrGroup
+"	%variableDeclaration.AttrGroup;
+	paramVariable		%boolean.Type;		#REQUIRED
+	mathVariable		%boolean.Type;		#REQUIRED
+	">
+
+<!ENTITY % templateDeclaration.ContentGroup
+"(%variableDeclaration.ContentGroup;)">
+
+<!ELEMENT templateDeclaration	(%templateDeclaration.ContentGroup;) >
+
+<!ATTLIST templateDeclaration	%templateDeclaration.AttrGroup; >
+
+
+<!-- Class: templateElse -->
+
+<!ENTITY % templateElse.ContentGroup
+"((%templateRule.ElementGroup;)*)">
+
+<!ELEMENT templateElse	(%templateElse.ContentGroup;) >
+
+
+<!-- Class: templateElseIf -->
+
+<!ENTITY % templateElseIf.ContentGroup
+"((%expression.ElementGroup;),(%templateRule.ElementGroup;)*)">
+
+<!ELEMENT templateElseIf	(%templateElseIf.ContentGroup;) >
+
+
+<!-- Class: templateIf -->
+
+<!ENTITY % templateIf.ContentGroup
+"((%expression.ElementGroup;),(%templateRule.ElementGroup;)*)">
+
+<!ELEMENT templateIf	(%templateIf.ContentGroup;) >
+
+
+<!-- Class: templateInline -->
+
+<!ENTITY % templateInline.AttrGroup
+"	%templateElement.AttrGroup;
+	">
+
+<!ENTITY % templateInline.ContentGroup
+"((%inlineStatic.ElementGroup;)*)">
+
+<!ELEMENT templateInline	(#PCDATA|%inlineStatic.ElementGroup;)* >
+
+<!ATTLIST templateInline	%templateInline.AttrGroup; >
+
+
+<!-- Class: templateProcessing -->
+
+<!ENTITY % templateProcessing.ContentGroup
+"((%templateRule.ElementGroup;)+)">
+
+<!ELEMENT templateProcessing	(%templateProcessing.ContentGroup;) >
+
+
+<!-- Class: templateVariable -->
+
+<!ENTITY % templateVariable.AttrGroup
+"	%itemVariable.AttrGroup;
+	">
+
+<!ENTITY % templateVariable.ContentGroup
+"(%itemVariable.ContentGroup;)">
+
+
+<!-- Pseudo-class: templates -->
+
+<!ELEMENT templates	(#PCDATA)>
+
+
+<!-- Pseudo-class: textElements -->
+
+<!ELEMENT textElements	(#PCDATA)>
+
+
+<!-- Class: textEntryInteraction -->
+
+<!ENTITY % textEntryInteraction.AttrGroup
+"	%inlineInteraction.AttrGroup;
+	%stringInteraction.AttrGroup;
+	">
+
+<!ELEMENT textEntryInteraction	EMPTY >
+
+<!ATTLIST textEntryInteraction	%textEntryInteraction.AttrGroup; >
+
+
+<!-- Class: textRun bound to PCDATA -->
+
+
+<!-- Class: tfoot -->
+
+<!ENTITY % tfoot.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % tfoot.ContentGroup
+"(th+)">
+
+<!ELEMENT tfoot	(%tfoot.ContentGroup;) >
+
+<!ATTLIST tfoot	%tfoot.AttrGroup; >
+
+
+<!-- Class: th -->
+
+<!ENTITY % th.AttrGroup
+"	%tableCell.AttrGroup;
+	">
+
+<!ENTITY % th.ContentGroup
+"(%tableCell.ContentGroup;)">
+
+<!ELEMENT th	(#PCDATA|%flow.ElementGroup;)* >
+
+<!ATTLIST th	%th.AttrGroup; >
+
+
+<!-- Class: thead -->
+
+<!ENTITY % thead.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % thead.ContentGroup
+"(tr+)">
+
+<!ELEMENT thead	(%thead.ContentGroup;) >
+
+<!ATTLIST thead	%thead.AttrGroup; >
+
+
+<!-- Pseudo-class: timeDependent -->
+
+<!ELEMENT timeDependent	(#PCDATA)>
+
+
+<!-- Pseudo-class: toolName -->
+
+<!ELEMENT toolName	(#PCDATA)>
+
+
+<!-- Pseudo-class: toolVendor -->
+
+<!ELEMENT toolVendor	(#PCDATA)>
+
+
+<!-- Pseudo-class: toolVersion -->
+
+<!ELEMENT toolVersion	(#PCDATA)>
+
+
+<!-- Class: tr -->
+
+<!ENTITY % tr.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % tr.ContentGroup
+"((%tableCell.ElementGroup;)+)">
+
+<!ELEMENT tr	(%tr.ContentGroup;) >
+
+<!ATTLIST tr	%tr.AttrGroup; >
+
+
+<!-- Class: truncate -->
+
+<!ENTITY % truncate.ContentGroup
+"((%expression.ElementGroup;))">
+
+<!ELEMENT truncate	(%truncate.ContentGroup;) >
+
+
+<!-- Class: tt -->
+
+<!ENTITY % tt.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % tt.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT tt	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST tt	%tt.AttrGroup; >
+
+
+<!-- Class: ul -->
+
+<!ENTITY % ul.AttrGroup
+"	%bodyElement.AttrGroup;
+	">
+
+<!ENTITY % ul.ContentGroup
+"(li*)">
+
+<!ELEMENT ul	(%ul.ContentGroup;) >
+
+<!ATTLIST ul	%ul.AttrGroup; >
+
+
+<!-- Class: uploadInteraction -->
+
+<!ENTITY % uploadInteraction.AttrGroup
+"	%blockInteraction.AttrGroup;
+	type		%mimeType.Type;		#IMPLIED
+	">
+
+<!ENTITY % uploadInteraction.ContentGroup
+"(%blockInteraction.ContentGroup;)">
+
+<!ELEMENT uploadInteraction	(%uploadInteraction.ContentGroup;) >
+
+<!ATTLIST uploadInteraction	%uploadInteraction.AttrGroup; >
+
+
+<!-- Class: usageData -->
+
+<!ENTITY % usageData.AttrGroup
+"	glossary		%uri.Type;		#IMPLIED
+	">
+
+<!ENTITY % usageData.ContentGroup
+"((%itemStatistic.ElementGroup;)*)">
+
+<!ELEMENT usageData	(%usageData.ContentGroup;) >
+
+<!ATTLIST usageData	%usageData.AttrGroup;	%nsAttrGroup; >
+
+
+<!-- Pseudo-class: usageDataVocabulary -->
+
+<!ELEMENT usageDataVocabulary	(#PCDATA)>
+
+
+<!-- Class: value -->
+
+<!ENTITY % value.AttrGroup
+"	fieldIdentifier		%identifier.Type;		#IMPLIED
+	baseType		%baseType.Type;		#IMPLIED
+	">
+
+<!ELEMENT value	(#PCDATA)>
+
+<!ATTLIST value	%value.AttrGroup; >
+
+
+<!-- Class: var -->
+
+<!ENTITY % var.AttrGroup
+"	%simpleInline.AttrGroup;
+	">
+
+<!ENTITY % var.ContentGroup
+"(%simpleInline.ContentGroup;)">
+
+<!ELEMENT var	(#PCDATA|%inline.ElementGroup;)* >
+
+<!ATTLIST var	%var.AttrGroup; >
+
+
+<!-- Class: variable -->
+
+<!ENTITY % variable.AttrGroup
+"	identifier		%identifier.Type;		#REQUIRED
+	">
+
+<!ELEMENT variable	EMPTY >
+
+<!ATTLIST variable	%variable.AttrGroup; >
+
