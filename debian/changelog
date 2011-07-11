@@ -1,3 +1,10 @@
+canvas-lms-qti-migration-plugin (0.1-5) professional; urgency=low
+
+  * [c2aeaea] new deb: canvas-lms-qti-migration-plugin_0.1-4 professional
+  * [5076c5f] added qti dtd files
+
+ -- JT Olds <jt@instructure.com>  Mon, 11 Jul 2011 11:29:14 -0600
+
 canvas-lms-qti-migration-plugin (0.1-4) professional; urgency=low
 
   * [65787af] bumping changelog
