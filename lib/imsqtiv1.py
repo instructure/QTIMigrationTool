@@ -1659,7 +1659,13 @@ class QTIItem(InstructureHelperContainer):
 			cp=self.GetRoot().cp
 			# Reserve space for our preferred file name
 			self.fName=cp.GetUniqueFileName(os.path.join("assessmentItems", self.resource.id+".xml"))
-		self.files={}
+		files_parent = self.parent
+		while files_parent and not hasattr(files_parent, 'files'):
+				files_parent = files_parent.parent
+		if files_parent:
+			self.files = files_parent.files
+		else:
+			self.files={}
 	
 	def SetAttribute_maxattempts (self,value):
 		self.PrintWarning("Warning: maxattempts can not be controlled at item level, ignored: maxattempts='"+value+"'")
