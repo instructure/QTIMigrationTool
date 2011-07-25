@@ -1,3 +1,10 @@
+canvas-lms-qti-migration-plugin (0.1-6) professional; urgency=low
+
+  * [96a8874] new deb: canvas-lms-qti-migration-plugin_0.1-5 professional
+  * [3f286a9] fix for files used in more than one question, refs #5126
+
+ -- JT Olds <jt@instructure.com>  Mon, 25 Jul 2011 13:15:21 -0600
+
 canvas-lms-qti-migration-plugin (0.1-5) professional; urgency=low
 
   * [c2aeaea] new deb: canvas-lms-qti-migration-plugin_0.1-4 professional
