@@ -114,6 +114,7 @@ VIEWMAP={'administrator':'invigilator','adminauthority':'invigilator',
 	'tutor':'tutor',
 	'scorer':'scorer'}
 
+D2L_IDENTIFIER_REPLACER = re.compile(r'_(?:ans|str)$', flags=re.I)
 
 #
 # QTIObjectV1
@@ -476,6 +477,7 @@ class InstructureHelperContainer(QTIMetadataContainer):
 	
 	def set_calculated(self, c):
 		self.calculated = c
+		self.SetQuestionType("Calculated")
 		
 	def SetMaxAttempts(self,attempts):
 		if not self.sessionControl: self.sessionControl = ItemSessionControl()
@@ -491,13 +493,15 @@ class InstructureHelperContainer(QTIMetadataContainer):
 	def SetShowTotalScore(self, show):
 		self.showTotalScore = show
 
-	def SetPointsPossible(self, points):
+	def AddMetaField(self, key, val):
 		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
-		self.instructureMetadata.AddMetaField("points_possible", points)
+		self.instructureMetadata.AddMetaField(key, val)
+
+	def SetPointsPossible(self, points):
+		self.AddMetaField("points_possible", points)
 
 	def SetAssessmentQuestionIdentiferref(self, ref):
-		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
-		self.instructureMetadata.AddMetaField("assessment_question_identifierref", ref)
+		self.AddMetaField("assessment_question_identifierref", ref)
 	
 	def SetAssessmentType(self, type):
 		self.assessmentType = type
@@ -510,10 +514,9 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		self.instructureMetadata.AddMatchingItem(item)
 
 	def SetQuestionBank(self, name, id=None):
-		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
-		self.instructureMetadata.AddMetaField("question_bank", name)
+		self.AddMetaField("question_bank", name)
 		if id:
-			self.instructureMetadata.AddMetaField("question_bank_iden", id)
+			self.AddMetaField("question_bank_iden", id)
 
 	def SetBBObjectID(self, id):
 		self.SetAttribute_ident(id)
@@ -532,23 +535,20 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		Multiple Choice, Opinion Scale, Ordering, Quiz Bowl, 
 		Short Response, True/False
 		"""
-		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
 		if self.question_type: return
 		self.bb_question_type = type
-		self.instructureMetadata.AddMetaField("bb_question_type", type)
+		self.AddMetaField("bb_question_type", type)
 
 	def SetQuestionType(self, type):
 		"""These are the known values:
 		Matching - Only seen from respondus
 		"""
-		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
 		self.question_type = type
-		self.instructureMetadata.AddMetaField("question_type", type)
+		self.AddMetaField("question_type", type)
 	
 	def SetBBMaxScore(self, max):
-		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
 		self.bb_max_score = max
-		self.instructureMetadata.AddMetaField("max_score", max)
+		self.AddMetaField("max_score", max)
 
 # QTIObjectBank
 # -------------
@@ -594,10 +594,88 @@ class WCTMatExtension(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		QTIObjectV1.__init__(self,name,attrs,parent)
 		self.PrintWarning('Warning: mat_extension not supported, looking inside for needed data.')
+		self.calc = None
+
+	def GetCalculated(self):
+		if not self.calc: self.calc = Calculated()
+		return self.calc
+
+	def add_formula(self, formula):
+		self.GetCalculated()
+		self.calc.formula = formula
 		
 	def AppendElement(self, data):
 		self.parent.AppendElement(data)
+
+	def CloseObject(self):
+		if self.calc:
+			self.GetInstructureHelperContainer().set_calculated(self.calc)
 		
+
+## D2L Calculated classes
+
+class D2LVariable(QTIObjectV1):
+
+	def __init__(self, name, attrs, parent):
+		self.parent = parent
+		self.CheckLocation((WCTMatExtension),"<variable>")
+		self.calc = parent.GetCalculated()
+		self.var = Var()
+		self.ParseAttributes(attrs)
+
+	def SetAttribute_name(self, name):
+		self.var.name = name
+
+	def set_min(self, min):
+		self.var.min = min
+
+	def set_max(self, max):
+		self.var.max = max
+
+	def set_decimal(self, val):
+		self.var.scale = val
+
+	def CloseObject(self):
+		self.calc.add_var(self.var)
+
+class D2LMinvalue(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.CheckLocation((D2LVariable),"<minvalue>")
+
+	def AddData (self,data):
+		self.data=self.data+data
+	
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.set_min(self.data)
+
+class D2LMaxvalue(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.CheckLocation((D2LVariable),"<maxvalue>")
+
+	def AddData (self,data):
+		self.data=self.data+data
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.set_max(self.data)
+
+class D2LDecimalplaces(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.CheckLocation((D2LVariable),"<decimalplaces>")
+
+	def AddData (self,data):
+		self.data=self.data+data
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		self.parent.set_decimal(self.data)
 
 class BBMatFormattedText(QTIObjectV1):
 	"""Holds question and response data in BB8 exports.
@@ -606,16 +684,16 @@ class BBMatFormattedText(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.type=None
-		
+
 	def SetAttribute_type(self, type):
 		self.type = type
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
-		self.parent.AppendElement(xhtml_text(self.data))	
+		self.parent.AppendElement(xhtml_text(self.data))
 
 		
 # material_table
@@ -691,7 +769,7 @@ class CalculatedFormula(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		self.CheckLocation((CalculatedNode, CalculatedFormulas),"<formula>")
+		self.CheckLocation((CalculatedNode, CalculatedFormulas, WCTMatExtension),"<formula>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
@@ -1209,6 +1287,7 @@ class QTIAssessment(InstructureHelperContainer):
 			self.resource.GetLOM().GetGeneral().SetTitle(LOMLangString(self.assessment.title,self.assessment.language))
 		#self.GenerateQTIMetadata()
 		self.GenerateInstructureMetadata()
+		if self.instructureMetadata: self.assessment.SetInstructureMetadata(self.instructureMetadata)
 		# Add the resource to the root thing - and therefore the content package
 		self.GetRoot().AddResource(self.resource)
 		# Adding a resource to a cp may cause it to change identifier, but we don't mind.
@@ -1284,8 +1363,8 @@ class QTISection(InstructureHelperContainer):
 	def SetOutcomeWeights(self, weights):
 		self.section.SetOutcomeWeights(weights)
 		
-	def AddItemReference(self, ref, fName):
-		self.section.AddItemReference(ref, fName)
+	def AddItemReference(self, ref, fName, weight=None):
+		self.section.AddItemReference(ref, fName, weight)
 
 	def GetBankId(self):
 		return self.parent.GetBankId()
@@ -1594,6 +1673,7 @@ class ItemRef(QTIObjectV1):
 		self.clean_linkrefid=None
 		self.CheckLocation((QTISection),"<itemref>")
 		self.ParseAttributes(attrs)
+		self.weight = None
 		# Set the name of the file
 		cp=self.GetRoot().cp
 		# Reserve space for our preferred file name
@@ -1601,6 +1681,9 @@ class ItemRef(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
+
+	def SetWeight (self, weight):
+		self.weight = weight
 		
 	def SetAttribute_linkrefid (self,value):
 		self.linkrefid = value
@@ -1612,7 +1695,7 @@ class ItemRef(QTIObjectV1):
 	def CloseObject(self):
 		self.data=self.data.strip()
 		if self.clean_linkrefid:
-			self.parent.AddItemReference(self.clean_linkrefid, self.fName)
+			self.parent.AddItemReference(self.clean_linkrefid, self.fName, self.weight)
 
 
 # QTIItem
@@ -1706,8 +1789,9 @@ class QTIItem(InstructureHelperContainer):
 				return tryname
 	
 	def DeclareResponse (self,identifier,cardinality,baseType,default=None):
+		if not identifier: identifier = 'no_id'
 		if self.responses.has_key(identifier):
-			raise QTIException(eDuplicateResponse,identifier)
+			self.PrintWarning('Warning: duplicate response identifier: %s' % identifier)
 		if self.variables.has_key(identifier):
 			self.PrintWarning('Warning: duplicate variable name, renaming response "'+identifier+'"')
 			self.responses[identifier]=self.UniqueVarName(identifier)
@@ -2113,6 +2197,93 @@ class BBMaxScore(BBBase):
 		BBBase.CloseObject(self)
 		self.container.SetBBMaxScore(self.data)
 
+
+## D2L-specific properties
+
+class D2LBase(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.label = name
+		self.container = self.GetInstructureHelperContainer()
+
+	def AddData (self,data):
+		self.data=self.data+data
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data:
+			self.PrintWarning("Converting proprietary D2LD2LPoints metadata field %s = %s" % (self.label, self.data))
+
+
+class D2LPoints(D2LBase):
+	def __init__(self,name,attrs,parent):
+		D2LBase.__init__(self, name, attrs, parent)
+		if not self.CheckLocation(ItemRef,"<d2l_2p0:points>", False):
+			return
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data:
+			self.parent.SetWeight(self.data)
+
+class D2LAssessProcextension(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		QTIObjectV1.__init__(self,name,attrs,parent)
+		if not self.CheckLocation(QTIAssessment,"<assess_procextension>", False):
+			return
+		self.PrintWarning('Warning: d2l meta data in assess_procextension not supported, looking inside for known settings')
+
+	def AddSection (self,id):
+		pass
+
+class D2LTimeLimit(D2LBase):
+	def __init__(self,name,attrs,parent):
+		D2LBase.__init__(self, name, attrs, parent)
+		if not self.CheckLocation(D2LAssessProcextension,"<d2l_2p0:time_limit>", False):
+			return
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data:
+			try:
+				# d2l time is in minutes, qti does time in seconds
+				self.container.SetDuration("%s" % (float(self.data) * 60))
+			except ValueError:
+				self.PrintWarning("Warning: invalid time limit value: %s" % self.data)
+
+class D2LPassword(D2LBase):
+	def __init__(self,name,attrs,parent):
+		D2LBase.__init__(self, name, attrs, parent)
+		if not self.CheckLocation(D2LAssessProcextension,"<d2l_2p0:password>", False):
+			return
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data:
+			self.container.AddMetaField("password", self.data)
+
+class D2LAttemptsAllowed(D2LBase):
+	def __init__(self,name,attrs,parent):
+		D2LBase.__init__(self, name, attrs, parent)
+		if not self.CheckLocation(D2LAssessProcextension,"<d2l_2p0:attempts_allowed>", False):
+			return
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data:
+			self.container.SetMaxAttempts(self.data)
+
+class D2LGradeItem(D2LBase):
+	def __init__(self,name,attrs,parent):
+		D2LBase.__init__(self, name, attrs, parent)
+		if not self.CheckLocation(D2LAssessProcextension,"<grade_item>", False):
+			return
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data:
+			self.container.AddMetaField("assignment_identifierref", self.data)
 
 # Vocabulary
 # ----------
@@ -2760,6 +2931,9 @@ MDFieldMap={
     # These are custom Respondus fields -- note they use qti_metadatafield
     # rather than qtimetadatafield
     'respondusapi_qpoints':BBMaxScore,
+
+	# D2L Field
+	'questiontype':QMDItemType
 	}
 class QTIMetadataField(QTIObjectV1):
 	"""
@@ -3222,7 +3396,7 @@ class MatThing(QTIObjectV1):
 	def MakeImage (self):
 		element=xhtml_img()
 		self.AddCPFile()
-		element.SetSrc(self.uri)
+		element.SetSrc(self.uri.replace('\\', '/'))
 		if self.width:
 			element.SetWidth(self.width)
 		if self.height:
@@ -3782,6 +3956,11 @@ class ResponseThing(QTIObjectV1):
 		self.timing=self.ReadYesNo(value,0)
 	
 	def SetAttribute_ident (self,value):
+		value = D2L_IDENTIFIER_REPLACER.sub('', value)
+		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
+
+	def SetAttribute_respident (self,value):
+		value = D2L_IDENTIFIER_REPLACER.sub('', value)
 		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
 	
 	def GetFlowLevel (self):
@@ -4421,8 +4600,9 @@ class ResponseLabel(QTIObjectV1):
 		self.PrintWarning("Warning: labelrefid is no longer supported in version 2, ignored "+value)
 	
 	def SetAttribute_ident (self,value):
+		value = D2L_IDENTIFIER_REPLACER.sub('', value)
 		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
-	
+
 	def SetAttribute_match_group (self,value):
 		value=string.join(string.split(value),'')
 		self.matchGroup=string.split(value,',')
@@ -5156,6 +5336,7 @@ class VarThing(QTIObjectV1):
 		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<varequal>")
 
 	def SetAttribute_respident (self,value):
+		value = D2L_IDENTIFIER_REPLACER.sub('', value)
 		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
 	
 	def SetAttribute_index (self,value):
@@ -5501,6 +5682,7 @@ class VarInside(VarThing):
 #
 QTIASI_ELEMENTS={
         'altmaterial':Unsupported,
+		'assess_procextension':D2LAssessProcextension,
         'and':AndOperatorV1,
         'and_objects':Unsupported,
         'and_selection':Unsupported,
@@ -5518,6 +5700,11 @@ QTIASI_ELEMENTS={
         'bbmd_questiontype':BBQuestionType, # Multiple Choice, Calculated, Numeric, Either/Or, Essay, File Upload, Fill in the Blank Plus, Fill in the Blank, Hot Spot, Jumbled Sentence, Matching, Multiple Answer, Multiple Choice, Opinion Scale, Ordering, Quiz Bowl, Short Response, True/False
         'conditionvar':ConditionVar,
         'calculated':CalculatedNode,
+        'd2l_2p0:attempts_allowed':D2LAttemptsAllowed,
+        'd2l_2p0:points':D2LPoints,
+        'd2l_2p0:time_limit':D2LTimeLimit,
+        'd2l_2p0:password':D2LPassword,
+		'decimalplaces':D2LDecimalplaces,
         'decvar':DecVar,
         'displayfeedback':DisplayFeedback,
         'duration':Duration,
@@ -5533,6 +5720,7 @@ QTIASI_ELEMENTS={
         'flow_mat':FlowMat,
         'formula':CalculatedFormula,
         'formulas':CalculatedFormulas,
+		'grade_item':D2LGradeItem,
         'hint':Hint,
         'hintmaterial':HintMaterial,
         'interpretvar':InterpretVar,
@@ -5561,7 +5749,9 @@ QTIASI_ELEMENTS={
         'mattext':MatText,
         'matvideo':Unsupported,
         'max':BB8Max,
+        'maxvalue':D2LMaxvalue,
         'min':BB8Min,
+        'minvalue':D2LMinvalue,
         'not':NotOperatorV1,
         'not_objects':Unsupported,
         'not_selection':Unsupported,
@@ -5647,6 +5837,7 @@ QTIASI_ELEMENTS={
         'solution':Solution,
         'solutionmaterial':SolutionMaterial,
         'sourcebank_ref':SourceBankRef,
+		'step':Unsupported,
         'test_variable':Unsupported,
         'unanswered':Unanswered,
         'unit_case_sensitive':BB8UnitCaseSensitive,
@@ -5657,6 +5848,7 @@ QTIASI_ELEMENTS={
         'varequal':VarEqual,
         'vargt':VarGT,
         'vargte':VarGTE,
+		'variable':D2LVariable,
         'variable_test':Unsupported,
         'varinside':VarInside,
         'varlt':VarLT,
@@ -5699,7 +5891,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 			self.elements['qmd_organisation']=QMDOrganisation
 		self.cp=ContentPackage()
 		self.currPath=None
-	
+
 	def ProcessFiles (self,basepath,files):
 		f=None
 		for fileName in files:
@@ -5746,7 +5938,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 			systemID=os.path.join(self.options.dtdDir,'ims_qtiasiv1p2.dtd')
 		print "Returning: %s"%systemID
 		return systemID
-	
+
 	def startElement(self, name, attrs):
 		parent=self.cObject
 		if parent is None:
@@ -5770,10 +5962,10 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 				self.cObject=Unsupported(name,attrs,parent)
 			if isinstance(self.cObject,Unsupported):
 				self.skipMode=len(self.objStack)
-	
+
 	def characters(self,ch):
 		self.cObject.AddData(ch)
-			
+
 	def endElement(self,name):
 		parent=self.objStack.pop()
 		self.cObject.CloseObject()

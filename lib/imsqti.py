@@ -199,7 +199,11 @@ def convert_duration_to_seconds(duration):
 	The format that it is actually in however is: HnMnSn
 	"""
 	import re
-	hours, minutes, seconds = re.search('(?:H([\\d]*))?(?:M([\\d]*))?(?:S([\\d]*))?', duration).group(1,2,3)
+	hours, minutes, seconds = re.search(r'(?:H([\d]*))?(?:M([\d]*))?(?:S([\d]*))?', duration).group(1,2,3)
+	
+	if not hours and not minutes and not seconds:
+		return duration
+	
 	duration = 0
 	if seconds: duration += int(seconds)
 	if minutes: duration += int(minutes) * 60
@@ -220,13 +224,14 @@ class AssessmentTest:
 		self.timeLimit=None
 		self.variables={}
 		self.parts = [TestPart()]
+		self.instructureMetadata=None
 	
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
-		
+
 	def SetTitle (self,title):
 		self.title=title
-		
+
 	def SetTimeLimit (self,timeLimit):
 		self.timeLimit=convert_duration_to_seconds(timeLimit)
 
@@ -247,6 +252,9 @@ class AssessmentTest:
 		
 	def SetItemSessionControl(self, control, part_index=0):
 		self.parts[part_index].SetItemSessionControl(control)
+
+	def SetInstructureMetadata(self, md):
+		self.instructureMetadata = md
 	
 	def WriteXML (self,f):
 		f.write('<assessmentTest')
@@ -264,6 +272,9 @@ class AssessmentTest:
 		f.write('>')
 		if self.timeLimit:
 			f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
+
+		if self.instructureMetadata:
+			self.instructureMetadata.WriteXML(f)
 		
 		for part in self.parts:
 			part.WriteXML(f)
@@ -358,8 +369,8 @@ class AssessmentSection:
 	def AddSection(self, section):
 		self.items.append(section)
 	
-	def AddItemReference(self, reference, fName):
-		ref = AssessmentItemRef(reference, fName)
+	def AddItemReference(self, reference, fName, weight=None):
+		ref = AssessmentItemRef(reference, fName, weight)
 		self.items.append(ref)
 		self.references[reference] = ref
 		
@@ -425,9 +436,9 @@ class AssessmentSection:
 		f.write('\n</assessmentSection>')
 		
 class AssessmentItemRef:
-	def __init__(self, iden, href):
+	def __init__(self, iden, href, weight=None):
 		self.identifier=iden
-		self.weight=None
+		self.weight=weight
 		self.href=href
 	
 	def SetIdentifier(self, value):
@@ -1178,10 +1189,10 @@ class Prompt:
 		self.elements.append(element)
 				
 	def WriteXML (self,f):
-		f.write('\n<prompt>')
+		f.write('\n<prompt><div class="html">')
 		for element in self.elements:
 			element.WriteXML(f)
-		f.write('</prompt>')
+		f.write('</div></prompt>')
 		
 class ChoiceInteraction(BlockInteraction):
 	def __init__ (self):
