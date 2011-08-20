@@ -1,3 +1,12 @@
+canvas-lms-qti-migration-plugin (0.1-7) professional; urgency=low
+
+  * [ba54beb] new deb: canvas-lms-qti-migration-plugin_0.1-6 professional
+  * [a909dec] fix how bb8 matching questions are handled
+  * [ac6e662] add d2l-specific tags
+  * [97e1c6a] ignore hint nodes in the wrong location
+
+ -- JT Olds <jt@instructure.com>  Sat, 20 Aug 2011 09:12:40 -0600
+
 canvas-lms-qti-migration-plugin (0.1-6) professional; urgency=low
 
   * [96a8874] new deb: canvas-lms-qti-migration-plugin_0.1-5 professional
