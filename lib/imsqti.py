@@ -1840,10 +1840,18 @@ class BaseValueOperator(Expression):
 	def __init__ (self,baseType,value):
 		self.baseType=baseType
 		self.value=value
-	
+		self.identifier=None
+
+	def SetIdentifier(self, identifier):
+		self.identifier=identifier
+
 	def WriteXML (self,f):
-		f.write('<baseValue baseType="'+XMLString(self.baseType)+'">'+XMLString(self.value)+'</baseValue>')
-		
+		res = '<baseValue baseType="'+XMLString(self.baseType)+'"'
+		if self.identifier != None:
+			res = res + ' identifier="'+XMLString(self.identifier)+'"'
+		res = res + '>'+XMLString(self.value)+'</baseValue>'
+		f.write(res)
+
 class IsNullOperator(Expression):
 	def __init__ (self,expression):
 		self.expression=expression

@@ -2830,6 +2830,25 @@ class WCTQuestionType(WCTBase):
 		if self.data:
 			self.container.SetBBQuestionType(self.data)
 
+# RespondusQuestionType
+# -----------
+#
+
+class RespondusQuestionType(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.label = name
+		self.container = self.GetInstructureHelperContainer()
+
+	def AddData (self,data):
+		self.data=self.data+data
+
+	def CloseObject (self):
+		QTIObjectV1.CloseObject(self)
+		if self.data:
+			self.container.SetQuestionType(self.data)
+
 # wct_questioncategory
 # -----------
 #
@@ -2933,6 +2952,7 @@ MDFieldMap={
     # These are custom Respondus fields -- note they use qti_metadatafield
     # rather than qtimetadatafield
     'respondusapi_qpoints':BBMaxScore,
+    'respondusapi_qtype':RespondusQuestionType,
 
 	# D2L Field
 	'questiontype':QMDItemType
@@ -5341,6 +5361,9 @@ class VarThing(QTIObjectV1):
 	def SetAttribute_respident (self,value):
 		value = D2L_IDENTIFIER_REPLACER.sub('', value)
 		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
+		if self.GetInstructureHelperContainer().question_type == 'fillInMultiple':
+			if not self.GetItemV1().GetResponse(self.identifier):
+				self.GetItemV1().DeclareResponse(self.identifier,'single','string')
 	
 	def SetAttribute_index (self,value):
 		self.index=self.ReadInteger(value,None)
@@ -5376,6 +5399,8 @@ class VarThing(QTIObjectV1):
 		elif baseType=='identifier':
 			self.value=self.CheckNMTOKEN(self.value,RESPONSE_PREFIX)
 		self.valExpression=BaseValueOperator(baseType,self.value)
+		if self.identifier:
+			self.valExpression.SetIdentifier(self.identifier)
 		self.valCardinality='single'
 		
 	
