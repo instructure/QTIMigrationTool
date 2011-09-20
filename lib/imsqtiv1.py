@@ -482,6 +482,7 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		self.SetQuestionType("Calculated")
 		
 	def SetMaxAttempts(self,attempts):
+		if isinstance(self, QTIObjectBank): return
 		if not self.sessionControl: self.sessionControl = ItemSessionControl()
 		self.sessionControl.SetMaxAttempts(attempts)
 	
@@ -2896,6 +2897,52 @@ class QMDAssessmentType(WCTBase):
 		if self.data:
 			self.container.SetAssessmentType(self.data)
 
+class QMDTimeLimit(QMDItemType):
+	def __init__(self,name,attrs,parent):
+		QMDItemType.__init__(self, name, attrs, parent)
+		
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data:
+			try:
+				# convert time from minutes to seconds
+				if not isinstance(self.container, QTIObjectBank):
+					self.container.SetDuration("%s" % (float(self.data) * 60))
+			except ValueError:
+				self.PrintWarning("Warning: invalid time limit value: %s" % self.data)
+
+class CCBase(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.label = name
+		self.container = self.GetInstructureHelperContainer()
+
+	def AddData (self,data):
+		self.data=self.data+data
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data:
+			self.PrintWarning("Converting common cartridge metadata field %s = %s" % (self.label, self.data))
+
+class CCMaxAttempts(CCBase):
+	def __init__(self,name,attrs,parent):
+		CCBase.__init__(self, name, attrs, parent)
+
+	def CloseObject (self):
+		CCBase.CloseObject(self)
+		if self.data:
+			self.container.SetMaxAttempts(self.data)
+
+class CCWeighting(CCBase):
+	def __init__(self,name,attrs,parent):
+		CCBase.__init__(self, name, attrs, parent)
+
+	def CloseObject (self):
+		CCBase.CloseObject(self)
+		if self.data:
+			self.container.SetPointsPossible(self.data)
 
 # QTIMetadataField
 # ----------------
@@ -2932,6 +2979,11 @@ MDFieldMap={
 	'question type':QMDItemType,
 	'status':QMDStatus,
 	'layoutstatus':QMDStatus,
+	'timelimit':QMDTimeLimit,
+
+	# Common Cartridge
+	'cc_maxattempts':CCMaxAttempts,
+	'cc_weighting':CCWeighting,
 
 	# Custom Canvas fields
 	'points_possible':PointsPossible,
@@ -5726,6 +5778,8 @@ QTIASI_ELEMENTS={
         'bbmd_asi_object_id':BBObjectID, # BB8 internal id
         'bbmd_assessmenttype':BBAssessmentType, # Test, Pool
         'bbmd_questiontype':BBQuestionType, # Multiple Choice, Calculated, Numeric, Either/Or, Essay, File Upload, Fill in the Blank Plus, Fill in the Blank, Hot Spot, Jumbled Sentence, Matching, Multiple Answer, Multiple Choice, Opinion Scale, Ordering, Quiz Bowl, Short Response, True/False
+		'cc_maxattempts':QTIMetadataField,
+		'cc_weighting':QTIMetadataField,
         'conditionvar':ConditionVar,
         'calculated':CalculatedNode,
         'd2l_2p0:attempts_allowed':D2LAttemptsAllowed,
@@ -5820,7 +5874,7 @@ QTIASI_ELEMENTS={
         'qmd_solutionspermitted':Unsupported,
         'qmd_status':QMDStatus,
         'qmd_timedependence':Unsupported,
-        'qmd_timelimit':Unsupported,
+        'qmd_timelimit':QTIMetadataField,
         'qmd_toolvendor':QMDToolVendor,
         'qmd_topic':QMDTopic,
         'qmd_typeofsolution':Unsupported,
