@@ -1,3 +1,11 @@
+canvas-lms-qti-migration-plugin (0.1-8) professional; urgency=low
+
+  * [8308f16] new deb: canvas-lms-qti-migration-plugin_0.1-7 professional
+  * [48a4270] add support for translating respondus FIMB questions, refs #5386
+  * [6cebb08] added some common cartridge meta data fields
+
+ -- JT Olds <jt@instructure.com>  Wed, 21 Sep 2011 14:20:15 -0600
+
 canvas-lms-qti-migration-plugin (0.1-7) professional; urgency=low
 
   * [ba54beb] new deb: canvas-lms-qti-migration-plugin_0.1-6 professional
