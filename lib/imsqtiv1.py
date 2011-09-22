@@ -1762,12 +1762,12 @@ class QTIItem(InstructureHelperContainer):
 	
 	def SetAttribute_ident (self,value):
 		if self.item.identifier: return
-		self.item.SetIdentifier(value);
-		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
 		if ':' in value:
 			print "Warning: item identifier with colon: replaced with hyphen when making resource identifier."
 			value=string.join(string.split(value,':'),'-')
-		self.resource.SetIdentifier(value);
+		value = self.resource.SetIdentifier(value);
+		self.item.SetIdentifier(value);
+		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
 		cp=self.GetRoot().cp
 		self.fName=cp.GetUniqueFileName(os.path.join("assessmentItems", self.resource.id+".xml"))
 

@@ -152,6 +152,7 @@ class CPResource:
 	def SetIdentifier (self,identifier):
 		self.id=identifier
 		self.FixIdentifier()
+		return self.id
 	
 	def FixIdentifier (self):
 		# Must match correct syntax
