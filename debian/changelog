@@ -1,3 +1,10 @@
+canvas-lms-qti-migration-plugin (0.1-9) professional; urgency=low
+
+  * [0de11b3] new deb: canvas-lms-qti-migration-plugin_0.1-8 professional
+  * [262afef] properly set altered item identifier
+
+ -- JT Olds <jt@instructure.com>  Fri, 30 Sep 2011 18:06:07 -0600
+
 canvas-lms-qti-migration-plugin (0.1-8) professional; urgency=low
 
   * [8308f16] new deb: canvas-lms-qti-migration-plugin_0.1-7 professional
