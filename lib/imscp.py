@@ -151,26 +151,28 @@ class CPResource:
 	
 	def SetIdentifier (self,identifier):
 		self.id=identifier
-		self.FixIdentifier()
+		self.id = CPResource.FixIdentifier(self.id)
 		return self.id
-	
-	def FixIdentifier (self):
+
+	@staticmethod
+	def FixIdentifier (id):
 		# Must match correct syntax
 		newID=""
-		for c in self.id:
+		for c in id:
 			if not c in NMTOKEN_CHARS:
 				c='_'
 			if not newID and not (c in NMSTART_CHARS):
 				newID="ID_"
 			newID=newID+c
-		self.id=newID
+		
+		return newID
 		
 	def AutoSetID (self,cp):
 		self.id=None
 		if self.lom:
 			self.id=self.lom.SuggestXMLID()
 			if self.id:
-				self.FixIdentifier()
+				self.id = CPResource.FixIdentifier(self.id)
 		if not self.id:
 			self.id="resource"
 		self.id=cp.GetUniqueID(self.id)

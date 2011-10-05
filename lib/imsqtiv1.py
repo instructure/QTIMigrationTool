@@ -1222,12 +1222,12 @@ class QTIAssessment(InstructureHelperContainer):
 		
 	def SetAttribute_ident (self,value):
 		if self.assessment.identifier: return
-		self.assessment.SetIdentifier(value)
-		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
 		if ':' in value:
 			print "Warning: assessment identifier with colon: replaced with hyphen when making resource identifier."
 			value=string.join(string.split(value,':'),'-')
-		self.resource.SetIdentifier(value)
+		value = self.resource.SetIdentifier(value)
+		self.assessment.SetIdentifier(value)
+		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
 		cp=self.GetRoot().cp
 		self.fName=cp.GetUniqueFileName(os.path.join("assessmentTests",self.resource.id+".xml"))
 
@@ -1693,7 +1693,7 @@ class ItemRef(QTIObjectV1):
 		if ':' in value:
 			print "Warning: item identifier with colon: replaced with hyphen when making resource identifier."
 			value=string.join(string.split(value,':'),'-')
-		self.clean_linkrefid = value
+		self.clean_linkrefid = CPResource.FixIdentifier(value)
 		
 	def CloseObject(self):
 		self.data=self.data.strip()
