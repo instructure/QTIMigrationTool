@@ -538,7 +538,6 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		Multiple Choice, Opinion Scale, Ordering, Quiz Bowl, 
 		Short Response, True/False
 		"""
-		if self.question_type: return
 		self.bb_question_type = type
 		self.AddMetaField("bb_question_type", type)
 
