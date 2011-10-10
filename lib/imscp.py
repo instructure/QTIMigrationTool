@@ -253,8 +253,11 @@ class CPFile:
 				f.close()
 			else:
 				try:
+					dir = os.path.split(filepath)[0]
+					if not os.path.exists(dir):
+						os.makedirs(dir)
 					copyfile(self.dataPath,filepath)
-				except IOError:
+				except IOError as (errno, strerror):
 					print 'Problem copying "%s" -> "%s"'%(self.dataPath,filepath)
 					if create_error_files:
 						f=codecs.open(filepath,'w',"utf8")

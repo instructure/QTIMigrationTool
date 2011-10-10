@@ -296,6 +296,87 @@ class QTIObjectV1:
 		return True
 
 
+class Manifest(QTIObjectV1):
+	def __init__(self, name, attrs, parent):
+		self.resource=CPResource()
+		self.resource.SetType("webcontent")
+		self.parent = parent
+		self.files={}
+		self.path=None
+		self.cp=None
+	
+	def SetPath (self,path):
+		self.path=path
+
+	def SetCP(self,cp):
+		self.cp=cp
+		self.cp.AddResource(self.resource)
+
+	def AddCPFile (self,uri):
+		print "\n\nHref: %s" % uri
+		if uri[-4:].lower() in ['.xml', '.dat', '.qti']:
+			return uri
+		if self.files.has_key(uri):
+			# We've already added this file to the content package
+			return self.files[uri]
+		cpf=CPFile()
+		cpf.SetHREF(uri)
+		root=self.GetRoot()
+		path=root.ResolveURI(uri)
+		cpf.SetDataPath(path)
+		self.resource.AddFile(cpf,0)
+		self.files[uri]=uri
+		return uri
+
+	def ResolveURI (self,uri):
+		# The base URI of this XML file is self.path
+		# resolve URI to make it a full path
+		path,discard=os.path.split(self.path)
+		segments=string.split(uri,'/')
+		for segment in segments:
+			if segment==".":
+				continue
+			elif segment=="..":
+				path,discard=os.path.split(path)
+			else:
+				path=os.path.join(path,DecodePathSegment(segment))
+		return path
+
+class Resources(QTIObjectV1):
+	def __init__(self, name, attrs, parent):
+		self.parent = parent
+		self.in_manifest = self.CheckLocation((Manifest),"<resources>", False)
+		if self.in_manifest:
+			self.manifest = parent
+
+	def AddCPFile(self, uri):
+		if self.in_manifest:
+			self.manifest.AddCPFile(uri)
+
+class Resource(QTIObjectV1):
+	def __init__(self, name, attrs, parent):
+		self.parent = parent
+		self.in_manifest = self.CheckLocation((Resources),"<resources>", False)
+		if self.in_manifest:
+			self.manifest = parent
+
+	def AddCPFile(self, uri):
+		if self.in_manifest:
+			self.manifest.AddCPFile(uri)
+
+class File(QTIObjectV1):
+	def __init__(self, name, attrs, parent):
+		self.parent = parent
+		self.in_manifest = self.CheckLocation((Resource),"<file>", False)
+		if self.in_manifest:
+			self.manifest = parent
+			self.ParseAttributes(attrs)
+
+	def SetAttribute_href (self,href):
+		if self.in_manifest:
+			self.manifest.AddCPFile(href)
+
+
 # Unsupported
 # -----------
 #
@@ -5805,6 +5886,7 @@ QTIASI_ELEMENTS={
         'durlte':Unsupported,
         'fieldentry':FieldEntry,
         'fieldlabel':FieldLabel,
+		'file':File,
         'flow':FlowV1,
         'flow_label':FlowLabel,
         'flow_mat':FlowMat,
@@ -5823,6 +5905,7 @@ QTIASI_ELEMENTS={
         'itemproc_extension':ItemProcExtension,
         'itemref':ItemRef,
         'itemrubric':Unsupported,
+		'manifest':Manifest,
         'map_output':Unsupported,
         'mat_extension':WCTMatExtension,
         'mat_formattedtext':BBMatFormattedText,
@@ -5898,6 +5981,8 @@ QTIASI_ELEMENTS={
         'render_fib':RenderFib,
         'render_hotspot':RenderHotspot,
         'render_slider':RenderSlider,
+		'resources':Resources,
+		'resource':Resource,
         'respcond_extension':Unsupported,
         'respcondition':RespCondition,
         'response_extension':Unsupported,
@@ -6046,6 +6131,9 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 					self.cObject.SetCP(self.cp)
 					self.cObject.SetPath(self.currPath)
 					self.cObject.SetParser(self)
+				if isinstance(self.cObject,Manifest):
+					self.cObject.SetCP(self.cp)
+					self.cObject.SetPath(self.currPath)
 				if self.options.prepend_path and isinstance(self.cObject,(MatThing)):
 					self.cObject.prepend_path = self.options.prepend_path
 			else:
