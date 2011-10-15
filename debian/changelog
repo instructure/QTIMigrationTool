@@ -1,3 +1,11 @@
+canvas-lms-qti-migration-plugin (0.1-10) professional; urgency=low
+
+  * [55d3184] new deb: canvas-lms-qti-migration-plugin_0.1-9 professional
+  * [d6e4afe] make referenced ids have correct identifier
+  * [80022dd] allow the generic and bb-specific questions types to be set
+
+ -- JT Olds <jt@instructure.com>  Sat, 15 Oct 2011 11:48:09 -0600
+
 canvas-lms-qti-migration-plugin (0.1-9) professional; urgency=low
 
   * [0de11b3] new deb: canvas-lms-qti-migration-plugin_0.1-8 professional
