@@ -1324,13 +1324,16 @@ class QTISection(InstructureHelperContainer):
 		InstructureHelperContainer.__init__(self)
 		self.parent=parent
 		self.CheckLocation((QTIAssessment,QTISection, QTIObjectBank, QuesTestInterop),"<section>")
-		self.question_bank = None
+		if isinstance(self.parent, QTIObjectBank):
+			self.question_bank = self
+		else:
+			self.question_bank = None
 		if hasattr(self.parent, 'question_bank'):
 			self.question_bank = self.parent.question_bank
 		self.parser=self.GetParser()
 		self.section=AssessmentSection()
 		self.ParseAttributes(attrs)
-		
+
 	def SetAttribute_ident (self,value):
 		self.section.SetIdentifier(value)
 
@@ -1339,7 +1342,7 @@ class QTISection(InstructureHelperContainer):
 	
 	def SetAttribute_visible(self, visible):
 		self.section.SetVisible(visible)
-	
+
 	def SetDuration(self, duration):
 		#todo: if it's a testPart it can be set...
 		pass
@@ -1369,10 +1372,16 @@ class QTISection(InstructureHelperContainer):
 		self.section.AddItemReference(ref, fName, weight)
 
 	def GetBankId(self):
-		return self.parent.GetBankId()
+		if isinstance(self.parent, QTIObjectBank):
+			return self.section.identifier
+		else:
+			return self.parent.GetBankId()
 
 	def GetBankName(self):
-		return self.parent.GetBankName()
+		if isinstance(self.parent, QTIObjectBank):
+			return self.section.title
+		else:
+			return self.parent.GetBankName()
 		
 	def GetItemV1 (self):
 		return self
