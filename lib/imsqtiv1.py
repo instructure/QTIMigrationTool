@@ -3109,7 +3109,7 @@ class QTIMetadataField(QTIObjectV1):
 		self.lang=None
 		self.label=None
 		self.entry=None
-		self.CheckLocation((QTIMetadata),"<qtimetadatafield>")
+		self.CheckLocation((QTIMetadata),"<qtimetadatafield>", False)
 		self.ParseAttributes(attrs)
 
 	def SetAttribute_xml_lang (self,value):
