@@ -1280,17 +1280,17 @@ class QTIAssessment(InstructureHelperContainer):
 		# This is the manifest object
 		self.resource=CPResource()
 		self.resource.SetType("imsqti_assessment_xmlv2p1")
-		if CURRENT_FILE_NAME:
-			self.SetAttribute_ident(CURRENT_FILE_NAME)
-		else:
-			self.SetAttribute_ident("%s" % randint(1,100000))
 		self.educationalMetadata=None
 		self.variables={'FEEDBACK':None}
-		if attrs.has_key('ident'):
-			print '-- Converting item id="'+attrs['ident']+'" --'
 		self.warnings={}
 		self.msg=""
 		self.ParseAttributes(attrs)
+		if not self.assessment.identifier and CURRENT_FILE_NAME:
+			self.SetAttribute_ident(CURRENT_FILE_NAME)
+		elif not self.assessment.identifier:
+			self.SetAttribute_ident("%s" % randint(1,100000))
+		if attrs.has_key('ident'):
+			print '-- Converting item id="'+attrs['ident']+'" --'
 		if not self.assessment.language and self.parser.options.lang:
 			self.assessment.SetLanguage(self.parser.options.lang)
 		# Set the name of the file
