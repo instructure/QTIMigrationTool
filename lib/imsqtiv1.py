@@ -1437,11 +1437,8 @@ class QTISection(InstructureHelperContainer):
 	def SetSelectionNumber(self, value):
 		self.section.SetSelectionNumber(value)
 
-	def SetSourceBankRef(self, value):
-		self.section.SetSourceBankRef(value)
-
-	def SetPointsPerItem(self, value):
-		self.section.SetPointsPerItem(value)
+	def AddSelectionExtension(self, key, value):
+		self.section.AddSelectionExtension(key, value)
 	
 	def SetSequenceType(self, value):
 		self.section.SetSequenceType(value)
@@ -1502,11 +1499,8 @@ class SelectionOrdering(QTIObjectV1):
 	def SetSelectionNumber(self, value):
 		if self.process: self.parent.SetSelectionNumber(value)
 
-	def SetSourceBankRef(self, value):
-		if self.process: self.parent.SetSourceBankRef(value)
-
-	def SetPointsPerItem(self, value):
-		if self.process: self.parent.SetPointsPerItem(value)
+	def AddSelectionExtension(self, key, value):
+		if self.process: self.parent.AddSelectionExtension(key, value)
 	
 	def SetSequenceType(self, value):
 		if self.process: self.parent.SetSequenceType(value)
@@ -1557,11 +1551,8 @@ class Selection(QTIObjectV1):
 	def SetSelectionNumber(self, value):
 		self.parent.SetSelectionNumber(value)
 
-	def SetSourceBankRef(self, value):
-		self.parent.SetSourceBankRef(value)
-
-	def SetPointsPerItem(self, value):
-		self.parent.SetPointsPerItem(value)
+	def AddSelectionExtension(self, key, value):
+		self.parent.AddSelectionExtension(key, value)
 		
 	def SetAttribute_sequence_type (self,value):
 		self.parent.SetSequenceType(value)
@@ -1604,7 +1595,7 @@ class SourceBankRef(QTIObjectV1):
 
 	def CloseObject (self):
 		self.data=self.data.strip()
-		if self.data: self.parent.SetSourceBankRef(self.data)
+		if self.data: self.parent.AddSelectionExtension('sourcebank_ref', self.data)
 
 
 # SelectionExtension
@@ -1620,6 +1611,9 @@ class SelectionExtension(QTIObjectV1):
 
 	def SetPointsPerItem(self, value):
 		self.parent.SetPointsPerItem(value)
+
+	def AddSelectionExtension(self, key, value):
+		self.parent.AddSelectionExtension(key, value)
 
 
 # PointsPerItem
@@ -1639,7 +1633,47 @@ class PointsPerItem(QTIObjectV1):
 
 	def CloseObject (self):
 		self.data=self.data.strip()
-		if self.data: self.parent.SetPointsPerItem(self.data)
+		if self.data: self.parent.AddSelectionExtension('points_per_item', self.data)
+
+
+# SourceBankContext
+# --------
+#
+class SourceBankContext(QTIObjectV1):
+	"""
+	<!ELEMENT points_per_item (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.CheckLocation((SelectionExtension),"<sourcebank_context>")
+
+	def AddData (self,data):
+		self.data=self.data+data
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data: self.parent.AddSelectionExtension('sourcebank_context', self.data)
+
+
+# SourceBankIsExternal
+# --------
+#
+class SourceBankIsExternal(QTIObjectV1):
+	"""
+	<!ELEMENT points_per_item (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data=""
+		self.CheckLocation((SelectionExtension),"<sourcebank_is_external>")
+
+	def AddData (self,data):
+		self.data=self.data+data
+
+	def CloseObject (self):
+		self.data=self.data.strip()
+		if self.data: self.parent.AddSelectionExtension('sourcebank_is_external', self.data)
 
 
 # OutcomesProcessing
@@ -6012,6 +6046,8 @@ QTIASI_ELEMENTS={
         'solution':Solution,
         'solutionmaterial':SolutionMaterial,
         'sourcebank_ref':SourceBankRef,
+        'sourcebank_context':SourceBankContext,
+        'sourcebank_is_external':SourceBankIsExternal,
 		'step':Unsupported,
         'test_variable':Unsupported,
         'unanswered':Unanswered,

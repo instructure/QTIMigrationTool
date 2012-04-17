@@ -334,19 +334,21 @@ class AssessmentSection:
 		self.timeLimit=None
 		self.randomOrdering=None
 		self.selectNumber=None
-		self.sourceBankRef=None
-		self.pointsPerItem=None
 		self.withReplacement=None
 		self.items = []
 		self.outcomeWeights=None
 		self.references={}
 		self.itemSessionControl=None
+		self.selection_extensions = {}
 	
 	def SetItemSessionControl(self, control):
 		self.itemSessionControl = control
 		
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
+
+	def AddSelectionExtension(self, key, value):
+		self.selection_extensions[key] = value
 	
 	def SetTitle (self,title):
 		self.title=title
@@ -388,12 +390,6 @@ class AssessmentSection:
 		"""This is how many questions from a group should be selected"""
 		self.selectNumber = value
 
-	def SetSourceBankRef(self, value):
-		self.sourceBankRef = value
-
-	def SetPointsPerItem(self, value):
-		self.pointsPerItem = value
-	
 	def SetSequenceType(self, value):
 		"""Possible values: repeat, normal"""
 		if value.lower() == "repeat":
@@ -417,15 +413,16 @@ class AssessmentSection:
 		if self.timeLimit: f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
 		if self.randomOrdering: f.write('\n<ordering shuffle="true"/>')
 		if self.itemSessionControl: self.itemSessionControl.WriteXML(f)
-		if self.selectNumber or self.withReplacement or self.sourceBankRef or self.pointsPerItem:
+		if self.selectNumber or self.withReplacement or len(self.selection_extensions) > 0:
 			f.write('\n<selection')
 			if self.selectNumber: f.write(' select="%s"' % self.selectNumber)
 			if self.withReplacement: f.write(' withReplacement="%s"' % self.withReplacement)
-			if self.sourceBankRef or self.pointsPerItem:
+			if len(self.selection_extensions) > 0:
 				f.write('>\n')
-				# This isn't valid QTI 2.*
-				if self.sourceBankRef: f.write('<sourcebank_ref>%s</sourcebank_ref>' % self.sourceBankRef)
-				if self.pointsPerItem: f.write('<points_per_item>%s</points_per_item>' % self.pointsPerItem)
+				f.write('\n<selectionExtension>')
+				for key, val in self.selection_extensions.items():
+					f.write('\n<' + key + '>' + val + '</' + key + '>')
+				f.write('\n</selectionExtension>')
 				f.write('\n</selection>')
 			else:
 				f.write(' />')
