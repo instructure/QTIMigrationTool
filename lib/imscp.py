@@ -196,9 +196,22 @@ class CPResource:
 		return self.qtiMD
 		
 	def AddFile (self,cpf,entryPoint=0):
+		for file in self.files:
+			if file.href == cpf.href:
+				return
 		self.files.append(cpf)
 		if entryPoint:
 			self.entryPoint=cpf
+
+	def update_file_path(self, uri, dest_path, data_path):
+		cpf = None
+		for file in self.files:
+			if file.href == uri or file.href == dest_path or file.dataPath == data_path:
+				cpf = file
+				break
+		if cpf:
+			cpf.href = dest_path
+			cpf.dataPath = data_path
 
 	def DumpToDirectory (self,path,create_error_files=None):
 		for f in self.files:

@@ -306,14 +306,14 @@ class Manifest(QTIObjectV1):
 		self.cp=None
 	
 	def SetPath (self,path):
-		self.path=path
+		if self.path is None:
+			self.path=path
 
 	def SetCP(self,cp):
 		self.cp=cp
 		self.cp.AddResource(self.resource)
 
 	def AddCPFile (self,uri):
-		print "\n\nHref: %s" % uri
 		if uri[-4:].lower() in ['.xml', '.dat', '.qti']:
 			return uri
 		if self.files.has_key(uri):
@@ -341,6 +341,13 @@ class Manifest(QTIObjectV1):
 			else:
 				path=os.path.join(path,DecodePathSegment(segment))
 		return path
+
+	def update_file_path(self, path):
+		if len(self.files) == 1:
+			uri = self.files.values()[0]
+			if uri != path:
+				self.resource.update_file_path(uri, path, self.GetRoot().ResolveURI(uri))
+
 
 class Resources(QTIObjectV1):
 	def __init__(self, name, attrs, parent):
@@ -779,6 +786,49 @@ class BBMatFormattedText(QTIObjectV1):
 		self.parent.AppendElement(xhtml_text(self.data))
 
 		
+# webct:ContentObject
+# -------------
+#
+class WCTContentObject(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		QTIObjectV1.__init__(self,name,attrs,parent)
+		self.file_name = None
+		self.file_path = None
+		self.co_type
+		self.in_manifest = self.CheckLocation((Manifest),"<webct:ContentObject>", False)
+		self.ParseAttributes(attrs)
+
+	def SetAttribute_webct_coType (self,type):
+		self.co_type = type
+
+	def CloseObject(self):
+		if self.in_manifest and self.co_type == "webct.file" and self.file_name and self.file_path:
+			self.parent.update_file_path(os.path.join(self.file_path, self.file_name))
+
+# webct:Name
+# -------------
+#
+class WCTName(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		QTIObjectV1.__init__(self,name,attrs,parent)
+		self.in_content_object = self.CheckLocation((WCTContentObject),"<webct:WCTName>", False)
+
+	def AddData (self,data):
+		if self.in_content_object:
+			self.parent.file_name = data
+
+# webct:Path
+# -------------
+#
+class WCTPath(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		QTIObjectV1.__init__(self,name,attrs,parent)
+		self.in_content_object = self.CheckLocation((WCTContentObject),"<webct:WCTPath>", False)
+
+	def AddData (self,data):
+		if self.in_content_object:
+			self.parent.file_path = data
+
 # material_table
 # -------------
 #
@@ -788,7 +838,7 @@ class WCTMaterialTable(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		QTIObjectV1.__init__(self,name,attrs,parent)
 		self.PrintWarning('Warning: material_table not supported, looking inside for needed data')
-		
+
 	def SetAttribute_label (self,id):
 		pass
 
@@ -3564,7 +3614,7 @@ class MatThing(QTIObjectV1):
 		self.label=value
 	
 	def SetAttribute_uri (self,value):
-		self.uri=value
+		self.uri=value.lstrip('/')
 	
 	def SetAttribute_entityref (self,value):
 		self.entityRef=value
@@ -6071,15 +6121,18 @@ QTIASI_ELEMENTS={
         'varsubset':VarSubset,
         'varsubstring':VarSubstring,
         'vocabulary':Vocabulary,
+		'webct:answer':CalculatedAnswer,
 		'webct:calculated':CalculatedNode,
-		'webct:formula':CalculatedFormula,
-		'webct:var':WCTVar,
+		'webct:calculated_answer':WCTCalculatedAnswer,
 		'webct:calculated_set':CalculatedVarSet,
 		'webct:calculated_var':WCTVar,
-		'webct:answer':CalculatedAnswer,
-		'webct:calculated_answer':WCTCalculatedAnswer,
+		'webct:ContentObject':WCTContentObject,
+		'webct:Name':WCTName,
+		'webctfl:Path':WCTPath,
+		'webct:formula':CalculatedFormula,
 		'webct:matching_ext_flow':WCTMatchingExtFlow,
-		'webct:matching_text_ext':WCTMatchingTextExt
+		'webct:matching_text_ext':WCTMatchingTextExt,
+		'webct:var':WCTVar,
 	}
 
 class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
@@ -6093,6 +6146,8 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 		self.parser.setErrorHandler(self)
 		self.parser.setEntityResolver(self)
 		self.elements=QTIASI_ELEMENTS
+		self.manifest=None
+		self.manifest_path=None
 		if self.options.qmdExtensions:
 			self.elements['qmd_keywords']=QMDKeywords
 			self.elements['qmd_domain']=QMDDomain
@@ -6168,8 +6223,17 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 					self.cObject.SetPath(self.currPath)
 					self.cObject.SetParser(self)
 				if isinstance(self.cObject,Manifest):
-					self.cObject.SetCP(self.cp)
-					self.cObject.SetPath(self.currPath)
+					if self.currPath.endswith("imsmanifest.xml"):
+						self.cObject.SetCP(self.cp)
+						self.cObject.SetPath(self.currPath)
+						self.manifest = self.cObject
+						self.manifest_path = self.currPath.replace("imsmanifest.xml", '')
+					else:
+						if self.manifest:
+							self.cObject.SetCP(self.manifest.cp)
+							self.cObject.SetPath(self.manifest.path)
+							self.cObject.resource = self.manifest.resource
+
 				if self.options.prepend_path and isinstance(self.cObject,(MatThing)):
 					self.cObject.prepend_path = self.options.prepend_path
 			else:
