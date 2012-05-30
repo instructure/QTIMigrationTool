@@ -1805,7 +1805,7 @@ class OutcomesMetaData(QTIObjectV1):
 		if self.mdname and self.mdname.lower() == "ident":
 			if ':' in self.data:
 				self.data=string.join(string.split(self.data,':'),'-')
-			self.parent.SetItemIdentity(self.data)
+			self.parent.SetItemIdentity(CPResource.FixIdentifier(self.data))
 
 # ObjectsParameter
 # --------
