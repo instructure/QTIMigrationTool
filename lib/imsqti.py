@@ -1155,6 +1155,10 @@ class xhtml_text(Inline,HTML):
 	def ExtractText (self):
 		return self.text
 
+class just_text(xhtml_text):
+	def __init__(self, text=""):
+		xhtml_text.__init__(self, text)
+
 class Interaction:
 	def __init__ (self):
 		self.response=None

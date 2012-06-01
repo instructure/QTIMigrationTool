@@ -3468,30 +3468,36 @@ class FlowV1(QTIObjectV1):
 		else:
 			self.parent.AppendElement(element)
 	
-	def AppendHTMLContainer (self,content):
+	def AppendHTMLContainer (self,content, is_text=False):
 		container=xhtml_div()
 		container.escaped = True
-		container.SetClass('html')
+		if is_text:
+			container.SetClass('text')
+		else:
+			container.SetClass('html')
 		container.AppendElement(xhtml_text(content))
 		self.AppendToParent(container)
 
 	def CloseObject (self):
 		buffer=None
+		is_text=False
 		for child in self.children:
 			if isinstance(child,HTML) and not child.escaped:
 				if not buffer:
 					buffer=StringIO.StringIO()
 				if isinstance(child,xhtml_text):
 					buffer.write(child.ExtractText())
+					if isinstance(child, just_text):
+						is_text = True
 				else:
 					child.WriteXML(buffer)
 			else:
 				if buffer:
-					self.AppendHTMLContainer(buffer.getvalue())
+					self.AppendHTMLContainer(buffer.getvalue(), is_text)
 					buffer=None
 				self.AppendToParent(child)
 		if buffer:
-			self.AppendHTMLContainer(buffer.getvalue())
+			self.AppendHTMLContainer(buffer.getvalue(), is_text)
 		if self.div_container:
 			self.parent.AppendElement(self.div_container)
 
@@ -3915,7 +3921,7 @@ class MatText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 	def __init__(self,name,attrs,parent):
 		MatThing.__init__(self,name,attrs,parent)
 		if not self.type:
-			self.type="text/plain"
+			self.type="text/html"
 		self.htmlStack=[]
 		self.htmlElements=[]
 		self.htmlElement=None
@@ -3959,9 +3965,7 @@ class MatText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 
 	def MakeText (self):
 		if self.type=='text/plain':
-#			if self.space.lower()!='preserve':
-#				self.data=string.join(string.split(self.data.strip()),' ')
-			element=xhtml_text()
+			element=just_text()
 			element.SetText(self.data)
 			if self.label or self.language:
 				# We need to wrap it in a span
