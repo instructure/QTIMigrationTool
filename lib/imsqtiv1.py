@@ -405,6 +405,7 @@ class Unsupported(QTIObjectV1):
 class Skipped(QTIObjectV1):
 	"""Skipped QTI object"""
 	def __init__(self,name,attrs,parent):
+		self.parent = parent
 		pass
 		#print "Skipping element <"+name+">"
 
@@ -1867,11 +1868,40 @@ class ItemRef(QTIObjectV1):
 			print "Warning: item identifier with colon: replaced with hyphen when making resource identifier."
 			value=string.join(string.split(value,':'),'-')
 		self.clean_linkrefid = CPResource.FixIdentifier(value)
-		
+
 	def CloseObject(self):
 		self.data=self.data.strip()
 		if self.clean_linkrefid:
 			self.parent.AddItemReference(self.clean_linkrefid, self.fName, self.weight)
+# selection_metadata
+# --------
+#
+class SelectionMetadata(QTIObjectV1):
+	"""
+	<!ELEMENT selection_metadata (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		self.parent = parent
+		self.parent = self.GetItemV1()
+		self.CheckLocation((QTISection),"<selection_metadata>")
+		self.data=""
+		self.linkrefid=None
+		self.clean_linkrefid=None
+		self.ParseAttributes(attrs)
+		self.weight = None
+
+	def AddData (self,data):
+		self.data=self.data+data
+
+	def CloseObject(self):
+		self.data=self.data.strip()
+		if self.data:
+			linkrefid = CPResource.FixIdentifier(self.data)
+			# Set the name of the file
+			cp=self.GetRoot().cp
+			# Reserve space for our preferred file name
+			self.fName=cp.GetUniqueFileName(os.path.join("assessmentItems", linkrefid+".xml"), dont_save=True)
+			self.parent.AddItemReference(linkrefid, self.fName, self.weight)
 
 
 # QTIItem
@@ -6024,7 +6054,7 @@ QTIASI_ELEMENTS={
         'objectscond_extension':Unsupported,
         'or':OrOperatorV1,
         'or_objects':Unsupported,
-        'or_selection':Unsupported,
+        'or_selection':Skipped,
         'or_test':Unsupported,
         'order':Order,
         'order_extension':Unsupported,
@@ -6093,7 +6123,7 @@ QTIASI_ELEMENTS={
         'selection':Selection,
         'selection_number':SelectionNumber,
         'selection_extension':SelectionExtension,
-        'selection_metadata':Unsupported,
+        'selection_metadata':SelectionMetadata,
         'selection_ordering':SelectionOrdering,
         'sequence_parameter':Unsupported,
         'setvar':SetVar,
