@@ -6199,6 +6199,13 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 			if os.path.isdir(path):
 				print "Processing directory: : "+path
 				children=os.listdir(path)
+				# see if there is an imsmanifest and process it first
+				# The order of the rest doesn't mater
+				for i, v in enumerate(children):
+					if v == "imsmanifest.xml":
+						if i:
+							children[0], children[i] = children[i], children[0]
+						break
 				self.ProcessFiles(path,children)
 			elif fileName[-4:].lower() in ['.xml', '.dat', '.qti']:
 				print "Processing file: "+path
