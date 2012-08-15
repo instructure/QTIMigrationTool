@@ -4901,6 +4901,8 @@ class ResponseLabel(QTIObjectV1):
 		self.data=self.data+data
 
 	def CloseObject (self):
+		if not self.identifier:
+			return
 		if self.labelThing==SimpleChoice:
 			choice=SimpleChoice()
 			choice.SetIdentifier(self.identifier)
