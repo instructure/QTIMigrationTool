@@ -371,8 +371,8 @@ class AssessmentSection:
 	def AddSection(self, section):
 		self.items.append(section)
 	
-	def AddItemReference(self, reference, fName, weight=None):
-		ref = AssessmentItemRef(reference, fName, weight)
+	def AddItemReference(self, reference, fName, weight=None, label=None):
+		ref = AssessmentItemRef(reference, fName, weight, label)
 		self.items.append(ref)
 		self.references[reference] = ref
 		
@@ -433,16 +433,20 @@ class AssessmentSection:
 		f.write('\n</assessmentSection>')
 		
 class AssessmentItemRef:
-	def __init__(self, iden, href, weight=None):
+	def __init__(self, iden, href, weight=None, label=None):
 		self.identifier=iden
 		self.weight=weight
 		self.href=href
+		self.label=label
 	
 	def SetIdentifier(self, value):
 		self.identifier=value
 	
 	def SetWeight(self, weight):
 		self.weight=weight
+
+	def SetLabel(self, label):
+		self.label=label
 		
 	def SetHREF(self, href):
 		self.href = href
@@ -452,6 +456,8 @@ class AssessmentItemRef:
 		f.write('\n<assessmentItemRef')
 		f.write(' identifier="%s"' % XMLString(self.identifier))
 		f.write(' href="../%s"' % XMLString(self.href))
+		if self.label:
+			f.write(' label="%s"' % XMLString(self.label))
 		if self.weight:
 			f.write(">")
 			f.write('\n<weight identifier="%s" value="%s"/>' % (0, self.weight))

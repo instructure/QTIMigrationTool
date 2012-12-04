@@ -1497,8 +1497,8 @@ class QTISection(InstructureHelperContainer):
 	def SetOutcomeWeights(self, weights):
 		self.section.SetOutcomeWeights(weights)
 		
-	def AddItemReference(self, ref, fName, weight=None):
-		self.section.AddItemReference(ref, fName, weight)
+	def AddItemReference(self, ref, fName, weight=None, label=None):
+		self.section.AddItemReference(ref, fName, weight, label)
 
 	def GetBankId(self):
 		if isinstance(self.parent, QTIObjectBank):
@@ -1962,7 +1962,8 @@ class QTIItem(InstructureHelperContainer):
 
 	def SetAttribute_label (self,value):
 		self.item.SetLabel(value)
-	
+		self.resource.SetLabel(value)
+
 	def SetAttribute_ident (self,value):
 		if self.item.identifier: return
 		if ':' in value:
@@ -2212,7 +2213,7 @@ class QTIItem(InstructureHelperContainer):
 	def CloseObject (self):
 		#Add reference to parent if it's a section
 		if isinstance(self.parent,QTISection):
-			self.parent.AddItemReference(self.resource.id, self.fName)
+			self.parent.AddItemReference(self.resource.id, self.fName, None, self.resource.label)
 			
 		# Check devvar min/max constraints
 		rp=self.item.GetResponseProcessing()

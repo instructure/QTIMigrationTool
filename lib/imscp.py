@@ -148,11 +148,15 @@ class CPResource:
 		self.instructureMD=None
 		self.files=[]
 		self.entryPoint=None
+		self.label=None
 	
 	def SetIdentifier (self,identifier):
 		self.id=identifier
 		self.id = CPResource.FixIdentifier(self.id)
 		return self.id
+
+	def SetLabel (self,value):
+		self.label = value
 
 	@staticmethod
 	def FixIdentifier (id):
@@ -219,6 +223,8 @@ class CPResource:
 
 	def WriteManifestXML (self,f):
 		f.write('\n\t<resource identifier="'+self.id+'"')
+		if self.label:
+			f.write(' label="'+self.label+'"')
 		if self.type:
 			f.write(' type="'+self.type+'"')
 		if self.entryPoint:
