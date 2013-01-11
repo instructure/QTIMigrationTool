@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-git clone "ssh://hudson@gerrit.instructure.com:29418/migration_tool.git" "vendor/plugins/migration_tool"
+git clone "ssh://hudson@10.86.151.193/home/gerrit/migration_tool.git" "vendor/plugins/migration_tool"
 
 vendor/plugins/migration_tool/spec_canvas/hudson_setup.sh
 
