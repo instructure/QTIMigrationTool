@@ -3069,13 +3069,7 @@ class WCTQuestionCategory(WCTBase):
 		if self.data:
 			self.container.SetQuestionBank(self.data)
 
-# wct_fib_questionText
-# -----------
-#
-class WCTFIBText(WCTBase):
-	"""
-	<!ELEMENT wct_fib_questionText (#PCDATA)>
-	"""
+class WCTCustomText(WCTBase):
 	def __init__(self,name,attrs,parent):
 		WCTBase.__init__(self, name, attrs, parent)
 
@@ -3085,6 +3079,32 @@ class WCTFIBText(WCTBase):
 			body = self.container.item.GetItemBody()
 			body.blocks = [xhtml_text(self.data)]
 			body.lock()
+
+# wct_fib_questionText
+# -----------
+#
+class WCTFIBText(WCTCustomText):
+	"""
+	<!ELEMENT wct_fib_questionText (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		WCTCustomText.__init__(self, name, attrs, parent)
+
+	def CloseObject (self):
+		WCTCustomText.CloseObject(self)
+
+# wct_calc_questionText
+# -----------
+#
+class WCTCalcText(WCTCustomText):
+	"""
+	<!ELEMENT wct_calc_questionText (#PCDATA)>
+	"""
+	def __init__(self,name,attrs,parent):
+		WCTCustomText.__init__(self, name, attrs, parent)
+
+	def CloseObject (self):
+		WCTCustomText.CloseObject(self)
 
 # QMDAssessmentType
 # -----------
@@ -3203,6 +3223,8 @@ MDFieldMap={
 	'wct_fib_questiontext':WCTFIBText,
 	'wct_questiontype':WCTQuestionType,
 	'wct_questioncategory':WCTQuestionCategory,
+	'wct_calc_questiontext':WCTCalcText,
+
 	'assessmenttype':QMDAssessmentType,
 
     # These are custom Respondus fields -- note they use qti_metadatafield
