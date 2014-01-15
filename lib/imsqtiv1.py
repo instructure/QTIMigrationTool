@@ -5511,7 +5511,7 @@ class AndOperatorV1(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		self.operator=AndOperator()
 		# conditionvar, and, or, not
-		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<and>")
+		self.CheckLocation((RespCondition,ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<and>")
 	
 	def AddExpression (self,expression):
 		self.operator.AddExpression(expression)
@@ -5532,7 +5532,7 @@ class OrOperatorV1(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		self.operator=OrOperator()
 		# conditionvar, and, or, not
-		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<or>")
+		self.CheckLocation((RespCondition,ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<or>")
 	
 	def AddExpression (self,expression):
 		self.operator.AddExpression(expression)
@@ -5553,7 +5553,7 @@ class NotOperatorV1(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		self.expressions=[]
 		# conditionvar, and, or, not
-		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<not>")
+		self.CheckLocation((RespCondition,ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<not>")
 	
 	def AddExpression (self,expression):
 		self.expressions.append(expression)
@@ -5584,7 +5584,7 @@ class OtherOperatorV1(QTIObjectV1):
 		self.parent=parent
 		self.ParseAttributes(attrs)
 		# conditionvar, and, or, not
-		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<not>")
+		self.CheckLocation((RespCondition,ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<not>")
 
 	def AddData (self,data):
 		# We ignore the data in <other> as it is sometimes put there for compatibility with other systems.
@@ -5611,7 +5611,7 @@ class Unanswered(QTIObjectV1):
 		self.identifier=None
 		self.ParseAttributes(attrs)
 		# conditionvar, not, and, or
-		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<varequal>")
+		self.CheckLocation((RespCondition,ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<varequal>")
 
 	def SetAttribute_respident (self,value):
 		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
@@ -5640,7 +5640,7 @@ class VarThing(QTIObjectV1):
 		self.value=""
 		self.ParseAttributes(attrs)
 		# conditionvar, not, and, or
-		self.CheckLocation((ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<varequal>")
+		self.CheckLocation((RespCondition,ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<varequal>")
 
 	def SetAttribute_respident (self,value):
 		value = D2L_IDENTIFIER_REPLACER.sub('', value)
