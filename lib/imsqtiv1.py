@@ -35,7 +35,8 @@ MIGRATION_VERSION="Version: 2008-06-??"
 from types import *
 import string
 import os, sys, re
-from xml.sax import make_parser, handler, SAXParseException
+from xml.sax import handler, SAXParseException 
+from lxml import etree, sax
 import StringIO
 from random import randint
 try:
@@ -6187,7 +6188,7 @@ QTIASI_ELEMENTS={
 		'webct:calculated_var':WCTVar,
 		'webct:ContentObject':WCTContentObject,
 		'webct:Name':WCTName,
-		'webctfl:Path':WCTPath,
+		'webct:Path':WCTPath,
 		'webct:formula':CalculatedFormula,
 		'webct:matching_ext_flow':WCTMatchingExtFlow,
 		'webct:matching_text_ext':WCTMatchingTextExt,
@@ -6198,12 +6199,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 	"""QTI Parser"""
 	def __init__(self,options):
 		self.options=options
-		self.parser=make_parser()
-		self.parser.setFeature(handler.feature_namespaces,0)
-		self.parser.setFeature(handler.feature_validation,0)
-		self.parser.setContentHandler(self)
-		self.parser.setErrorHandler(self)
-		self.parser.setEntityResolver(self)
+		self.parser=etree.XMLParser(recover=True)
 		self.elements=QTIASI_ELEMENTS
 		self.manifest=None
 		self.manifest_path=None
@@ -6216,6 +6212,22 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 			self.elements['qmd_organisation']=QMDOrganisation
 		self.cp=ContentPackage()
 		self.currPath=None
+
+	def startElementNS (self, name, qname, attrs):
+		if attrs:
+			attrs = dict([(self.parseName(k), v) for k, v in attrs.items()])
+		self.startElement(self.parseName(name), attrs)
+
+	def endElementNS (self, name, qname):
+		self.endElement(self.parseName(name))
+
+	def parseName(self, name):
+		if name[0] and (name[0].find("webct") != -1):
+			return "webct:" + name[1]
+		elif name[0] and (name[0].find("d2l") != -1):
+			return "d2l_2p0:" + name[1]
+		else:
+			return name[1]
 
 	def ProcessFiles (self,basepath,files):
 		f=None
@@ -6253,7 +6265,11 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 		self.objStack=[]
 		self.skipMode=0
 		try:
-			self.parser.parse(f)
+			tree = etree.parse(f,self.parser)
+			if tree.getroot():
+				sax.saxify(tree, self)
+			else:
+				print "ERROR: parsing %s"%path
 		except SAXParseException:
 			if self.gotRoot:
 				print "WARNING: Error following final close tag ignored"
