@@ -134,16 +134,16 @@ class InstructureMetadata:
 			
 			if self.fields:
 				for name, val in self.fields.items():
-					f.write('\n<%sinstructureField name="%s" value="%s" />' %(ns, name, val))
+					f.write('\n<%sinstructureField name="%s" value="%s" />' %(ns, XMLString(name), XMLString(val)))
 			
 			if self.matching_items and len(self.matching_items) > 1:
 				f.write('\n<%smatchingAnswers>' % ns)
 				for answer in self.matching_items[0]:
-					f.write('\n<%smatchingAnswer>%s</%smatchingAnswer>' % (ns,answer,ns))
+					f.write('\n<%smatchingAnswer>%s</%smatchingAnswer>' % (ns,XMLString(answer),ns))
 				f.write('\n</%smatchingAnswers>' % ns)
 				f.write('\n<%smatchingMatches>' % ns)
 				for match in self.matching_items[1]:
-					f.write('\n<%smatchingMatch>%s</%smatchingMatch>' % (ns,match,ns))
+					f.write('\n<%smatchingMatch>%s</%smatchingMatch>' % (ns,XMLString(match),ns))
 				f.write('\n</%smatchingMatches>' % ns)
 				
 			f.write('\n</%sinstructureMetadata>' % ns)
