@@ -4103,10 +4103,6 @@ class MatApplication(MatThing):
 		self.embedded=value
 	
 	def CloseObject (self):
-		if self.uri and not re.search(r'\.(jpg|png|gif)$', self.uri, re.I):
-			self.PrintWarning("matapplication elements not supported")
-			return
-			
 		element=None
 		if self.entityRef:
 			self.PrintWarning("Unsupported: inclusion of material through external entities: ignored "+self.entityRef)
