@@ -6245,6 +6245,8 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 				f=open(path,'r')
 				try:
 					self.Parse(f,path)
+				except QTIException:
+					print sys.exc_info()[0]
 				finally:
 					f.close()
 
