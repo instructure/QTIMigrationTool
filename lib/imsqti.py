@@ -1196,7 +1196,11 @@ class Prompt:
 		self.elements.append(element)
 				
 	def WriteXML (self,f):
-		f.write('\n<prompt><div class="html">')
+		f.write('\n<prompt>')
+		if all(isinstance(element, just_text) for element in self.elements):
+		  f.write('<div class="text">');
+		else:
+		  f.write('<div class="html">');
 		for element in self.elements:
 			element.WriteXML(f)
 		f.write('</div></prompt>')
