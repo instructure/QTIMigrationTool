@@ -1674,7 +1674,8 @@ class ResponseElseIf:
 	
 	def WriteXML (self,f):
 		f.write('\n<responseElseIf>')
-		self.expression.WriteXML(f)
+		if self.expression:
+			self.expression.WriteXML(f)
 		for rule in self.rules:
 			rule.WriteXML(f)
 		f.write('\n</responseElseIf>')

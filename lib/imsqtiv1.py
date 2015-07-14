@@ -4502,16 +4502,18 @@ class RenderChoice(RenderThing):
 		for child in self.preChildren:
 			self.parent.AppendElement(child)
 		if self.interactionThing:
-			if self.interactionThing==OrderInteraction:
-				interaction=OrderInteraction()
-			elif self.interactionThing==ChoiceInteraction:
-				interaction=ChoiceInteraction()
-				if self.max:
-					interaction.SetMaxChoices(self.max)
-			elif self.interactionThing==AssociateInteraction:
-				interaction=AssociateInteraction()
-				if self.max:
-					interaction.SetMaxAssociations(self.max)			
+			interaction = self.parent.interaction
+			if interaction is None:
+				if self.interactionThing==OrderInteraction:
+					interaction=OrderInteraction()
+				elif self.interactionThing==ChoiceInteraction:
+					interaction=ChoiceInteraction()
+					if self.max:
+						interaction.SetMaxChoices(self.max)
+				elif self.interactionThing==AssociateInteraction:
+					interaction=AssociateInteraction()
+					if self.max:
+						interaction.SetMaxAssociations(self.max)
 			interaction.SetShuffle(self.shuffle)
 			for choice in self.labels:
 				interaction.AddChoice(choice)
