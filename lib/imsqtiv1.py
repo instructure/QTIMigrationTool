@@ -3220,6 +3220,7 @@ MDFieldMap={
 	# Common Cartridge
 	'cc_maxattempts':CCMaxAttempts,
 	'cc_weighting':CCWeighting,
+	'weighting':CCWeighting,
 
 	# Custom Canvas fields
 	'points_possible':PointsPossible,
