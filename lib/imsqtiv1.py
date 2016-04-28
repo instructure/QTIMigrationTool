@@ -2493,6 +2493,17 @@ class D2LGradeItem(D2LBase):
 		if self.data:
 			self.container.AddMetaField("assignment_identifierref", self.data)
 
+class D2LIntroMessage(D2LBase):
+        def __init__(self,name,attrs,parent):
+                D2LBase.__init__(self, name, attrs, parent)
+                if not self.CheckLocation(D2LAssessProcextension,"<d2l_2p0:intro_message>", False):
+                        return
+
+        def CloseObject (self):
+                self.data=self.data.strip()
+                if self.data:
+                        self.container.AddMetaField("d2l_intro_message", self.data)
+
 # Vocabulary
 # ----------
 #
@@ -3430,6 +3441,12 @@ class Rubric(QTIObjectV1):
 	def CloseObject (self):
 		if isinstance(self.parent,QTIItem):
 			self.parent.item.GetItemBody().AppendBlock(self.rubric)
+		elif isinstance(self.parent, QTIAssessment):
+			buffer=StringIO.StringIO()
+			self.rubric.WriteXML(buffer)
+			value = buffer.getvalue()
+			if len(value) > 0:
+				self.parent.AddMetaField("assessment_rubric_html", value)
 		else:
 			self.PrintWarning("Warning: ignoring assessment or section rubric")
 	
@@ -6017,7 +6034,8 @@ QTIASI_ELEMENTS={
         'd2l_2p0:points':D2LPoints,
         'd2l_2p0:time_limit':D2LTimeLimit,
         'd2l_2p0:password':D2LPassword,
-		'decimalplaces':D2LDecimalplaces,
+	'd2l_2p0:intro_message':D2LIntroMessage,
+	'decimalplaces':D2LDecimalplaces,
         'decvar':DecVar,
         'displayfeedback':DisplayFeedback,
         'duration':Duration,
