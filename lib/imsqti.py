@@ -339,7 +339,7 @@ class AssessmentSection:
 		self.outcomeWeights=None
 		self.references={}
 		self.itemSessionControl=None
-		self.selection_extensions = {}
+		self.selection_extensions = []
 	
 	def SetItemSessionControl(self, control):
 		self.itemSessionControl = control
@@ -348,7 +348,7 @@ class AssessmentSection:
 		self.identifier=identifier
 
 	def AddSelectionExtension(self, key, value):
-		self.selection_extensions[key] = value
+		self.selection_extensions.append([key, value])
 	
 	def SetTitle (self,title):
 		self.title=title
@@ -420,7 +420,7 @@ class AssessmentSection:
 			if len(self.selection_extensions) > 0:
 				f.write('>\n')
 				f.write('\n<selectionExtension>')
-				for key, val in self.selection_extensions.items():
+				for key, val in self.selection_extensions:
 					f.write('\n<' + key + '>' + val + '</' + key + '>')
 				f.write('\n</selectionExtension>')
 				f.write('\n</selection>')
