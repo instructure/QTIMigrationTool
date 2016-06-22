@@ -1925,6 +1925,11 @@ class QTIItem(InstructureHelperContainer):
 		self.parent=parent
 		if hasattr(self.parent, 'question_bank') and self.parent.question_bank:
 			self.SetQuestionBank(self.parent.GetBankName(), self.parent.GetBankId())
+
+		if isinstance(self.parent, QTISection) and isinstance(self.parent.parent, QTIAssessment):
+			if self.parent.parent.bb_id:
+				self.AddMetaField('bb_question_bank_iden', self.parent.parent.bb_id)
+
 		self.parser=self.GetParser()
 		self.item=AssessmentItem()
 		self.resource=CPResource()
