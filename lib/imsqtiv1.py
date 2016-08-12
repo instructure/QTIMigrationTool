@@ -6294,7 +6294,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 				sax.saxify(tree, self)
 			else:
 				print "ERROR: parsing %s"%path
-		except SAXParseException:
+		except (etree.XMLSyntaxError, SAXParseException):
 			if self.gotRoot:
 				print "WARNING: Error following final close tag ignored"
 				print str(sys.exc_info()[0])+": "+str(sys.exc_info()[1])
