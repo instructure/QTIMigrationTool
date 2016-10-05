@@ -904,14 +904,15 @@ class CalculatedFormula(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.data=""
-		self.CheckLocation((CalculatedNode, CalculatedFormulas, WCTMatExtension),"<formula>")
+		self.CheckLocation((CalculatedNode, CalculatedFormulas, WCTMatExtension, RespcondExtension),"<formula>")
 		
 	def AddData (self,data):
 		self.data=self.data+data
 
 	def CloseObject (self):
-		self.data=self.data.strip()
-		self.parent.add_formula(self.data)
+		if not isinstance(self.parent, RespcondExtension):
+			self.data=self.data.strip()
+			self.parent.add_formula(self.data)
 
 # formulas
 # -------------
@@ -5401,6 +5402,49 @@ class RespCondition(QTIObjectV1):
 		self.parent.AddRespCondition(self.expression,self.rules,self.continueFlag)
 
 
+class RespcondExtension(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.formula_precision=None
+		self.formula_tolerance=None
+
+	def CloseObject (self):
+		container = self.GetInstructureHelperContainer()
+		if self.formula_tolerance is not None:
+			container.AddMetaField("formula_tolerance", self.formula_tolerance)
+		if self.formula_precision is not None:
+			container.AddMetaField("formula_precision", self.formula_precision)
+
+class Precision(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data = None
+
+	def AddData (self,data):
+		self.data = data
+
+	def CloseObject (self):
+		if self.data is not None and isinstance(self.parent, RespcondExtension):
+			self.parent.formula_precision = self.data
+
+class Tolerance(QTIObjectV1):
+	def __init__(self,name,attrs,parent):
+		self.parent=parent
+		self.data = None
+		self.ParseAttributes(attrs)
+
+	def AddData (self,data):
+		self.data = data
+
+	def SetAttribute_type (self,value):
+	  self.type = value
+
+	def CloseObject (self):
+		if self.data is not None and isinstance(self.parent, RespcondExtension):
+			if self.type == 'percent':
+				self.data = self.data + "%"
+			self.parent.formula_tolerance = self.data
+
 # SetVar
 # ------
 #
@@ -6149,7 +6193,9 @@ QTIASI_ELEMENTS={
         'render_slider':RenderSlider,
 		'resources':Resources,
 		'resource':Resource,
-        'respcond_extension':Unsupported,
+        'respcond_extension':RespcondExtension,
+        'precision':Precision,
+        'tolerance':Tolerance,
         'respcondition':RespCondition,
         'response_extension':Unsupported,
         'response_grp':ResponseGrp,
