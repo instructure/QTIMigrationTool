@@ -3186,6 +3186,16 @@ class CCWeighting(CCBase):
 		if self.data:
 			self.container.SetPointsPossible(self.data)
 
+class CCProfile(CCBase):
+	def __init__(self,name,attrs,parent):
+		CCBase.__init__(self, name, attrs, parent)
+
+	def CloseObject (self):
+		CCBase.CloseObject(self)
+		if self.data:
+			if isinstance(self.container,QTIItem):
+				self.container.AddMetaField('cc_profile', self.data)
+
 # QTIMetadataField
 # ----------------
 #
@@ -3225,6 +3235,7 @@ MDFieldMap={
 
 	# Common Cartridge
 	'cc_maxattempts':CCMaxAttempts,
+	'cc_profile':CCProfile,
 	'cc_weighting':CCWeighting,
 	'weighting':CCWeighting,
 
