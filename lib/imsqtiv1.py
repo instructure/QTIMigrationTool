@@ -6278,7 +6278,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 	"""QTI Parser"""
 	def __init__(self,options):
 		self.options=options
-		self.parser=etree.XMLParser(recover=True)
+		self.parser=etree.XMLParser(recover=True,resolve_entities=False)
 		self.elements=QTIASI_ELEMENTS
 		self.manifest=None
 		self.manifest_path=None
