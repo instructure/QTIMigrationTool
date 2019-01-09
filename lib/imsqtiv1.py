@@ -593,6 +593,9 @@ class InstructureHelperContainer(QTIMetadataContainer):
 	def SetPointsPossible(self, points):
 		self.AddMetaField("points_possible", points)
 
+	def SetOriginalAnswerIds(self, ref):
+                self.AddMetaField("original_answer_ids", ref)
+
 	def SetAssessmentQuestionIdentiferref(self, ref):
 		self.AddMetaField("assessment_question_identifierref", ref)
 	
@@ -2928,6 +2931,21 @@ class PointsPossible(CanvasBase):
 		if self.data:
 			self.container.SetPointsPossible(self.data)
 
+# original_answer_ids
+# -----------
+#
+class OriginalAnswerIds(CanvasBase):
+        """
+        <!ELEMENT original_answer_ids (#PCDATA)>
+        """
+        def __init__(self,name,attrs,parent):
+                CanvasBase.__init__(self, name, attrs, parent)
+
+        def CloseObject (self):
+                CanvasBase.CloseObject(self)
+                if self.data:
+                        self.container.SetOriginalAnswerIds(self.data)
+
 # assessment_question_identifierref
 # -----------
 #
@@ -3243,6 +3261,7 @@ MDFieldMap={
 	'points_possible':PointsPossible,
 	'question_type':QMDItemType,
 	'bank_title':BankTitle,
+        'original_answer_ids':OriginalAnswerIds,
 	'assessment_question_identifierref':AssessmentQuestionIdentiferref,
 
 	# These are custom WebCT (Blackboard Vista) fields
