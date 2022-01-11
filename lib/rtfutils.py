@@ -13,7 +13,7 @@ provided that the following conditions are met:
     copyright notice, this list of conditions, and the following
     disclaimer in the documentation and/or other materials provided with
     the distribution.
-    
+
  *  Neither the name of the University of Cambridge, nor the names of
     any other contributors to the software, may be used to endorse or
     promote products derived from this software without specific prior
@@ -36,18 +36,18 @@ class RTFState:
 		self.uc=1
 		self.ignoreGroup=0
 		self.ResetFormatting()
-		
+
 	def Clone(self):
 		s=RTFState()
 		s.uc=self.uc
 		s.ignoreGroup=self.ignoreGroup
 		return s
-	
+
 	def ResetFormatting(self):
 		self.bold=0
 		self.italic=0
 		self.size=0
-		
+
 	def GetFormatTags(self):
 		tags=[]
 		if self.bold:
@@ -57,9 +57,9 @@ class RTFState:
 		if self.size>0:
 			tags.append('big')
 		elif self.size<0:
-			tags.append('small')			
+			tags.append('small')
 		return tags
-					
+
 RTFIgnorable={
 	# We don't bother with rtf version checks or anything
 	"rtf":1,
@@ -81,11 +81,11 @@ RTFIgnorable={
 	# underline is not in our QTI profile, harsh but fair
 	"ulw":1,
 	}
-	
+
 class RTFParser:
 	def __init__(self):
 		self.ResetParser()
-		
+
 	def ResetParser(self):
 		self.tokens=[]
 		self.chars=[]
@@ -93,32 +93,32 @@ class RTFParser:
 		self.state=RTFState()
 		self.stack=[]
 		self.popen=0
-		
+
 	def HandleUnknown(self,name,param):
-		if not RTFIgnorable.has_key(name) and not self.state.ignoreGroup:
-			print "Ignoring unknown RTF Control word: %s"%name
-	
+		if name not in RTFIgnorable and not self.state.ignoreGroup:
+			print("Ignoring unknown RTF Control word: %s"%name)
+
 	def HandleUnknownSymbol(self,symbol):
-		print 'Ignoring unknown RTF Control symbol: "%s"'%symbol
+		print('Ignoring unknown RTF Control symbol: "%s"'%symbol)
 		pass
-	
+
 	def Handle_uc(self,name,param):
 		self.state.uc=param
-	
+
 	def Handle_u(self,name,param):
 		if not self.state.ignoreGroup:
-			self.chars.append(unichr(param))
+			self.chars.append(chr(param))
 			self.Consume(self.state.uc)
-	
+
 	def Handle_fonttbl(self,name,param):
 		self.state.ignoreGroup=1
-	
+
 	def Handle_fcharset(self,name,param):
 		if param==2:
-			print "Warning: RTF content defines unsupported Symbol font, check for bad characters"
+			print("Warning: RTF content defines unsupported Symbol font, check for bad characters")
 		elif param:
-			print "Warning: RTF content defines unsupported fcharset, check for bad characters"
-	
+			print("Warning: RTF content defines unsupported fcharset, check for bad characters")
+
 	def Handle_pard(self,name,param):
 		# reset default paragraph properties
 		pass
@@ -127,7 +127,7 @@ class RTFParser:
 		# reset default character formatting
 		self.state.ResetFormatting()
 		self.StateChanged()
-	
+
 	def Handle_par(self,name,param):
 		# End of paragraph
 		self.EndString()
@@ -135,33 +135,33 @@ class RTFParser:
 			self.tokens.append({'.name':'p','.type':'ETag'})
 		self.tokens.append({'.name':'p','.type':'STag'})
 		self.popen=1
-		
+
 	def Handle_line(self,name,param):
 		# line break
 		self.EndString()
 		self.tokens.append({'.name':'br','.type':'EmptyElemTag'})
-	
+
 	def Handle_tab(self,name,param):
 		self.chars.append('\t')
-	
+
 	def Handle_lquote(self,name,param):
-		self.chars.append(unichr(0x2018))
-		
+		self.chars.append(chr(0x2018))
+
 	def Handle_rquote(self,name,param):
-		self.chars.append(unichr(0x2019))
-		
+		self.chars.append(chr(0x2019))
+
 	def Handle_ldblquote(self,name,param):
-		self.chars.append(unichr(0x201C))
-		
+		self.chars.append(chr(0x201C))
+
 	def Handle_rdblquote(self,name,param):
-		self.chars.append(unichr(0x201D))
-		
+		self.chars.append(chr(0x201D))
+
 	def Handle_b(self,name,param):
 		if param is None:
 			param=1
 		self.state.bold=param
 		self.StateChanged()
-										
+
 	def Handle_i(self,name,param):
 		if param is None:
 			param=1
@@ -177,13 +177,13 @@ class RTFParser:
 		else:
 			self.state.size=0
 		self.StateChanged()
-		
+
 	def Handle_f(self,name,param):
 		# so you want to set the font then?
 		pass
-	
+
 	def Handle_lang(self,name,param):
-		print "Warning: RTF language specification currently ignored (%i)"%param
+		print("Warning: RTF language specification currently ignored (%i)"%param)
 
 	def TokenizeString(self,input):
 		self.ResetParser()
@@ -201,7 +201,7 @@ class RTFParser:
 					# Control symbol
 					cword={'.name':self.c}
 					self.Consume(1)
-					getattr(self,"Handle_X%2X"%ord(cword['.name']),self.HandleUnknownSymbol)(cword['.name'])					
+					getattr(self,"Handle_X%2X"%ord(cword['.name']),self.HandleUnknownSymbol)(cword['.name'])
 			elif self.ParseChar('{'):
 				# start of a group
 				self.stack.append(self.state)
@@ -234,7 +234,7 @@ class RTFParser:
 				self.Consume(1)
 			cword['.param']=param
 		return cword
-			
+
 	def ParseLetterSequence(self):
 		name=[]
 		while self.c:
@@ -245,8 +245,8 @@ class RTFParser:
 				self.Consume(1)
 			else:
 				break
-		return string.join(name,'')
-		
+		return ''.join(name)
+
 	def ParseNumber(self):
 		num=[]
 		if self.c=="-":
@@ -263,8 +263,8 @@ class RTFParser:
 		if not num:
 			raise RTFException('bad control word at "%s..."'%self.input[self.pos:self.pos+8])
 		else:
-			return value*int(string.join(num,''))
-			
+			return value*int(''.join(num))
+
 	def ParseChar (self,c):
 		if self.c==c:
 			self.Consume(1)
@@ -277,20 +277,19 @@ class RTFParser:
 		if newFormat!=self.formatTags:
 			self.EndString()
 			self.formatTags=newFormat
-		
+
 	def EndString(self):
 		if self.chars:
 			if self.formatTags:
 				for t in self.formatTags:
 					self.tokens.append({'.name':t,'.type':'STag'})
-			self.tokens.append(string.join(self.chars,''))
+			self.tokens.append(''.join(self.chars))
 			if self.formatTags:
 				self.formatTags.reverse()
 				for t in self.formatTags:
-					self.tokens.append({'.name':t,'.type':'ETag'})				
+					self.tokens.append({'.name':t,'.type':'ETag'})
 			self.chars=[]
-			
+
 	def Consume(self,nChars):
 		self.pos+=nChars
 		self.c=self.input[self.pos:self.pos+1]
-		

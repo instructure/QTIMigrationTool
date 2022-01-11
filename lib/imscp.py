@@ -13,7 +13,7 @@ provided that the following conditions are met:
     copyright notice, this list of conditions, and the following
     disclaimer in the documentation and/or other materials provided with
     the distribution.
-    
+
  *  Neither the name of the University of Cambridge, nor the names of
     any other contributors to the software, may be used to endorse or
     promote products derived from this software without specific prior
@@ -29,7 +29,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
 from lom import *
 from imsqti import QTIMetadata, InstructureMetadata
-import StringIO
+import io
 import os
 from shutil import copyfile
 import codecs
@@ -38,8 +38,8 @@ IMSCP_NAMESPACE="http://www.imsglobal.org/xsd/imscp_v1p1"
 IMSMD_NAMESPACE="http://www.imsglobal.org/xsd/imsmd_v1p2"
 IMSQTI_NAMESPACE="http://www.imsglobal.org/xsd/imsqti_v2p1"
 
-SCHEMA_LOCATION="""http://www.imsglobal.org/xsd/imscp_v1p1 http://www.imsglobal.org/xsd/imscp_v1p2.xsd 
-http://www.imsglobal.org/xsd/imsmd_v1p2 http://www.imsglobal.org/xsd/imsmd_v1p2p4.xsd 
+SCHEMA_LOCATION="""http://www.imsglobal.org/xsd/imscp_v1p1 http://www.imsglobal.org/xsd/imscp_v1p2.xsd
+http://www.imsglobal.org/xsd/imsmd_v1p2 http://www.imsglobal.org/xsd/imsmd_v1p2p4.xsd
 http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd"""
 
 class ContentPackage:
@@ -53,11 +53,11 @@ class ContentPackage:
 	def GetUniqueID (self,baseStr):
 		idStr=baseStr
 		idExtra=1
-		while self.idSpace.has_key(idStr):
+		while idStr in self.idSpace:
 			idStr=baseStr+'-'+str(idExtra)
 			idExtra=idExtra+1
 		return idStr
-	
+
 	def GetUniqueFileName (self,fName,dataHash=None, dont_save=False):
 		"""The dont_save is for getting the filename for a reference to a question since
 		the reference won't have access to the actual question object.
@@ -68,15 +68,15 @@ class ContentPackage:
 		if not stem:
 			stem="file"
 		i=0
-		while 1:
+		while True:
 			nameParts[0]=stem
 			if i:
 				nameParts[0]='%s-%i'%(stem,i)
 			else:
 				nameParts[0]=stem
-			fName=string.join(nameParts,'.')
+			fName='.'.join(nameParts)
 			if dont_save: return fName
-			if self.fileSpace.has_key(fName):
+			if fName in self.fileSpace:
 				if dataHash and self.fileSpace[fName]==dataHash:
 					break
 				i+=1
@@ -86,11 +86,11 @@ class ContentPackage:
 		return fName
 
 	def AddResource (self,r):
-		if not r.id or self.idSpace.has_key(r.id):
+		if not r.id or r.id in self.idSpace:
 			r.AutoSetID(self)
 		self.idSpace[r.id]=r
 		self.resources.append(r)
-			
+
 	def GetLOM (self):
 		if not self.lom:
 			self.lom=LOM()
@@ -108,7 +108,7 @@ class ContentPackage:
 		assert os.path.isdir(path)
 		manifestPath=os.path.join(path,'imsmanifest.xml')
 		f=codecs.open(manifestPath,'w', "utf8")
-		print "Writing manifest file: "+manifestPath
+		print("Writing manifest file: "+manifestPath)
 		self.WriteManifestXML(f)
 		f.close()
 		for r in self.resources:
@@ -137,7 +137,7 @@ class ContentPackage:
 				r.WriteManifestXML(f)
 			f.write('\n</resources>')
 		f.write('\n</manifest>')
-		
+
 
 class CPResource:
 	def __init__ (self):
@@ -149,7 +149,7 @@ class CPResource:
 		self.files=[]
 		self.entryPoint=None
 		self.label=None
-	
+
 	def SetIdentifier (self,identifier):
 		self.id=identifier
 		self.id = CPResource.FixIdentifier(self.id)
@@ -168,9 +168,9 @@ class CPResource:
 			if not newID and not (c in NMSTART_CHARS):
 				newID="ID_"
 			newID=newID+c
-		
+
 		return newID
-		
+
 	def AutoSetID (self,cp):
 		self.id=None
 		if self.lom:
@@ -180,15 +180,15 @@ class CPResource:
 		if not self.id:
 			self.id="resource"
 		self.id=cp.GetUniqueID(self.id)
-			
+
 	def SetType (self,type):
 		self.type=type
-			
+
 	def GetLOM (self):
 		if not self.lom:
 			self.lom=LOM()
 		return self.lom
-			
+
 	def GetInstructureMD (self):
 		if not self.instructureMD:
 			self.instructureMD=InstructureMetadata()
@@ -198,7 +198,7 @@ class CPResource:
 		if not self.qtiMD:
 			self.qtiMD=QTIMetadata()
 		return self.qtiMD
-		
+
 	def AddFile (self,cpf,entryPoint=0):
 		for file in self.files:
 			if file.href == cpf.href:
@@ -244,7 +244,7 @@ class CPResource:
 				cpf.WriteManifestXML(f)
 			f.write('\n\t</resource>')
 		else:
-			f.write('/>')				
+			f.write('/>')
 
 class CPFile:
 	def __init__ (self):
@@ -252,20 +252,20 @@ class CPFile:
 		self.lom=None
 		self.data=None
 		self.dataPath=None
-		
+
 	def SetHREF (self,href):
 		self.href=href
-	
+
 	def SetData (self,data):
 		self.data=data
 
 	def SetDataPath (self,dataPath):
 		self.dataPath=dataPath
-		
+
 	def DumpToDirectory (self,path,create_error_files=None):
 		if RelativeURL(self.href):
 			filepath=ResolveCPURI(path,self.href)
-			print "Writing file: "+filepath
+			print("Writing file: "+filepath)
 			if self.dataPath is None:
 				f=codecs.open(filepath,'w', "utf8")
 				f.write(self.data)
@@ -276,8 +276,8 @@ class CPFile:
 					if not os.path.exists(dir):
 						os.makedirs(dir)
 					copyfile(self.dataPath,filepath)
-				except IOError as (errno, strerror):
-					print 'Problem copying "%s" -> "%s"'%(self.dataPath,filepath)
+				except IOError:
+					print('Problem copying "%s" -> "%s"'%(self.dataPath,filepath))
 					if create_error_files:
 						f=codecs.open(filepath,'w',"utf8")
 						f.write("Data Missing\n")
@@ -286,7 +286,7 @@ class CPFile:
 	def WriteResourceHREF (self,f):
 		if self.href:
 			f.write(' href="'+XMLString(self.href)+'"')
-			
+
 	def WriteManifestXML (self,f):
 		f.write('\n\t\t<file')
 		if self.href:
@@ -304,7 +304,7 @@ class CPFile:
 def ResolveCPURI (cpPath,uri):
 	walk=0
 	path=cpPath
-	segments=string.split(uri,'/')
+	segments=uri.split('/')
 	for segment in segments:
 		if segment==".":
 			continue
@@ -312,7 +312,7 @@ def ResolveCPURI (cpPath,uri):
 			if walk:
 				path,discard=os.path.split(path)
 				walk=walk-1
-			print "Warning: relative URL tried to leave the CP directory"
+			print("Warning: relative URL tried to leave the CP directory")
 		else:
 			walk=walk+1
 			path=os.path.join(path,DecodePathSegment(segment))

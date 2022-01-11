@@ -13,7 +13,7 @@ provided that the following conditions are met:
     copyright notice, this list of conditions, and the following
     disclaimer in the documentation and/or other materials provided with
     the distribution.
-    
+
  *  Neither the name of the University of Cambridge, nor the names of
     any other contributors to the software, may be used to endorse or
     promote products derived from this software without specific prior
@@ -43,16 +43,16 @@ class QTIMetadata:
 
 	def SetItemTemplate(self,itemTemplate):
 		self.itemTemplate=itemTemplate
-		
+
 	def SetTimeDependent(self,timeDependent):
 		self.timeDependent=timeDependent
-		
+
 	def SetComposite(self,composite):
 		self.composite=composite
-	
+
 	def AddInteractionType(self,interactionType):
 		self.interactionTypes[interactionType]=1
-		
+
 	def SetFeedbackType(self,feedbackType):
 		self.feedbackType=feedbackType
 
@@ -61,13 +61,13 @@ class QTIMetadata:
 
 	def SetToolName(self,name):
 		self.toolName=name
-	
+
 	def SetToolVersion(self,version):
 		self.toolVersion=version
-	
+
 	def SetToolVendor(self,vendor):
 		self.toolVendor=vendor
-	
+
 	def WriteXML (self,f,ns):
 		if ns:
 			f.write('\n<'+ns+'qtiMetadata>')
@@ -92,7 +92,7 @@ class QTIMetadata:
 				value="true"
 			else:
 				value="false"
-			f.write('\n<'+ns+'composite>'+value+'</'+ns+'composite>')			
+			f.write('\n<'+ns+'composite>'+value+'</'+ns+'composite>')
 		for interactionType in self.interactionTypes.keys():
 			f.write('\n<'+ns+'interactionType>'+XMLString(interactionType)+'</'+ns+'interactionType>')
 		if self.feedbackType is not None:
@@ -102,7 +102,7 @@ class QTIMetadata:
 				value="true"
 			else:
 				value="false"
-			f.write('\n<'+ns+'solutionAvailable>'+value+'</'+ns+'solutionAvailable>')			
+			f.write('\n<'+ns+'solutionAvailable>'+value+'</'+ns+'solutionAvailable>')
 		if self.toolName:
 			f.write('\n<'+ns+'toolName>'+XMLString(self.toolName)+'</'+ns+'toolName>')
 		if self.toolVersion:
@@ -115,27 +115,27 @@ class InstructureMetadata:
 	def __init__ (self):
 		self.fields = None
 		self.matching_items = None
-	
+
 	def AddMetaField(self, type, value):
 		if not self.fields: self.fields = {}
 		self.fields[type] = value
-	
+
 	def StartMatchingList(self):
 		if not self.matching_items: self.matching_items = []
 		self.matching_items.append([])
-	
+
 	def AddMatchingItem(self, item):
 		index = len(self.matching_items) - 1
 		self.matching_items[index].append(item)
-	
+
 	def WriteXML (self,f,ns=""):
 		if self.fields or self.matching_items:
 			f.write('\n<%sinstructureMetadata>' % ns)
-			
+
 			if self.fields:
 				for name, val in self.fields.items():
 					f.write('\n<%sinstructureField name="%s" value="%s" />' %(ns, XMLString(name), XMLString(val)))
-			
+
 			if self.matching_items and len(self.matching_items) > 1:
 				f.write('\n<%smatchingAnswers>' % ns)
 				for answer in self.matching_items[0]:
@@ -145,9 +145,9 @@ class InstructureMetadata:
 				for match in self.matching_items[1]:
 					f.write('\n<%smatchingMatch>%s</%smatchingMatch>' % (ns,XMLString(match),ns))
 				f.write('\n</%smatchingMatches>' % ns)
-				
+
 			f.write('\n</%sinstructureMetadata>' % ns)
-		
+
 class ItemSessionControl:
 	"""
 	http://www.imsglobal.org/question/qtiv2p1pd2/imsqti_infov2p1pd2.html#element10029
@@ -160,28 +160,28 @@ class ItemSessionControl:
 		self.allowComment=None
 		self.allowSkipping=None
 		self.validateResponses=None
-	
+
 	def SetMaxAttempts(self, value):
 		self.maxAttempts = value
-	
+
 	def SetShowFeedback(self, value):
 		self.showFeedback = value
-	
+
 	def SetAllowReview(self, value):
 		self.allowReview = value
-	
+
 	def SetShowSolution(self, value):
 		self.showSolution = value
-	
+
 	def SetAllowComment(self, value):
 		self.allowComment = value
-	
+
 	def SetAllowSkipping(self, value):
 		self.allowSkipping = value
-	
+
 	def SetValidateResponses(self, value):
 		self.validateResponses = value
-		
+
 	def WriteXML (self,f):
 		f.write('\n<itemSessionControl')
 		if self.maxAttempts: f.write(' maxAttempts="'+XMLString(self.maxAttempts)+'"')
@@ -200,15 +200,15 @@ def convert_duration_to_seconds(duration):
 	"""
 	import re
 	hours, minutes, seconds = re.search(r'(?:H([\d]*))?(?:M([\d]*))?(?:S([\d]*))?', duration).group(1,2,3)
-	
+
 	if not hours and not minutes and not seconds:
 		return duration
-	
+
 	duration = 0
 	if seconds: duration += int(seconds)
 	if minutes: duration += int(minutes) * 60
 	if hours: duration += int(hours) * 60 * 60
-	
+
 	if duration > 0:
 		return duration
 	else:
@@ -225,7 +225,7 @@ class AssessmentTest:
 		self.variables={}
 		self.parts = [TestPart()]
 		self.instructureMetadata=None
-	
+
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
 
@@ -237,25 +237,25 @@ class AssessmentTest:
 
 	def SetLanguage (self,language):
 		self.language=language
-	
+
 	def SetToolName (self, tool_name):
 		self.toolName = tool_name
-	
+
 	def SetToolVersion (self, tool_version):
 		self.toolVersion = tool_version
-		
+
 	def AddSection(self, section, part_index=0):
 		self.parts[part_index].AddSection(section)
-		
+
 	def AddPart(self, section):
 		self.parts.append(section)
-		
+
 	def SetItemSessionControl(self, control, part_index=0):
 		self.parts[part_index].SetItemSessionControl(control)
 
 	def SetInstructureMetadata(self, md):
 		self.instructureMetadata = md
-	
+
 	def WriteXML (self,f):
 		f.write('<assessmentTest')
 		f.write('\n\txmlns="http://www.imsglobal.org/xsd/imsqti_v2p1"')
@@ -275,10 +275,10 @@ class AssessmentTest:
 
 		if self.instructureMetadata:
 			self.instructureMetadata.WriteXML(f)
-		
+
 		for part in self.parts:
 			part.WriteXML(f)
-		
+
 		f.write('\n</assessmentTest>\n')
 
 
@@ -290,25 +290,25 @@ class TestPart:
 		self.submissionMode=None
 		self.sections = []
 		self.itemSessionControl=None
-	
+
 	def SetItemSessionControl(self, control):
 		self.itemSessionControl = control
-		
+
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
-		
+
 	def SetNavigationMode (self,navigationMode):
 		self.navigationMode=navigationMode
-		
+
 	def SetSubmissionMode (self,submissionMode):
 		self.submissionMode=submissionMode
-		
+
 	def SetTimeLimit (self,timeLimit):
 		self.timeLimit=convert_duration_to_seconds(timeLimit)
-	
+
 	def AddSection(self, section):
 		self.sections.append(section)
-		
+
 	def WriteXML (self,f):
 		f.write('\n<testPart')
 		f.write(' identifier="'+XMLString(self.identifier)+'"')
@@ -317,10 +317,10 @@ class TestPart:
 		f.write('>')
 		if self.timeLimit: f.write('\n<timeLimits maxTime="%s"/>' % self.timeLimit)
 		if self.itemSessionControl: self.itemSessionControl.WriteXML(f)
-		
+
 		for sections in self.sections:
 			sections.WriteXML(f)
-		
+
 		f.write('\n</testPart>')
 
 class AssessmentSection:
@@ -340,52 +340,52 @@ class AssessmentSection:
 		self.references={}
 		self.itemSessionControl=None
 		self.selection_extensions = []
-	
+
 	def SetItemSessionControl(self, control):
 		self.itemSessionControl = control
-		
+
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
 
 	def AddSelectionExtension(self, key, value):
 		self.selection_extensions.append([key, value])
-	
+
 	def SetTitle (self,title):
 		self.title=title
-		
+
 	def SetVisible (self,visible):
 		self.visible=visible
-		
+
 	def SetRequired (self,required):
 		self.required=required
-		
+
 	def SetFixed (self,fixed):
 		self.fixed=fixed
-		
+
 	def SetKeepTogether (self,keepTogether):
 		self.keepTogether=keepTogether
-	
+
 	def SetTimeLimit (self,timeLimit):
 		self.timeLimit=convert_duration_to_seconds(timeLimit)
-		
+
 	def AddSection(self, section):
 		self.items.append(section)
-	
+
 	def AddItemReference(self, reference, fName, weight=None, label=None):
 		ref = AssessmentItemRef(reference, fName, weight, label)
 		self.items.append(ref)
 		self.references[reference] = ref
-		
+
 	def SetOutcomeWeights(self, weights):
 		self.outcomeWeights = weights
-		
+
 	def SetOrderType (self,value):
 		""" The type will be one of: fixed, sequential, random
 		http://www.imsglobal.org/question/qtiv1p2/imsqti_asi_saov1p2.html#1404826
 		"""
 		if value.lower() == "random":
 			self.randomOrdering = True
-		
+
 	def SetSelectionNumber(self, value):
 		"""This is how many questions from a group should be selected"""
 		self.selectNumber = value
@@ -394,13 +394,13 @@ class AssessmentSection:
 		"""Possible values: repeat, normal"""
 		if value.lower() == "repeat":
 			self.withReplacement = True
-			
+
 	def ProcessReferences(self):
 		if self.outcomeWeights:
 			for id, weight in self.outcomeWeights.items():
-				if self.references.has_key(id):
+				if id in self.references:
 					self.references[id].SetWeight(weight)
-		
+
 	def WriteXML (self,f):
 		f.write('\n<assessmentSection')
 		f.write(' identifier="'+XMLString(self.identifier)+'"')
@@ -426,31 +426,31 @@ class AssessmentSection:
 				f.write('\n</selection>')
 			else:
 				f.write(' />')
-		
+
 		for item in self.items:
 			item.WriteXML(f)
-		
+
 		f.write('\n</assessmentSection>')
-		
+
 class AssessmentItemRef:
 	def __init__(self, iden, href, weight=None, label=None):
 		self.identifier=iden
 		self.weight=weight
 		self.href=href
 		self.label=label
-	
+
 	def SetIdentifier(self, value):
 		self.identifier=value
-	
+
 	def SetWeight(self, weight):
 		self.weight=weight
 
 	def SetLabel(self, label):
 		self.label=label
-		
+
 	def SetHREF(self, href):
 		self.href = href
-	
+
 	def WriteXML(self,f):
 		#<assessmentItemRef identifier="set01" href="rtest01-set01.xml"/>
 		f.write('\n<assessmentItemRef')
@@ -481,24 +481,24 @@ class AssessmentItem:
 		self.modalFeedback=[]
 		self.instructureMetadata=None
 		self.calculated=None
-		
+
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
-		
+
 	def SetTitle (self,title):
 		self.title=title
 
 	def SetLabel (self,label):
 		self.label=label
-		
+
 	def SetLanguage (self,language):
 		self.language=language
 
 	def DeclareVariable (self,variable):
-		if self.variables.has_key(variable.GetIdentifier()):
+		if variable.GetIdentifier() in self.variables:
 			raise QTIException(eDuplicateVariable,variable.GetIdentifier())
 		self.variables[variable.GetIdentifier()]=variable
-	
+
 	def ResetResponseProcessing (self):
 		if not self.responseProcessing:
 			self.responseProcessing=None
@@ -506,7 +506,7 @@ class AssessmentItem:
 				v=self.variables[vName]
 				if isinstance(v,OutcomeDeclaration):
 					del self.variables[vName]
-					
+
 	def GetItemBody (self):
 		if not self.itemBody:
 			self.itemBody=ItemBody()
@@ -519,16 +519,16 @@ class AssessmentItem:
 
 	def AddModalFeedback (self,feedback):
 		self.modalFeedback.append(feedback)
-	
+
 	def HasModalFeedback (self):
 		return len(self.modalFeedback)>0
-	
+
 	def SetInstructureMetadata(self, md):
 		self.instructureMetadata = md
-		
+
 	def SetCalculated(self, c):
 		self.calculated = c
-	
+
 	def WriteXML (self,f):
 		f.write('<assessmentItem')
 		f.write('\n\txmlns="http://www.imsglobal.org/xsd/imsqti_v2p1"')
@@ -553,12 +553,11 @@ class AssessmentItem:
 		if self.toolVersion:
 			f.write('\n toolVersion="'+XMLString(self.toolVersion)+'"')
 		f.write('>')
-		
+
 		if self.instructureMetadata:
 			self.instructureMetadata.WriteXML(f)
-			
-		vars=self.variables.keys()
-		vars.sort()
+
+		vars=sorted(self.variables.keys())
 		for var in vars:
 			varDeclaration=self.variables[var]
 			if isinstance(varDeclaration,ResponseDeclaration):
@@ -585,23 +584,23 @@ class VariableDeclaration:
 		self.cardinality=cardinality
 		self.baseType=baseType
 		self.default=None
-	
+
 	def GetIdentifier (self):
 		return self.identifier
-			
+
 	def GetCardinality (self):
 		return self.cardinality
-	
+
 	def GetBaseType (self):
 		return self.baseType
 
 	def SetDefaultValue (self,value):
 		self.default=value
-		
+
 	def GetDefaultValue (self):
 		return self.default
-		
-	
+
+
 class ResponseDeclaration(VariableDeclaration):
 	def WriteXML (self,f):
 		f.write('\n<responseDeclaration identifier="'+self.identifier+
@@ -613,20 +612,20 @@ class ResponseDeclaration(VariableDeclaration):
 			f.write('</responseDeclaration>')
 		else:
 			f.write('/>')
-		
+
 
 class OutcomeDeclaration(VariableDeclaration):
 	def __init__ (self,identifier,cardinality,baseType):
 		VariableDeclaration.__init__(self,identifier,cardinality,baseType)
 		self.interpretation=None
 		self.normalMaximum=None
-		
+
 	def SetInterpretation (self,value):
 		self.interpretation=value
 
 	def SetNormalMaximum (self,value):
 		self.normalMaximum=value
-		
+
 	def WriteXML (self,f):
 		f.write('\n<outcomeDeclaration identifier="'+self.identifier+
 			'" cardinality="'+self.cardinality+
@@ -646,10 +645,10 @@ class DefaultValue:
 	def __init__ (self,value=""):
 		self.value=value
 		self.interpretation=None
-	
+
 	def SetInterpretation (self,interpretation):
 		self.interpretation=interpretation
-	
+
 	def WriteXML (self,f):
 		f.write('\n<defaultValue')
 		if self.interpretation:
@@ -666,26 +665,26 @@ class BodyElement:
 		self.classid=None
 		self.language=None
 		self.label=None
-		
+
 	def SetID (self,id):
 		self.id=id
-	
+
 	def SetClass (self,classid):
 		self.classid=classid
-	
+
 	def SetLanguage (self,language):
 		self.language=language
-	
+
 	def SetLabel (self,label):
 		self.label=label
 
 	def ExtractText (self):
 		self.PrintWarning("Warning: trying to extract text from non-text object")
 		return "<missing object>"
-	
+
 	def ExtractImages (self):
 		return []
-	
+
 	def WriteXMLAttributes (self,f):
 		if self.id:
 			f.write(' id="'+XMLString(self.id)+'"')
@@ -698,7 +697,7 @@ class BodyElement:
 
 	def WriteXML (self,f):
 		pass
-		
+
 class ObjectFlow: pass
 
 class Flow(BodyElement,ObjectFlow): pass
@@ -720,10 +719,10 @@ class SimpleInline(Inline,HTML):
 		HTML.__init__(self)
 		self.name=name
 		self.elements=[]
-		
+
 	def AppendElement(self,element):
 		self.elements.append(element)
-	
+
 	def WriteXML (self,f):
 		f.write("\n<"+self.name)
 		BodyElement.WriteXMLAttributes(self,f)
@@ -740,14 +739,14 @@ class SimpleInline(Inline,HTML):
 
 	def ExtractImages (self):
 		return ExtractImages(self.elements)
-	
-		
+
+
 class AtomicBlock(Block,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
 		HTML.__init__(self)
 		self.elements=[]
-		
+
 	def AppendElement(self,element):
 		self.elements.append(element)
 
@@ -766,10 +765,10 @@ class SimpleBlock(Block,HTML):
 		BodyElement.__init__(self)
 		HTML.__init__(self)
 		self.elements=[]
-		
+
 	def AppendElement(self,element):
 		self.elements.append(element)
-		
+
 	def ExtractText (self):
 		text=""
 		for element in self.elements:
@@ -785,14 +784,14 @@ class ItemBody(BodyElement):
 		BodyElement.__init__(self)
 		self.blocks=[]
 		self.locked = False
-		
+
 	def AppendBlock (self,block):
 		if not self.locked:
 			self.blocks.append(block)
 
 	def lock(self, lock=True):
 		self.locked = lock
-		
+
 	def WriteXML (self,f):
 		f.write('\n<itemBody')
 		BodyElement.WriteXMLAttributes(self,f)
@@ -803,21 +802,21 @@ class ItemBody(BodyElement):
 
 	def ExtractImages (self):
 		return ExtractImages(self.blocks)
-		
+
 
 class RubricBlock(BodyElement):
 	def __init__ (self):
 		BodyElement.__init__(self)
 		self.blocks=[]
 		self.view=[]
-	
+
 	def AppendView (self,view):
 		if not view in self.view:
 			self.view.append(view)
-		
+
 	def AppendElement (self,block):
 		self.blocks.append(block)
-		
+
 	def WriteXML (self,f):
 		if not self.view:
 			view=['all']
@@ -825,7 +824,7 @@ class RubricBlock(BodyElement):
 			view=self.view
 		f.write('\n<rubricBlock')
 		BodyElement.WriteXMLAttributes(self,f)
-		f.write(' view="'+string.join(view,' ')+'">')
+		f.write(' view="'+' '.join(view)+'">')
 		for block in self.blocks:
 			block.WriteXML(f)
 		f.write('\n</rubricBlock>')
@@ -838,22 +837,22 @@ class ModalFeedback(BodyElement):
 		self.showHide='show'
 		self.title=None
 		self.elements=[]
-	
+
 	def SetOutcomeIdentifier (self,identifier):
 		self.outcomeIdentifier=identifier
 
 	def SetShowHide (self,showHide):
 		self.showHide=showHide
-		
+
 	def SetIdentifier (self,identifier):
 		self.identifier=identifier
-	
+
 	def SetTitle (self,title):
 		self.title=title
-	
+
 	def AppendElement (self,element):
 		self.elements.append(element)
-		
+
 	def WriteXML (self,f):
 		f.write('\n<modalFeedback')
 		f.write(' outcomeIdentifier="'+XMLString(self.outcomeIdentifier)+'"')
@@ -863,7 +862,7 @@ class ModalFeedback(BodyElement):
 		for element in self.elements:
 			element.WriteXML(f)
 		f.write('</modalFeedback>')
-		
+
 def ExtractImages (elements):
 	images=[]
 	i=0
@@ -886,7 +885,7 @@ class xhtml_div(Block,HTML):
 	def AppendElement (self,element):
 		assert not (element is None),"Adding None to xhtml_div"
 		self.elements.append(element)
-	
+
 	def WriteXML (self,f):
 		f.write('\n<div')
 		BodyElement.WriteXMLAttributes(self,f)
@@ -902,7 +901,7 @@ class xhtml_blockquote(SimpleBlock):
 
 	def __init__(self):
 		SimpleBlock.__init__(self)
-		
+
 	def WriteXML (self,f):
 		f.write("\n<blockquote")
 		BodyElement.WriteXMLAttributes(self,f)
@@ -918,7 +917,7 @@ class xhtml_ul(Block,HTML):
 		HTML.__init__(self)
 		self.listItems=[]
 		self.name=name
-	
+
 	def AppendElement (self,element):
 		if isinstance(element,xhtml_text):
 			assert not element.text.strip(),"PCDATA in <"+self.name+">"
@@ -933,16 +932,16 @@ class xhtml_ul(Block,HTML):
 		for listItem in self.listItems:
 			listItem.WriteXML(f)
 		f.write('</'+self.name+'>')
-		
+
 class xhtml_li(BodyElement,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
 		HTML.__init__(self)
 		self.elements=[]
-	
+
 	def AppendElement (self,element):
 		self.elements.append(element)
-	
+
 	def WriteXML (self,f):
 		f.write('\n<li')
 		BodyElement.WriteXMLAttributes(self,f)
@@ -950,12 +949,12 @@ class xhtml_li(BodyElement,HTML):
 		for element in self.elements:
 			element.WriteXML(f)
 		f.write('</li>')
-		
+
 class xhtml_p(AtomicBlock):
 
 	def __init__(self):
 		AtomicBlock.__init__(self)
-	
+
 	def WriteXML (self,f):
 		f.write("\n<p")
 		BodyElement.WriteXMLAttributes(self,f)
@@ -963,12 +962,12 @@ class xhtml_p(AtomicBlock):
 		for element in self.elements:
 			element.WriteXML(f)
 		f.write("</p>")
-				
+
 class xhtml_pre(AtomicBlock):
 
 	def __init__(self):
 		AtomicBlock.__init__(self)
-		
+
 	def WriteXML (self,f):
 		f.write("\n<pre")
 		BodyElement.WriteXMLAttributes(self,f)
@@ -976,7 +975,7 @@ class xhtml_pre(AtomicBlock):
 		for element in self.elements:
 			element.WriteXML(f)
 		f.write("</pre>")
-								
+
 class xhtml_object(Inline,HTML):
 	def __init__ (self):
 		HTML.__init__(self)
@@ -984,16 +983,16 @@ class xhtml_object(Inline,HTML):
 		self.type=None
 		self.height=None
 		self.width=None
-		
+
 	def SetData (self,data):
 		self.data=data
-	
+
 	def SetType (self,type):
 		self.type=type
-	
+
 	def SetHeight (self,height):
 		self.height=height
-	
+
 	def SetWidth (self,width):
 		self.width=width
 
@@ -1015,10 +1014,10 @@ class xhtml_table(Block,HTML):
 		HTML.__init__(self)
 		self.tableBody=[]
 		self.summary=None
-	
+
 	def SetSummary (self,summary):
 		self.summary=summary
-		
+
 	def AppendElement (self,element):
 		if isinstance(element,xhtml_text):
 			assert not element.text.strip(),"PCDATA in <table>"
@@ -1046,14 +1045,14 @@ class xhtml_tbody(BodyElement,HTML):
 		BodyElement.__init__(self)
 		HTML.__init__(self)
 		self.rows=[]
-	
+
 	def AppendElement (self,element):
 		if isinstance(element,xhtml_text):
 			assert not element.text.strip(),"PCDATA in <tbody>"
 		else:
 			assert isinstance(element,xhtml_tr),"Adding non-table tag to tbody: %s"%repr(element)
 			self.rows.append(element)
-	
+
 	def WriteXML (self,f):
 		f.write('\n<tbody')
 		BodyElement.WriteXMLAttributes(self,f)
@@ -1061,20 +1060,20 @@ class xhtml_tbody(BodyElement,HTML):
 		for tr in self.rows:
 			tr.WriteXML(f)
 		f.write('</tbody>')
-		
+
 class xhtml_tr(BodyElement,HTML):
 	def __init__(self):
 		BodyElement.__init__(self)
 		HTML.__init__(self)
 		self.cells=[]
-	
+
 	def AppendElement (self,element):
 		if isinstance(element,xhtml_text):
 			assert not element.text.strip(),"PCDATA in <tr>"
 		else:
 			assert isinstance(element,TableCell),"Adding non-table cell tag to tr: %s"%repr(element)
 			self.cells.append(element)
-	
+
 	def WriteXML (self,f):
 		f.write('\n<tr')
 		BodyElement.WriteXMLAttributes(self,f)
@@ -1089,19 +1088,19 @@ class TableCell(BodyElement,HTML):
 		HTML.__init__(self)
 		self.name=name
 		self.elements=[]
-	
+
 	def AppendElement (self,element):
 		self.elements.append(element)
-	
+
 	def WriteXML (self,f):
 		f.write('\n<'+self.name)
 		BodyElement.WriteXMLAttributes(self,f)
 		f.write('>')
 		for element in self.elements:
 			element.WriteXML(f)
-		f.write('</'+self.name+'>')			
-	
-	
+		f.write('</'+self.name+'>')
+
+
 class xhtml_img(Inline,HTML):
 	def __init__ (self):
 		BodyElement.__init__(self)
@@ -1111,19 +1110,19 @@ class xhtml_img(Inline,HTML):
 		self.longdesc=None
 		self.height=None
 		self.width=None
-		
+
 	def SetSrc (self,src):
 		self.src=src
-	
+
 	def SetAlt (self,alt):
 		self.alt=alt
-	
+
 	def SetLongDesc (self,longdesc):
 		self.longdesc=None
-	
+
 	def SetHeight (self,height):
 		self.height=height
-	
+
 	def SetWidth (self,width):
 		self.width=width
 
@@ -1143,18 +1142,18 @@ class xhtml_img(Inline,HTML):
 class xhtml_br(Inline,HTML):
 	def __init__ (self):
 		HTML.__init__(self)
-		
+
 	def WriteXML (self,f):
 		f.write("<br/>\n")
-		
+
 class xhtml_text(Inline,HTML):
 	def __init__ (self,text=""):
 		HTML.__init__(self)
 		self.text=text
-		
+
 	def SetText (self, text):
 		self.text=text
-	
+
 	def WriteXML (self,f):
 		f.write(XMLString(self.text))
 
@@ -1171,16 +1170,16 @@ class Interaction:
 
 	def BindResponse (self,response):
 		self.response=response
-		
+
 	def WriteXMLAttributes (self,f):
 		f.write(' responseIdentifier="'+self.response+'"')
-	
+
 class BlockInteraction(Block,Interaction):
 	def __init__ (self):
 		BodyElement.__init__(self)
 		Interaction.__init__(self)
 		self.prompt=None
-	
+
 	def GetPrompt (self):
 		if not self.prompt:
 			self.prompt=Prompt()
@@ -1194,7 +1193,7 @@ class Prompt:
 
 	def AppendElement (self,element):
 		self.elements.append(element)
-				
+
 	def WriteXML (self,f):
 		f.write('\n<prompt>')
 		if all(isinstance(element, just_text) for element in self.elements):
@@ -1204,17 +1203,17 @@ class Prompt:
 		for element in self.elements:
 			element.WriteXML(f)
 		f.write('</div></prompt>')
-		
+
 class ChoiceInteraction(BlockInteraction):
 	def __init__ (self):
 		BlockInteraction.__init__(self)
 		self.shuffle=0
 		self.maxChoices=1
 		self.choices=[]
-		
+
 	def SetShuffle (self,shuffle):
 		self.shuffle=shuffle
-	
+
 	def SetMaxChoices (self,maxChoices):
 		self.maxChoices=maxChoices
 
@@ -1233,19 +1232,19 @@ class ChoiceInteraction(BlockInteraction):
 		for choice in self.choices:
 			choice.WriteXML(f)
 		f.write('\n</choiceInteraction>')
-		
+
 	def AddChoice (self,choice):
 		self.choices.append(choice)
-				
+
 class OrderInteraction(BlockInteraction):
 	def __init__ (self):
 		BlockInteraction.__init__(self)
 		self.shuffle=0
 		self.choices=[]
-		
+
 	def SetShuffle (self,shuffle):
 		self.shuffle=shuffle
-	
+
 	def WriteXML (self,f):
 		f.write("\n<orderInteraction")
 		Interaction.WriteXMLAttributes(self,f)
@@ -1260,20 +1259,20 @@ class OrderInteraction(BlockInteraction):
 		for choice in self.choices:
 			choice.WriteXML(f)
 		f.write('\n</orderInteraction>')
-		
+
 	def AddChoice (self,choice):
 		self.choices.append(choice)
-				
+
 class AssociateInteraction(BlockInteraction):
 	def __init__ (self):
 		BlockInteraction.__init__(self)
 		self.shuffle=0
 		self.maxAssociations=1
 		self.choices=[]
-		
+
 	def SetShuffle (self,shuffle):
 		self.shuffle=shuffle
-	
+
 	def SetMaxAssociations (self,maxAssociations):
 		self.maxAssociations=maxAssociations
 
@@ -1292,38 +1291,38 @@ class AssociateInteraction(BlockInteraction):
 		for choice in self.choices:
 			choice.WriteXML(f)
 		f.write('\n</associateInteraction>')
-		
+
 	def AddChoice (self,choice):
 		self.choices.append(choice)
-				
+
 class Choice:
 	def __init__ (self):
 		self.identifier=""
 		self.fixed=None
-		
+
 	def SetIdentifier (self,identifier):
 		assert not (identifier is None)
 		self.identifier=identifier
-	
+
 	def GetIdentifier (self):
 		return self.identifier
-	
+
 	def SetFixed (self,fixed):
 		self.fixed=fixed
-	
+
 	def WriteXMLAttributes (self,f):
 		f.write(' identifier="'+XMLString(self.identifier)+'"')
 		if self.fixed:
 			f.write(' fixed="true"')
 		elif not (self.fixed is None):
 			f.write(' fixed="false"')
-		
+
 class SimpleChoice(Choice,BodyElement):
 	def __init__ (self):
 		BodyElement.__init__(self)
 		Choice.__init__(self)
 		self.elements=[]
-		
+
 	def AppendElement (self,element):
 		self.elements.append(element)
 
@@ -1342,13 +1341,13 @@ class AssociableChoice(Choice):
 		self.elements=[]
 		self.matchMax=0
 		self.matchGroup=[]
-				
+
 	def AppendElement (self,element):
 		self.elements.append(element)
 
 	def SetMatchMax (self,max):
 		self.matchMax=max
-	
+
 	def SetMatchGroup (self,group):
 		self.matchGroup=group
 
@@ -1356,12 +1355,12 @@ class AssociableChoice(Choice):
 		Choice.WriteXMLAttributes(self,f)
 		f.write(' matchMax="'+str(self.matchMax)+'"')
 		if self.matchGroup:
-			f.write(' matchGroup="'+string.join(self.matchGroup,' ')+'"')
-		
+			f.write(' matchGroup="'+' '.join(self.matchGroup)+'"')
+
 class SimpleAssociableChoice(AssociableChoice):
 	def __init__ (self):
 		AssociableChoice.__init__(self)
-	
+
 	def WriteXML (self,f):
 		f.write("\n<simpleAssociableChoice")
 		AssociableChoice.WriteXMLAttributes(self,f)
@@ -1375,16 +1374,16 @@ class  StringInteraction:
 		self.base=None
 		self.stringIdentifier=None
 		self.expectedLength=None
-	
+
 	def SetBase (self,base):
 		self.base=base
-	
+
 	def SetStringIdentifier (self,identifier):
 		self.stringIdentifier=identifier
-	
+
 	def SetExpectedLength (self,length):
 		self.expectedLength=length
-	
+
 	def WriteXMLAttributes (self,f):
 		if self.stringIdentifier:
 			f.write(' stringIdentifier="'+self.stringIdentifier+'"')
@@ -1401,7 +1400,7 @@ class  ExtendedTextInteraction(BlockInteraction,StringInteraction):
 
 	def SetMaxStrings (self,maxStrings):
 		self.maxStrings=maxStrings
-	
+
 	def WriteXML (self,f):
 		f.write("\n<extendedTextInteraction")
 		Interaction.WriteXMLAttributes(self,f)
@@ -1421,7 +1420,7 @@ class TextEntryInteraction (InlineInteraction,StringInteraction):
 		BodyElement.__init__(self)
 		Interaction.__init__(self)
 		StringInteraction.__init__(self)
-		
+
 	def WriteXML (self,f):
 		f.write("\n<textEntryInteraction")
 		Interaction.WriteXMLAttributes(self,f)
@@ -1439,19 +1438,19 @@ class GraphicInteraction (BlockInteraction):
 
 	def WriteXMLAttributes (self,f):
 		Interaction.WriteXMLAttributes(self,f)
-		
+
 class HotspotInteraction (GraphicInteraction):
 	def __init__ (self):
 		GraphicInteraction.__init__(self)
 		self.maxChoices=1
 		self.choices=[]
-	
+
 	def SetMaxChoices (self,maxChoices):
 		self.maxChoices=maxChoices
-	
+
 	def AddChoice (self,choice):
 		self.choices.append(choice)
-	
+
 	def WriteXML (self,f):
 		f.write("\n<hotspotInteraction")
 		GraphicInteraction.WriteXMLAttributes(self,f)
@@ -1470,10 +1469,10 @@ class SelectPointInteraction (GraphicInteraction):
 	def __init__ (self):
 		GraphicInteraction.__init__(self)
 		self.maxChoices=1
-	
+
 	def SetMaxChoices (self,maxChoices):
 		self.maxChoices=maxChoices
-	
+
 	def WriteXML (self,f):
 		f.write("\n<selectPointInteraction")
 		GraphicInteraction.WriteXMLAttributes(self,f)
@@ -1490,10 +1489,10 @@ class GraphicOrderInteraction (GraphicInteraction):
 	def __init__ (self):
 		GraphicInteraction.__init__(self)
 		self.choices=[]
-	
+
 	def AddChoice (self,choice):
 		self.choices.append(choice)
-	
+
 	def WriteXML (self,f):
 		f.write("\n<graphicOrderInteraction")
 		GraphicInteraction.WriteXMLAttributes(self,f)
@@ -1509,34 +1508,34 @@ class Hotspot:
 		self.shape="default"
 		self.coords=[]
 		self.hotspotLabel=None
-	
+
 	def SetShape (self,shape,coords):
 		self.shape=shape
 		self.coords=coords
-	
+
 	def SetHotspotLabel (self,value):
 		self.hotspotLabel=value
-	
+
 	def WriteXMLAttributes (self,f):
 		f.write(' shape="'+XMLString(self.shape)+'"')
 		cStrs=[]
 		for c in self.coords:
 			cStrs.append(str(c))
-		f.write(' coords="'+string.join(cStrs,' ')+'"')
+		f.write(' coords="'+' '.join(cStrs)+'"')
 		if self.hotspotLabel:
 			f.write(' hotspotLabel="'+XMLString(self.hotspotLabel)+'"')
-		
+
 class HotspotChoice (Choice,Hotspot):
 	def __init__ (self):
 		Choice.__init__(self)
 		Hotspot.__init__(self)
-		
+
 	def WriteXML (self,f):
 		f.write('\n<hotspotChoice')
 		Choice.WriteXMLAttributes(self,f)
 		Hotspot.WriteXMLAttributes(self,f)
 		f.write('/>')
-								
+
 class  SliderInteraction(BlockInteraction):
 	def __init__(self):
 		BlockInteraction.__init__(self)
@@ -1546,23 +1545,23 @@ class  SliderInteraction(BlockInteraction):
 		self.reverse=None
 		self.step=None
 		self.stepLabel=None
-		
+
 	def SetBounds (self,lowerBound,upperBound):
 		self.lowerBound=lowerBound
 		self.upperBound=upperBound
 
 	def SetStep (self,step):
 		self.step=step
-	
+
 	def SetStepLabel (self,stepLabel):
 		self.stepLabel=stepLabel
-		
+
 	def SetOrientation (self,orientation):
 		self.orientation=orientation
-	
+
 	def SetReverse (self,reverse):
 		self.reverse=reverse
-				
+
 	def WriteXML (self,f):
 		f.write("\n<sliderInteraction")
 		Interaction.WriteXMLAttributes(self,f)
@@ -1580,7 +1579,7 @@ class  SliderInteraction(BlockInteraction):
 		if self.reverse:
 			f.write(' reverse="true"')
 		elif not (self.reverse is None):
-			f.write(' reverse="false"')			
+			f.write(' reverse="false"')
 		if self.prompt:
 			f.write(">")
 			self.prompt.WriteXML(f)
@@ -1591,17 +1590,17 @@ class  SliderInteraction(BlockInteraction):
 class ResponseProcessing:
 	def __init__ (self):
 		self.rules=[]
-		
+
 	def AddResponseRule (self,rule):
 		self.rules.append(rule)
-	
+
 	def WriteXML (self,f):
 		if self.rules:
 			f.write('\n<responseProcessing>')
 			for rule in self.rules:
 				rule.WriteXML(f)
 			f.write('\n</responseProcessing>')
-			
+
 class ResponseRule:
 	def WriteXML (self,f):
 		f.write("<responseRule>")
@@ -1610,21 +1609,21 @@ class SetOutcomeValue(ResponseRule):
 	def __init__ (self,identifier,expression):
 		self.identifier=identifier
 		self.expression=expression
-	
+
 	def WriteXML (self,f):
 		f.write('\n<setOutcomeValue identifier="'+XMLString(self.identifier)+'">')
 		self.expression.WriteXML(f)
 		f.write('</setOutcomeValue>')
-	
+
 class ResponseCondition(ResponseRule):
 	def __init__ (self):
 		self.responseIf=ResponseIf()
 		self.responseElseIf=[]
 		self.responseElse=None
-		
+
 	def GetResponseIf (self):
 		return self.responseIf
-	
+
 	def AddResponseElseIf (self,rElseIf):
 		self.responseElseIf.append(rElseIf)
 
@@ -1632,7 +1631,7 @@ class ResponseCondition(ResponseRule):
 		if not self.responseElse:
 			self.responseElse=ResponseElse()
 		return self.responseElse
-	
+
 	def WriteXML (self,f):
 		f.write('\n<responseCondition>')
 		self.responseIf.WriteXML(f)
@@ -1641,18 +1640,18 @@ class ResponseCondition(ResponseRule):
 		if self.responseElse:
 			self.responseElse.WriteXML(f)
 		f.write('\n</responseCondition>')
-			
+
 class ResponseIf:
 	def __init__ (self):
 		self.expression=None
 		self.rules=[]
-		
+
 	def SetExpression (self,expression):
 		self.expression=expression
-	
+
 	def AddResponseRule (self,rule):
 		self.rules.append(rule)
-	
+
 	def WriteXML (self,f):
 		f.write('\n<responseIf>')
 		if self.expression:
@@ -1660,18 +1659,18 @@ class ResponseIf:
 		for rule in self.rules:
 			rule.WriteXML(f)
 		f.write('\n</responseIf>')
-	
+
 class ResponseElseIf:
 	def __init__ (self):
 		self.expression=None
 		self.rules=[]
-		
+
 	def SetExpression (self,expression):
 		self.expression=expression
 
 	def AddResponseRule (self,rule):
 		self.rules.append(rule)
-	
+
 	def WriteXML (self,f):
 		f.write('\n<responseElseIf>')
 		if self.expression:
@@ -1683,10 +1682,10 @@ class ResponseElseIf:
 class ResponseElse:
 	def __init__ (self):
 		self.rules=[]
-		
+
 	def AddResponseRule (self,rule):
 		self.rules.append(rule)
-	
+
 	def WriteXML (self,f):
 		f.write('\n<responseElse>')
 		for rule in self.rules:
@@ -1696,7 +1695,7 @@ class ResponseElse:
 class Expression:
 	def WriteXML (self,f):
 		f.write("<expression>")
-		
+
 class BinaryOperator(Expression):
 	def __init__ (self,leftExpression,rightExpression,name):
 		self.name=name
@@ -1713,20 +1712,20 @@ class MultiOperator(Expression):
 	def __init__ (self,name):
 		self.name=name
 		self.arguments=[]
-		
+
 	def AddExpression(self,expression):
 		self.arguments.append(expression)
-	
+
 	def WriteXML (self,f):
 		f.write("<"+self.name+">")
 		for argument in self.arguments:
 			argument.WriteXML(f)
 		f.write("</"+self.name+">")
-	
+
 class NotOperator(Expression):
 	def __init__ (self,expression):
 		self.expression=expression
-		
+
 	def WriteXML (self,f):
 		f.write("<not>")
 		self.expression.WriteXML(f)
@@ -1735,7 +1734,7 @@ class NotOperator(Expression):
 class AndOperator(MultiOperator):
 	def __init__ (self):
 		MultiOperator.__init__(self,"and")
-		
+
 class OrOperator(MultiOperator):
 	def __init__ (self):
 		MultiOperator.__init__(self,"or")
@@ -1751,7 +1750,7 @@ class ProductOperator(MultiOperator):
 class MultipleOperator(MultiOperator):
 	def __init__ (self):
 		MultiOperator.__init__(self,"multiple")
-		
+
 class OrderedOperator(MultiOperator):
 	def __init__ (self):
 		MultiOperator.__init__(self,"ordered")
@@ -1760,7 +1759,7 @@ class CustomOperator(MultiOperator):
 	def __init__(self,opClass):
 		MultiOperator.__init__(self,"customOperator")
 		self.opClass=opClass
-	
+
 	def WriteXML (self,f):
 		f.write("<customOperator")
 		if self.opClass:
@@ -1769,11 +1768,11 @@ class CustomOperator(MultiOperator):
 		for argument in self.arguments:
 			argument.WriteXML(f)
 		f.write("</customOperator>")
-		
+
 class SubtractOperator(BinaryOperator):
 	def __init__ (self,leftExpression,rightExpression):
 		BinaryOperator.__init__(self,leftExpression,rightExpression,"subtract")
-		
+
 class DivideOperator(BinaryOperator):
 	def __init__ (self,leftExpression,rightExpression):
 		BinaryOperator.__init__(self,leftExpression,rightExpression,"divide")
@@ -1816,7 +1815,7 @@ class StringMatchOperator(Expression):
 		self.right=rightExpression
 		self.caseSensitive=caseSensitive
 		self.substring=substring
-		
+
 	def WriteXML (self,f):
 		f.write('<stringMatch ')
 		if self.caseSensitive:
@@ -1835,7 +1834,7 @@ class StringMatchOperator(Expression):
 class VariableOperator(Expression):
 	def  __init__ (self,identifier):
 		self.identifier=identifier
-		
+
 	def WriteXML (self,f):
 		f.write('<variable identifier="'+XMLString(self.identifier)+'"/>')
 
@@ -1843,7 +1842,7 @@ class IndexOperator(Expression):
 	def __init__ (self,expression,index):
 		self.index=index
 		self.expression=expression
-	
+
 	def WriteXML (self,f):
 		f.write('<index n="'+str(self.index)+'">')
 		self.expression.WriteXML(f)
@@ -1868,7 +1867,7 @@ class BaseValueOperator(Expression):
 class IsNullOperator(Expression):
 	def __init__ (self,expression):
 		self.expression=expression
-		
+
 	def WriteXML (self,f):
 		f.write("<isNull>")
 		self.expression.WriteXML(f)
@@ -1889,7 +1888,7 @@ class InsideOperator(Expression):
 		cStrs=[]
 		for c in self.coords:
 			cStrs.append(str(c))
-		f.write(' coords="'+string.join(cStrs,' ')+'">')
+		f.write(' coords="'+' '.join(cStrs)+'">')
 		self.expression.WriteXML(f)
 		f.write("</inside>")
 
@@ -1911,16 +1910,16 @@ class Calculated:
 		self.vars=[]
 		self.formula_decimal_places=None
 		self.formulas=[]
-	
+
 	def add_var_set(self, vs):
 		self.var_sets.append(vs)
-	
+
 	def add_var(self, var):
 		self.vars.append(var)
 
 	def add_formula(self, formula):
 		self.formulas.append(formula)
-		
+
 	def WriteXML(self, f):
 		f.write('\n<itemproc_extension>')
 		f.write('\n<calculated>')
@@ -1950,7 +1949,7 @@ class Calculated:
 		f.write('\n</var_sets>')
 		f.write('\n</calculated>')
 		f.write('\n</itemproc_extension>')
-		
+
 
 class VarSet:
 	def __init__(self):
@@ -1960,7 +1959,7 @@ class VarSet:
 
 	def add_var(self, var):
 		self.vars.append(var)
-	
+
 	def WriteXML(self, f):
 		f.write('<var_set')
 		if self.ident: f.write(' ident="%s"' % XMLString(self.ident))
@@ -1977,20 +1976,20 @@ class Var:
 		self.min=None
 		self.max=None
 		self.data=None
-	
+
 	def WriteXML(self,f):
 		f.write('\n<var')
 		if self.name: f.write(' name="%s"' % XMLString(self.name))
 		if self.scale: f.write(' scale="%s"' % XMLString(self.scale))
 		f.write('>')
-		
+
 		if self.data:
 			f.write(XMLString(self.data))
 		else:
 			if self.min: f.write('\n<min>%s</min>' % XMLString(self.min))
 			if self.max: f.write('\n<max>%s</max>' % XMLString(self.max))
 			f.write("\n")
-		
+
 		f.write('</var>')
 
 

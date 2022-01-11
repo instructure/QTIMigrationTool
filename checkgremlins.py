@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 """Copyright (c) 2008, University of Cambridge.
 
@@ -15,7 +15,7 @@ provided that the following conditions are met:
     copyright notice, this list of conditions, and the following
     disclaimer in the documentation and/or other materials provided with
     the distribution.
-    
+
  *  Neither the name of the University of Cambridge, nor the names of
     any other contributors to the software, may be used to endorse or
     promote products derived from this software without specific prior
@@ -30,7 +30,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
 import os, sys, string
-	
+
 def CheckFile(fname):
 	f=file(fname,"rb")
 	data=f.read()
@@ -38,13 +38,13 @@ def CheckFile(fname):
 	pos=0
 	for c in data:
 		if ord(c)>=0x7F or (ord(c)<=0x1F and c not in "\r\n\t"):
-			print 'Found chr(0x%2X) at after:\n%s'%(ord(c),data[pos-80:pos])
+			print('Found chr(0x%2X) at after:\n%s'%(ord(c),data[pos-80:pos]))
 		pos+=1
-	
+
 if __name__ == '__main__':
 	fileNames=[]
 	for x in sys.argv[1:]:
 		fileNames.append(x)
 	for f in fileNames:
-		print "Checking file: %s"%f
+		print("Checking file: %s"%f)
 		CheckFile(f)

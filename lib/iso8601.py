@@ -13,7 +13,7 @@ provided that the following conditions are met:
     copyright notice, this list of conditions, and the following
     disclaimer in the documentation and/or other materials provided with
     the distribution.
-    
+
  *  Neither the name of the University of Cambridge, nor the names of
     any other contributors to the software, may be used to endorse or
     promote products derived from this software without specific prior
@@ -26,7 +26,7 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
-	
+
 import time,types,math,string
 
 class ISODateTimeError:
@@ -48,14 +48,14 @@ class ISOAmbiguousDateError(ISODateTimeError):
 class ISOBadOrdinalDateError(ISODateTimeError):
 	def __init__ (self,ordinalDay):
 		self.ordinalDay=ordinalDay
-	
+
 	def __repr__ (self):
 		return 'ISO Ordinal Day out of range: '+str(self.ordinalDay)
 
 class ISOBadWeekDateError(ISODateTimeError):
 	def __init__ (self,week):
 		self.week=week
-	
+
 	def __repr__ (self):
 		return 'ISO Week out of range: '+str(self.week)
 
@@ -71,11 +71,11 @@ class ISODateOverflowError(ISODateTimeError):
 class ISOInvalidDateError(ISODateTimeError):
 	def __repr__ (self):
 		return 'Invalid ISO date'
-				
+
 class ISODateSyntaxError(ISODateTimeError):
 	def __init__ (self,dateStr):
 		self.dateStr=dateStr
-	
+
 	def __repr__ (self):
 		return 'Syntax error in ISO date : '+self.dateStr
 
@@ -94,21 +94,21 @@ class ISOAmbiguousTimeError(ISODateTimeError):
 class ISOInvalidTimeError(ISODateTimeError):
 	def __repr__ (self):
 		return 'Invalid ISO Time'
-		
+
 class ISOTimeSyntaxError(ISODateTimeError):
 	def __init__ (self,timeStr):
 		self.timeStr=timeStr
-	
+
 	def __repr__ (self):
 		return 'Syntax error in ISO time : '+self.timeStr
 
 class ISOTimeZoneSyntaxError(ISODateTimeError):
 	def __init__ (self,zoneStr):
 		self.zoneStr=zoneStr
-	
+
 	def __repr__ (self):
 		return 'Syntax error in ISO time zone : '+self.zoneStr
-	
+
 MONTH_SIZES=(31,28,31,30,31,30,31,31,30,31,30,31)
 MONTH_SIZES_LEAPYEAR=(31,29,31,30,31,30,31,31,30,31,30,31)
 MONTH_OFFSETS=(0,31,59,90,120,151,181,212,243,273,304,334)
@@ -130,9 +130,9 @@ def DayOfWeek(year,month,day):
 	"""DayOfWeek returns the day of week 1-7, 1 being Monday for the given year, month
 	and day"""
 	num=year*365
-	num=num+year/4+1
-	num=num-(year/100+1)
-	num=num+year/400+1
+	num=num+year//4+1
+	num=num-(year//100+1)
+	num=num+year//400+1
 	if month<3 and LeapYear(year):
 		num=num-1
 	return (num+MONTH_OFFSETS[month-1]+day+4)%7+1
@@ -148,8 +148,8 @@ def WeekCount(year):
 		return 53
 	else:
 		return 52
-		
-def ReadISOTimeZone (zoneStr):	
+
+def ReadISOTimeZone (zoneStr):
 	if zoneStr=='Z':
 		zone=0
 	elif zoneStr:
@@ -172,9 +172,9 @@ def ReadISOTimeZone (zoneStr):
 
 class ISODate:
 	"""A class for representing ISO dates"""
-	
+
 	def __init__(self,value=None,baseDate=None):
-		if type(value) in (types.StringType,types.UnicodeType):
+		if type(value) in (bytes,str):
 			self.ReadISODate(value,baseDate)
 		elif isinstance(value,ISODate):
 			self.SetDate(value)
@@ -182,17 +182,17 @@ class ISODate:
 			self.Reset()
 		else:
 			raise ISODateCoercionError()
-				
+
 	def Reset (self):
 		self.century=self.year=self.month=self.day=None
-	
+
 	def FullySpecified (self):
 		return self.century is not None and self.year is not None and \
 			self.month is not None and self.day is not None
 
 	def Now (self):
 		self.SetTimeTuple(time.gmtime(time.time()))
-	
+
 	def Legal (self):
 		if self.century is None:
 			if self.year is not None and (self.year<0 or self.year>99):
@@ -231,7 +231,7 @@ class ISODate:
 							return self.day>=1 and self.day<=MONTH_SIZES_LEAPYEAR[self.month-1]
 						else:
 							return self.day>=1 and self.day<=MONTH_SIZES[self.month-1]
-	
+
 	def GetTruncation (self):
 		if self.century is None:
 			if self.year is None:
@@ -246,7 +246,7 @@ class ISODate:
 				return 1
 		else:
 			return 0
-	
+
 	def SetTruncation (self,truncation,baseDate=None):
 		if baseDate is not None and self.GetTruncation()>truncation:
 			if self.GetPrecision()>baseDate.GetPrecision() or baseDate.GetTruncation():
@@ -284,7 +284,7 @@ class ISODate:
 				if self.century>99:
 					raise ISODateOverflowError()
 				if not self.Legal():
-					raise ISOInvalidDateError()								
+					raise ISOInvalidDateError()
 		if truncation>0:
 			self.century=None
 			if truncation>1:
@@ -308,7 +308,7 @@ class ISODate:
 				return 3
 		else:
 			return 4
-	
+
 	def SetPrecision (self,precision):
 		if precision>0:
 			if self.century is None:
@@ -330,7 +330,7 @@ class ISODate:
 				self.year=self.month=self.day=None
 		else:
 			self.century=self.year=self.month=self.day=None
-				
+
 	def __cmp__ (self,other):
 		"""ISODate can hold partially specified dates, which raises the problem of comparisons
 		between things such as 1985 and January.  We take a fairly strict view here, forcing
@@ -363,22 +363,22 @@ class ISODate:
 			return -1
 		else:
 			return 1
-	
+
 	def GetDate (self,dst):
 		dst.century,dst.year=self.century,self.year
 		dst.month,dst.day=self.month,self.day
-		
+
 	def SetDate (self,src):
 		self.century,self.year=src.century,src.year
 		self.month,self.day=src.month,src.day
-	
+
 	def GetAbsoluteDay (self):
 		"""Return a notional day number - with 1 being the 0001-01-01 which is the base day of our calendar."""
 		if not self.FullySpecified():
 			raise ISOAmbiguousDateError()
 		absYear=self.century*100+self.year-1
-		return (absYear/4)-(absYear/100)+(absYear/400)+(absYear*365)+self.GetOrdinal()
-	
+		return (absYear//4)-(absYear//100)+(absYear//400)+(absYear*365)+self.GetOrdinal()
+
 	def SetAbsoluteDay (self,absDay):
 		quadCentury=146097	# 365*400+97 always holds
 		century=36524		# 365*100+24 excludes centennial leap
@@ -404,18 +404,18 @@ class ISODate:
 				absYear=absYear+3
 				absDay=365
 			else:
-				absYear=absYear+(absDay/365)
+				absYear=absYear+(absDay//365)
 				absDay=absDay%365
 		absYear=absYear+1
 		# Finally, return the base so that 1 is the 1st of Jan for setting the ordinal
-		self.SetOrdinal(absYear/100,absYear%100,absDay+1)
-					
+		self.SetOrdinal(absYear//100,absYear%100,absDay+1)
+
 	def AddAbsoluteDays (self,days):
 		if days:
 			self.SetAbsoluteDay(self.GetAbsoluteDay()+days)
-		
+
 	def GetOrdinal (self):
-		if not self.FullySpecified():		
+		if not self.FullySpecified():
 			raise ISOAmbiguousDateError()
 		else:
 			if LeapYear(self.century*100+self.year):
@@ -461,7 +461,7 @@ class ISODate:
 			self.month=None
 			self.day=None
 			raise ISOBadOrdinalDateError(ordinalDay)
-	
+
 	def GetWeekday (self):
 		"""Returns a 3-tuple of year, week number, day-of-week (1==Monday, 7=Sunday)"""
 		if not self.FullySpecified():
@@ -476,7 +476,7 @@ class ISODate:
 				# Thursday this week was actually last year, and so we are
 				# part of the last calendar week of last year too.
 				absYear=absYear-1
-				return absYear,WeekCount(absYear),dow	
+				return absYear,WeekCount(absYear),dow
 			elif thursday>absYearLength:
 				# Thursday this week is actually next year, and so we are
 				# part of the first calendar week of next year too.
@@ -485,9 +485,9 @@ class ISODate:
 			else:
 				# We are part of this year, but which week?  Jan 4th is always
 				# part of the first week of the year, so we calculate the ordinal
-				# value of the Monay that began that week 
+				# value of the Monay that began that week
 				yearBase=5-DayOfWeek(absYear,1,4)
-				return absYear,(ordinal-yearBase)/7+1,dow
+				return absYear,(ordinal-yearBase)//7+1,dow
 
 	def SetWeekday (self,century,decade,year,week,day,baseDate=None):
 		if century is None:
@@ -495,8 +495,8 @@ class ISODate:
 				raise ISOAmbiguousDateError()
 			weekOverflow=0
 			absBaseYear,baseWeek,baseDay=baseDate.GetWeekday()
-			century=absBaseYear/100
-			baseDecade=(absBaseYear%100)/10
+			century=absBaseYear//100
+			baseDecade=(absBaseYear%100)//10
 			baseYear=(absBaseYear%10)
 			if decade is None:
 				decade=baseDecade
@@ -507,7 +507,7 @@ class ISODate:
 						if day<baseDay:
 							# must be next week then
 							week=week+1
-							weekOverflow=1	
+							weekOverflow=1
 					else:
 						if week<baseWeek or (week==baseWeek and day<baseDay):
 							# must be next year then
@@ -560,8 +560,8 @@ class ISODate:
 					raise ISODateOverflowError()
 				absYear=absYear+1
 				ordinalDay=ordinalDay-absYearLength
-		self.SetOrdinal(absYear/100,absYear%100,ordinalDay)
-		
+		self.SetOrdinal(absYear//100,absYear%100,ordinalDay)
+
 
 	def GetTimeTuple (self,timeTuple):
 		"""GetTimeTuple changes the year, month and date fields of timeTuple"""
@@ -571,27 +571,27 @@ class ISODate:
 			timeTyple[0]=None
 		timeTuple[1]=self.month
 		timeTuple[2]=self.day
-		
+
 	def SetTimeTuple (self,timeTuple):
-		self.century=timeTuple[0]/100
+		self.century=timeTuple[0]//100
 		self.year=timeTuple[0]%100
 		self.month=timeTuple[1]
 		self.day=timeTuple[2]
 		if not self.Legal():
 			raise ISOInvalidDateError()
-			
+
 	def ReadISODate (self,dateStr,baseDate):
 		"""Parse a date in one of the formats supported by ISO 8601, using baseDate
 		to provide a context for resolving partially specified ordinals."""
 		syntax=1
-		fields=string.split(dateStr,'-')
+		fields=dateStr.split('-')
 		if 'W' in dateStr:
 			syntax=self.ParseWeekDate(fields,baseDate)
 		else:
 			syntax=self.ParseCalendarDate(fields,baseDate)
 		if not syntax:
 			raise ISODateSyntaxError(dateStr)
-	
+
 	def ParseCalendarDate (self,fields,baseDate=None):
 		"""Given a list of hyphen delimitted fields create a calendar/ordinal date.
 		We divide the supported formats by the number of fields in the first instance
@@ -740,7 +740,7 @@ class ISODate:
 					self.day=int(fields[3])
 					syntax='---DD'
 		if syntax and not self.Legal():
-			raise ISOInvalidDateError()						
+			raise ISOInvalidDateError()
 		return syntax
 
 	def ParseWeekDate (self,fields,baseDate=None):
@@ -858,25 +858,25 @@ class ISODate:
 						raise ISOAmbiguousDateError()
 					else:
 						# ---DD
-						return "---"+string.zfill(str(self.day),2)
+						return "---"+str(self.day).zfill(2)
 				else:
-					mStr=string.zfill(str(self.month),2)
+					mStr=str(self.month).zfill(2)
 					if self.day is None:
 						# --MM
 						return "--"+mStr
 					elif basic:
 						# --MMDD
-						return "--"+mStr+string.zfill(str(self.day),2)
+						return "--"+mStr+str(self.day).zfill(2)
 					else:
 						# --MM-DD
-						return "--"+mStr+"-"+string.zfill(str(self.day),2)
+						return "--"+mStr+"-"+str(self.day).zfill(2)
 			else:
-				yStr=string.zfill(str(self.year),2)
+				yStr=str(self.year).zfill(2)
 				if self.month is None:
 					# -YY
 					return "-"+yStr
 				else:
-					mStr=string.zfill(str(self.month),2)
+					mStr=str(self.month).zfill(2)
 					if self.day is None:
 						if basic:
 							# -YYMM
@@ -886,55 +886,55 @@ class ISODate:
 							return "-"+yStr+"-"+mStr
 					elif basic:
 						# YYMMDD
-						return yStr+mStr+string.zfill(str(self.day),2)
+						return yStr+mStr+str(self.day).zfill(2)
 					else:
 						# YY-MM-DD
-						return yStr+"-"+mStr+"-"+string.zfill(str(self.day),2)
+						return yStr+"-"+mStr+"-"+str(self.day).zfill(2)
 		else:
-			cStr=string.zfill(str(self.century),2)
+			cStr=str(self.century).zfill(2)
 			if self.year is None:
 				# YY
 				return cStr
 			else:
-				yStr=string.zfill(str(self.year),2)
+				yStr=str(self.year).zfill(2)
 				if self.month is None:
 					# YYYY
 					return cStr+yStr
 				else:
-					mStr=string.zfill(str(self.month),2)
+					mStr=str(self.month).zfill(2)
 					if self.day is None:
 						# YYYY-MM
 						return cStr+yStr+"-"+mStr
 					elif basic:
 						# YYYYMMDD
-						return cStr+yStr+mStr+string.zfill(str(self.day),2)
+						return cStr+yStr+mStr+str(self.day).zfill(2)
 					else:
 						# YYYY-MM-DD
-						return cStr+yStr+"-"+mStr+"-"+string.zfill(str(self.day),2)
-				
-	
+						return cStr+yStr+"-"+mStr+"-"+str(self.day).zfill(2)
+
+
 	def WriteISOOrdinalDate (self,basic,dropCentury=0,dropYear=0):
-		dStr=string.zfill(str(self.GetOrdinal()),3)
+		dStr=str(self.GetOrdinal()).zfill(3)
 		if dropCentury:
 			if dropYear:
 				# -DDD
 				return "-"+dStr
 			elif basic:
 				# YYDDD
-				return string.zfill(str(self.year),2)+dStr
+				return str(self.year).zfill(2)+dStr
 			else:
 				# YY-DDD
-				return string.zfill(str(self.year),2)+"-"+dStr
+				return str(self.year).zfill(2)+"-"+dStr
 		elif basic:
 			# YYYYDDD
-			return string.zfill(str(self.century*100+self.year),4)+dStr
+			return str(self.century*100+self.year).zfill(4)+dStr
 		else:
 			# YYYY-DDD
-			return string.zfill(str(self.century*100+self.year),4)+"-"+dStr
+			return str(self.century*100+self.year).zfill(4)+"-"+dStr
 
 	def WriteISOWeekDate (self,basic,showDay,dropCentury=0,dropDecade=0,dropYear=0,dropWeek=0):
 		wYear,week,weekday=self.GetWeekday()
-		wStr='W'+string.zfill(str(week),2)
+		wStr='W'+str(week).zfill(2)
 		if dropCentury:
 			if dropDecade:
 				if dropYear:
@@ -955,7 +955,7 @@ class ISODate:
 						# -Y-Www/-Y-Www-D
 						result="-"+yStr+"-"+wStr
 			else:
-				yStr=string.zfill(str(wYear%100),2)
+				yStr=str(wYear%100).zfill(2)
 				if basic:
 					# YYWww/YYWwwD
 					result=yStr+wStr
@@ -963,7 +963,7 @@ class ISODate:
 					# YY-Www/YY-Www-D
 					result=yStr+"-"+wStr
 		else:
-			yStr=string.zfill(str(wYear),4)
+			yStr=str(wYear).zfill(4)
 			if basic:
 				# YYYYWww/YYYYWwwD
 				result=yStr+wStr
@@ -979,12 +979,12 @@ class ISODate:
 			return result
 
 
-								
+
 class ISOTime:
 	"""A class for representing ISO times"""
 
 	def __init__(self,value=None):
-		if type(value) in (types.StringType,types.UnicodeType):
+		if type(value) in (bytes,str):
 			self.ReadISOTime(value)
 		elif isinstance(value,ISOTime):
 			self.SetTime(value)
@@ -992,19 +992,19 @@ class ISOTime:
 			self.Reset()
 		else:
 			raise ISOTimeCoercionError()
-				
+
 	def Reset (self):
 		self.hour=self.minute=self.second=None
 
 	def Zero (self):
 		self.hour=self.minute=self.second=0
-		
+
 	def FullySpecified (self):
 		return self.hour is not None and self.minute is not None and self.second is not None
 
 	def Now (self):
 		self.SetTimeTuple(time.gmtime(time.time()))
-	
+
 	def Legal (self):
 		"""Given the effect of timezones, a leap second can occurr at any minutes,
 		literally"""
@@ -1041,7 +1041,7 @@ class ISOTime:
 			return 1
 		else:
 			return self.second>=0 and self.second<=60
-	
+
 	def GetTruncation (self):
 		if self.hour is None:
 			if self.minute is None:
@@ -1079,7 +1079,7 @@ class ISOTime:
 					self.hour=self.hour-24
 					overflow=1
 				if not self.Legal():
-					raise ISOInvalidTimeError()								
+					raise ISOInvalidTimeError()
 		if truncation>0:
 			self.hour=None
 			if truncation>1:
@@ -1104,7 +1104,7 @@ class ISOTime:
 		if precision>0:
 			if precision>1:
 				if self.minute is None:
-					if type(self.hour) is types.FloatType:
+					if isinstance(self.hour, float):
 						self.minute,self.hour=math.modf(self.hour)
 						self.hour=int(self.hour)
 						self.minute=self.minute*60
@@ -1112,7 +1112,7 @@ class ISOTime:
 						self.minute=0
 				if precision>2:
 					if self.second is None:
-						if type(self.minute) is types.FloatType:
+						if isinstance(self.minute, float):
 							self.second,self.minute=math.modf(self.minute)
 							self.minute=int(self.minute)
 							self.second=self.second*60
@@ -1137,7 +1137,7 @@ class ISOTime:
 				self.minute=self.second=None
 		else:
 			self.hour=self.minute=self.second=None
-				
+
 	def __cmp__ (self,other):
 		"""ISOTime can hold partially specified times, we deal with comparisons in a similar
 		way to ISODate.__cmp__.  Although this behaviour is consistent it might seem strange
@@ -1168,30 +1168,30 @@ class ISOTime:
 			return -1
 		else:
 			return 1
-	
+
 	def GetTime (self,dst):
 		dst.hour,dst.minute,dst.second=self.hour,self.minute,self.second
-	
+
 	def SetTime (self,src):
 		self.hour,self.minute,self.second=src.hour,src.minute,src.second
-		
+
 	def GetSeconds (self):
 		"""Note that leap seconds and midnight ensure that t.SetSeconds(t.GetSeconds()) is in
 		no way an identity tranformation on fully-specified times."""
 		if not self.FullySpecified():
 			raise ISOAmbiguousTimeError()
 		return self.second+self.minute*60+self.hour*3600
-	
+
 	def SetSeconds (self,s):
 		"""Set a fully-specified time based on s seconds past midnight.  If s is greater
 		than or equal to the number of seconds in a normal day then the number of whole days
 		represented is returned and the time is set to the fractional part of the day, otherwise
 		0 is returned.  Negative numbers underflow (and return negative numbers of days"""
 		overflow=0
-		if type(s) is types.FloatType:
+		if isinstance(s, float):
 			if s<0:
 				# whole numbers of days are adjusted to 00:00:00 rather than 24:00:00
-				overflow=-int((-s-1)/86400)-1
+				overflow=-int((-s-1)//86400)-1
 				s=math.fmod(-s,86400)
 				if s: s=86400-s
 			fSeconds,i=math.modf(s)
@@ -1199,16 +1199,16 @@ class ISOTime:
 			self.second=(s%60)+fSeconds
 		else:
 			if s<0:
-				overflow=-((-s-1)/86400)-1
+				overflow=-((-s-1)//86400)-1
 				s=(-s)%86400
 				if s: s=86400-s
 			self.second=s%60
-		m=s/60
+		m=s//60
 		self.minute=m%60
-		h=m/60
+		h=m//60
 		self.hour=h%24
-		return overflow+h/24
-	
+		return overflow+h//24
+
 	def AddSeconds (self,s):
 		s1=self.GetSeconds()
 		if self.seconds==60:
@@ -1216,14 +1216,14 @@ class ISOTime:
 			# Leap second handling
 			if s==0:
 				return 0
-			elif s>0: 
+			elif s>0:
 				return self.SetSeconds(s1-1+s)
 			elif s<0:
 				return self.SetSeconds(s1+s)
 		else:
 			# We don't do anything special for 24:00:00 so if s==0 it will overflow
 			return self.SetSeconds(s1+s)
-	
+
 	def AddZone (self,m):
 		"""Adds the number of minutes, m to this time and returns the day over/underflow
 		in the same way as AddSeconds.  This method preserves leap seconds.  This method
@@ -1249,17 +1249,17 @@ class ISOTime:
 			overflow=self.SetSeconds(self.GetSeconds()+m*60)
 			self.second=None
 			# This is a problem area - if minute is non-zero after the zone
-			# change we are forced to grow the precision to accomodate. 
+			# change we are forced to grow the precision to accomodate.
 			if self.minute==0:
 				self.minute=None
 		return overflow
-						
+
 	def GetTimeTuple (self,timeTuple):
 		"""GetTimeTuple changes the hour, minute and second fields of timeTuple"""
 		timeTuple[3]=self.hour
 		timeTuple[4]=self.minute
 		timeTuple[5]=self.second
-		
+
 	def SetTimeTuple (self,timeTuple):
 		self.hour=timeTuple[3]
 		self.minute=timeTuple[4]
@@ -1281,11 +1281,11 @@ class ISOTime:
 			# This loop is cunningly different from the similar loop in ReadISOTimePoint
 			# in that it ignores a leading '-'.  That's because a leading hyphen indicates
 			# a truncated time and truncated times can't have zone specifiers.
-			zPos=string.find(parse,zSep)
+			zPos=parse.find(zSep)
 			if zPos>0:
 				zoneStr=parse[zPos:]
 				parse=parse[:zPos]
-				break;		
+				break;
 		# hour
 		if parse and parse[0]=='-':
 			self.hour=None
@@ -1313,7 +1313,7 @@ class ISOTime:
 					self.minute=float(str(self.minute)+"."+parse[1:])
 					parse=""
 			else:
-				raise ISOTimeSyntaxError(timeStr)	
+				raise ISOTimeSyntaxError(timeStr)
 		elif parse:
 			if parse and parse[0]==':':
 				extended=1
@@ -1325,7 +1325,7 @@ class ISOTime:
 					self.minute=float(str(self.minute)+"."+parse[1:])
 					parse=""
 			else:
-				raise ISOTimeSyntaxError(timeStr)	
+				raise ISOTimeSyntaxError(timeStr)
 		else:
 			self.minute=None
 		# seconds
@@ -1355,56 +1355,56 @@ class ISOTime:
 			return ReadISOTimeZone(zoneStr)
 		else:
 			return None
-	
+
 	def FormatDecimal (self, value, ndigits, fpSep):
 		vd,vi=math.modf(value)
 		if ndigits>0:
-			return string.zfill(str(int(vi)),2)+fpSep+(('%.'+str(ndigits)+'f')%vd)[2:]
+			return str(int(vi)).zfill(2)+fpSep+(('%.'+str(ndigits)+'f')%vd)[2:]
 		else:
-			return string.zfill(str(int(vi)),2)+fpSep
-		
+			return str(int(vi)).zfill(2)+fpSep
+
 	def WriteISOTime (self,basic,ndigits=3,fpSep=','):
 		if self.hour is None:
 			if self.minute is None:
 				if self.second is None:
 					raise ISOAmbiguousTimeError()
-				elif type(self.second) is types.FloatType:
+				elif isinstance(self.second, float):
 					result="--"+self.FormatDecimal(self.second,ndigits,fpSep)
 				else:
-					result="--"+string.zfill(str(self.second),2)
-			elif type(self.minute) is types.FloatType:
+					result="--"+str(self.second).zfill(2)
+			elif isinstance(self.minute, float):
 				result="-"+self.FormatDecimal(self.minute,ndigits,fpSep)
 			else:
-				result="-"+string.zfill(str(self.minute),2)
+				result="-"+str(self.minute).zfill(2)
 				if self.second is not None:
 					if not basic:
 						result=result+":"
-					if type(self.second) is types.FloatType:
+					if isinstance(self.second, float):
 						result=result+self.FormatDecimal(self.second,ndigits,fpSep)
 					else:
-						result=result+string.zfill(str(self.second),2)
-		elif type(self.hour) is types.FloatType:
+						result=result+str(self.second).zfill(2)
+		elif isinstance(self.hour, float):
 			# Values that are not truncated must have at least one trailing decimal digit
 			# if digit format is used
 			if ndigits<1: ndigits=1
 			result=self.FormatDecimal(self.hour,ndigits,fpSep)
 		else:
 			if ndigits<1: ndigits=1
-			result=string.zfill(str(self.hour),2)
+			result=str(self.hour).zfill(2)
 			if self.minute is not None:
 				if not basic:
 					result=result+":"
-				if type(self.minute) is types.FloatType:
+				if isinstance(self.minute, float):
 					result=result+self.FormatDecimal(self.minute,ndigits,fpSep)
 				else:
-					result=result+string.zfill(str(self.minute),2)
+					result=result+str(self.minute).zfill(2)
 					if self.second is not None:
 						if not basic:
 							result=result+":"
-						if type(self.second) is types.FloatType:
+						if isinstance(self.second, float):
 							result=result+self.FormatDecimal(self.second,ndigits,fpSep)
 						else:
-							result=result+string.zfill(str(self.second),2)
+							result=result+str(self.second).zfill(2)
 		return result
 
 
@@ -1412,7 +1412,7 @@ class ISOTimePoint:
 	"""A class for representing ISO timepoints"""
 
 	def __init__(self,value=None):
-		if type(value) in (types.StringType,types.UnicodeType):
+		if type(value) in (bytes,str):
 			self.ReadISOTimePoint(value)
 		elif isinstance(value,ISOTimePoint):
 			self.SetTimePoint(value)
@@ -1420,7 +1420,7 @@ class ISOTimePoint:
 			self.Reset()
 		else:
 			raise ISOTimePointCoercionError()
-				
+
 	def Reset (self):
 		self.date=ISODate()
 		self.time=ISOTime()
@@ -1430,7 +1430,7 @@ class ISOTimePoint:
 		self.date.Zero()
 		self.time.Zero()
 		self.zone=0
-		
+
 	def FullySpecified (self):
 		return self.date.FullySpecified() and self.time.FullySpecified() and self.zone is not None
 
@@ -1452,19 +1452,19 @@ class ISOTimePoint:
 				self.zone=0
 			localTime=ISOTime()
 			localTime.SetTimeTuple(localTuple)
-			self.zone=self.zone+int(localTime.GetSeconds()-self.time.GetSeconds())/60
+			self.zone=self.zone+int(localTime.GetSeconds()-self.time.GetSeconds())//60
 			self.date=localDate
 			self.time=localTime
 		else:
 			zone=0
-	
+
 	def UnixTime (self,unixEpoch):
 		self.date.century=19
 		self.date.year=70
 		self.date.month=self.date.day=1
 		self.date.AddAbsoluteDays(self.time.SetSeconds(unixEpoch))
 		self.zone=0
-				
+
 	def Legal (self):
 		"""Time must not be truncated and date must be full precision"""
 		if not self.date.Legal() or self.date.GetPrecision()<4:
@@ -1475,22 +1475,22 @@ class ISOTimePoint:
 			return self.zone>-1440 and self.zone<1440
 		else:
 			return 1
-	
+
 	def GetTruncation (self):
 		return self.date.GetTruncation()
-	
+
 	def SetTruncation (self, truncation, baseTimePoint=None):
 		if baseTimePoint and baseTimePoint.zone!=self.zone:
 			baseTimePoint=ISOTimePoint(baseTimePoint)
 			baseTimePoint.ChangeZone(self.zone)
 		self.date.SetTruncation(truncation,baseTimePoint.date)
-		
+
 	def GetPrecision (self):
 		return self.time.GetPrecision()
-	
+
 	def SetPrecision (self,precision,decimalize=0):
 		self.time.SetPrecision(precision,decimalize)
-	
+
 	def __cmp__ (self,other):
 		if not isinstance(other,ISOTimePoint):
 			other=ISOTimePoint(other)
@@ -1509,26 +1509,26 @@ class ISOTimePoint:
 			return 1
 		else:
 			return 0
-	
+
 	def GetTimePoint (self,dst):
 		dst.date=ISODate(self.date)
 		dst.time=ISOTime(self.time)
 		dst.zone=self.zone
-	
+
 	def SetTimePoint (self,src):
 		self.date=ISODate(src.date)
 		self.time=ISOTime(src.time)
 		self.zone=src.zone
-	
+
 	def GetTimeTuple (self,timeTuple):
 		self.date.GetTimeTuple(timeTuple)
 		self.time.GetTimeTuple(timeTuple)
-	
+
 	def SetTimeTuple (self,timeTuple):
 		self.date.SetTimeTuple(timeTuple)
 		self.time.SetTimeTuple(timeTuple)
 		self.zone=None
-	
+
 	def ChangeZone (self,newZone):
 		if newZone is None:
 			self.zone=None
@@ -1536,16 +1536,16 @@ class ISOTimePoint:
 			raise ISOAmbiguousTimePointError()
 		elif self.zone!=newZone:
 			self.date.AddAbsoluteDays(self.time.AddZone(newZone-self.zone))
-	
+
 	def ReadISOTimePoint (self,timePointStr):
-		tPos=string.find(timePointStr,'T')
+		tPos=timePointStr.find('T')
 		if tPos<0:
-			raise ISOTimePointSyntaxError(timePointStr)	
+			raise ISOTimePointSyntaxError(timePointStr)
 		dateStr=timePointStr[:tPos]
 		timeStr=timePointStr[tPos:]
 		zoneStr=''
 		for zSep in 'Z-+':
-			zPos=string.find(timeStr,zSep)
+			zPos=timeStr.find(zSep)
 			if zPos>=0:
 				zoneStr=timeStr[zPos:]
 				timeStr=timeStr[:zPos]
@@ -1558,7 +1558,7 @@ class ISOTimePoint:
 			self.zone=None
 		if not self.Legal():
 			raise ISOInvalidTimePointError()
-	
+
 	def WriteISOTimeZone (self,basic,useZ=0,hideMins=0):
 		if self.zone is None:
 			result=""
@@ -1571,19 +1571,19 @@ class ISOTimePoint:
 			else:
 				result="-"
 				zMins=-self.zone
-			result=result+string.zfill(str(zMins/60),2)
+			result=result+str(zMins//60).zfill(2)
 			if not hideMins:
 				if not basic:
 					result=result+":"
-				result=result+string.zfill(str(zMins%60),2)
+				result=result+str(zMins%60).zfill(2)
 		return result
-	
+
 	def WriteISOCalendarTimePoint (self,basic,useZ=0,hideMins=0,ndigits=3,fpSep=','):
 		result=self.date.WriteISOCalendarDate(basic)
 		result=result+"T"+self.time.WriteISOTime(basic,ndigits,fpSep)
 		result=result+self.WriteISOTimeZone(useZ,hideMins)
 		return result
-	
+
 	def WriteISOOrdinalTimePoint (self,basic,useZ=0,hideMins=0,dropCentury=0,dropYear=0,ndigits=3,fpSep=','):
 		result=self.date.WriteISOOrdinalDate(basic,dropCentury,dropYear)
 		result=result+"T"+self.time.WriteISOTime(basic,ndigits,fpSep)
@@ -1597,8 +1597,8 @@ class ISOTimePoint:
 		result=result+"T"+self.time.WriteISOTime(basic,ndigits,fpSep)
 		result=result+self.WriteISOTimeZone(useZ,hideMins)
 		return result
-		
-			
+
+
 ISO_TEST_DATES=["19850412","1985-04-12","1985-04","1985","19","850412","85-04-12","-8504","-85-04",
 		"-85","--0412","--04-12","--04","---12","1985102","1985-102","85102","85-102","-102",
 		"1985W155","1985-W15-5","1985W15","1985-W15","85W155","85-W15-5","85W15","85-W15",
@@ -1613,7 +1613,7 @@ ISO_TEST_TIMEPOINTS=["19850412T101530","19850412T101530Z","19850412T101530+0400"
 		"1985-04-12T10:15:30","1985-04-12T10:15:30Z","1985-04-12T10:15:30+04:00","1985-04-12T10:15:30+04",
 		"19850412T1015","1985-04-12T10:15","1985102T1015Z","1985-102T10:15Z","1985W155T1015+0400",
 		"1985-W15-5T10:15+04"]
-		
+
 #	"""
 #	Timezone specifiers:
 #	Z
@@ -1629,13 +1629,13 @@ def TestAbsoluteDays (dMax):
 	d.century=0
 	d.year=1
 	d.month=d.day=1
-	print "Tested AbsoluteDay routines from "+d.WriteISOCalendarDate(0)+" to..."
+	print("Tested AbsoluteDay routines from "+d.WriteISOCalendarDate(0)+" to...")
 	while dNum<=dMax:
 		if dNum!=d.GetAbsoluteDay():
-			print d.WriteISOCalendarDate(0)+"  :  GetAbsoluteDay FAILED"
+			print(d.WriteISOCalendarDate(0)+"  :  GetAbsoluteDay FAILED")
 		dMatch.SetAbsoluteDay(dNum)
 		if d!=dMatch:
-			print d.WriteISOCalendarDate(0)+"  :  SetAbsoluteDay FAILED ("+str(dNum)+")"
+			print(d.WriteISOCalendarDate(0)+"  :  SetAbsoluteDay FAILED ("+str(dNum)+")")
 		d.day=d.day+1
 		if not d.Legal():
 			d.day=1
@@ -1649,42 +1649,41 @@ def TestAbsoluteDays (dMax):
 					if not d.Legal():
 						break
 		dNum=dNum+1
-	print "..."+d.WriteISOCalendarDate(0)
+	print("..."+d.WriteISOCalendarDate(0))
 
-			
+
 if __name__=='__main__':
-	TestAbsoluteDays(800000)			
-	print ""
+	TestAbsoluteDays(800000)
+	print("")
 	tp=ISOTimePoint()
 	tp.Now(1)
-	print tp.WriteISOCalendarTimePoint(0)
-	print tp.WriteISOOrdinalTimePoint(0)
-	print tp.WriteISOWeekTimePoint(0)
-	print ""
+	print(tp.WriteISOCalendarTimePoint(0))
+	print(tp.WriteISOOrdinalTimePoint(0))
+	print(tp.WriteISOWeekTimePoint(0))
+	print("")
 	for testTimePoint in ISO_TEST_TIMEPOINTS:
 		tp=ISOTimePoint(testTimePoint)
-		print "Source : "+testTimePoint+"  Output : "+tp.WriteISOCalendarTimePoint(1)
-	print ""	
+		print("Source : "+testTimePoint+"  Output : "+tp.WriteISOCalendarTimePoint(1))
+	print("")
 	for testTime in ISO_TEST_TIMES:
 		t=ISOTime(testTime)
-		print "Source : "+testTime+"  Output : "+t.WriteISOTime(0,4,'.')
-	print ""
+		print("Source : "+testTime+"  Output : "+t.WriteISOTime(0,4,'.'))
+	print("")
 	testDate=ISODate('19850412')
 	baseDate=ISODate('19850408')
-	print ""
+	print("")
 	for basic in (0,1):
-		print ISODate(testDate.WriteISOOrdinalDate(basic),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOOrdinalDate(basic,1),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOOrdinalDate(basic,1,1),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOWeekDate(basic,0),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOWeekDate(basic,1),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOWeekDate(basic,0,1),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOWeekDate(basic,1,1),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOWeekDate(basic,0,1,1),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOWeekDate(basic,1,1,1),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOWeekDate(basic,0,1,1,1),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOWeekDate(basic,1,1,1,1),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOWeekDate(basic,0,1,1,1,1),baseDate).WriteISOCalendarDate(0)
-		print ISODate(testDate.WriteISOWeekDate(basic,1,1,1,1,1),baseDate).WriteISOCalendarDate(0)
-		
-		
+		print(ISODate(testDate.WriteISOOrdinalDate(basic),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOOrdinalDate(basic,1),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOOrdinalDate(basic,1,1),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOWeekDate(basic,0),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOWeekDate(basic,1),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOWeekDate(basic,0,1),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOWeekDate(basic,1,1),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOWeekDate(basic,0,1,1),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOWeekDate(basic,1,1,1),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOWeekDate(basic,0,1,1,1),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOWeekDate(basic,1,1,1,1),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOWeekDate(basic,0,1,1,1,1),baseDate).WriteISOCalendarDate(0))
+		print(ISODate(testDate.WriteISOWeekDate(basic,1,1,1,1,1),baseDate).WriteISOCalendarDate(0))
+

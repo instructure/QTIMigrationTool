@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
 GUI Script Code Copyright (c) 2004 - 2008, Pierre Gorissen
 All Other Code is Copyright (c) 2004 - 2008, University of Cambridge.
@@ -45,7 +45,7 @@ class MyFrame(wx.Frame):
 		self.app=wx.GetApp()
 		self.options=self.app.options
 		wx.Frame.__init__(self, parent, ID, title,
-						 wx.DefaultPosition, wx.Size(600, 300), style=wx.DEFAULT_DIALOG_STYLE|wx.CAPTION|wx.SYSTEM_MENU)						 
+						 wx.DefaultPosition, wx.Size(600, 300), style=wx.DEFAULT_DIALOG_STYLE|wx.CAPTION|wx.SYSTEM_MENU)
 		self.panel=wx.Panel(self)
 		self.CreateStatusBar()
 		self.SetStatusText("Program initialised")
@@ -59,7 +59,7 @@ class MyFrame(wx.Frame):
 					"More information about this program")
 		self.menu1.AppendSeparator()
 		self.menu1.Append(ID_EXIT, "E&xit", "Terminate the program")
-		
+
 		menu2 = wx.Menu()
 		menu2.Append(ID_QMDEXTENSIONS, 'Allow Metadata Extensions',
 						'Allow Metadata Extensions',
@@ -72,12 +72,12 @@ class MyFrame(wx.Frame):
 						'Force FIBs to be treated as floats',
 						wx.ITEM_CHECK)
 		menu2.Append(ID_FORCEDTD, 'Force DTD Location',
-						'Overrule the DTD location found in the XML file')					
+						'Overrule the DTD location found in the XML file')
 		menu2.Append(ID_FORCELANG, 'Default Language',
-						'Provide a default language setting for converted items')						
+						'Provide a default language setting for converted items')
 		menu2.Append(ID_NOCOMMENT, 'Suppress Comments',
 						'Suppress output of diagnostic comments in converted items',
-						wx.ITEM_CHECK)						
+						wx.ITEM_CHECK)
 
 		# Set the options
 		menu2.Check(ID_QMDEXTENSIONS, self.options.qmdExtensions)
@@ -99,7 +99,7 @@ class MyFrame(wx.Frame):
 		wx.EVT_MENU(self, ID_FORCEDTD,	 self.OnForceDTD)
 		wx.EVT_MENU(self, ID_FORCELANG, self.OnForceLANG)
 		wx.EVT_MENU(self, ID_NOCOMMENT, self.OnSuppressComments)
-		
+
 		# close event for main window
 		self.Bind(wx.EVT_CLOSE, self.TimeToQuit)
 
@@ -113,22 +113,22 @@ class MyFrame(wx.Frame):
 										labelText = "Single QTIv1.2 File : ",
 										buttonText = "Browse..",
 										startDirectory = os.getcwd(),
-										fileMask = wildcard, 
+										fileMask = wildcard,
 										fileMode = wx.OPEN,
 										changeCallback = self.ffb1Callback)
 
 		radio1.SetValue(1)
 		ffb1.Enable(True)
-										
+
 		radio2 = wx.RadioButton(self.panel, 105, "", style = wx.RB_SINGLE )
 		dbb1 = filebrowse.DirBrowseButton(self.panel, 106, size = (450, -1),
 										labelText = "Full Directory		   : ",
 										buttonText = "Browse..",
-										startDirectory = os.getcwd(), 
+										startDirectory = os.getcwd(),
 										changeCallback = self.dbb1Callback)
-																				
+
 		radio2.SetValue(0)
-		dbb1.Enable(False)						
+		dbb1.Enable(False)
 
 		self.grp1_ctrls.append((radio1, ffb1))
 		self.grp1_ctrls.append((radio2, dbb1))
@@ -148,18 +148,18 @@ class MyFrame(wx.Frame):
 										buttonText = "Browse..",
 										startDirectory = os.getcwd(),
 										changeCallback = self.dbb2Callback)
-		dbb2.SetValue(self.options.cpPath,0)								 
+		dbb2.SetValue(self.options.cpPath,0)
 
 		self.grp2_ctrls.append(dbb2)
 		box2 = wx.StaticBoxSizer( box2_title, wx.VERTICAL )
 		box2.Add( dbb2, 0, wx.ALIGN_CENTRE|wx.ALL, 5 )
-				
+
 		# == define Convert and Cancel (close) buttons
 		button1 = wx.Button(self.panel, 1003, "Convert..")
 		self.Bind(wx.EVT_BUTTON, self.ConvertMe, button1)
 		button2 = wx.Button(self.panel, 1004, "Close")
 		self.Bind(wx.EVT_BUTTON, self.TimeToQuit, button2)
-		
+
 		# Now add everything to the border
 		# First define a button row
 		buttonBorder = wx.BoxSizer(wx.HORIZONTAL)
@@ -180,7 +180,7 @@ class MyFrame(wx.Frame):
 			# browseButton.Enable(False)
 
 		self.app.SetMainFrame(self)
-		
+
 	# ===============================
 	# reads input file or input directory from ctrls
 	# checks to see if one of them is set
@@ -195,13 +195,13 @@ class MyFrame(wx.Frame):
 		for radio, browseButton in self.grp1_ctrls:
 			if radio.GetValue() == 1:
 				cpInput = browseButton.GetValue()
-				print "Input: " + cpInput				
+				print("Input: " + cpInput)
 				if (cpInput !=""):
 					fileNames.append(cpInput)
 				else:
 					cpInput=None
-					print "No Input file or folder defined. Aborting..."
-					break				
+					print("No Input file or folder defined. Aborting...")
+					break
 		for browseButton in self.grp2_ctrls:
 			#handled by call back now
 			#self.options.cpPath=browseButton.GetValue()
@@ -209,9 +209,9 @@ class MyFrame(wx.Frame):
 				self.options.cpPath=os.path.abspath(self.options.cpPath)
 				if os.path.exists(self.options.cpPath):
 					if os.path.isdir(self.options.cpPath):
-						print "Output Directory is valid...."
+						print("Output Directory is valid....")
 					else:
-						print "No Output Directory selected. Aborting..."
+						print("No Output Directory selected. Aborting...")
 						self.options.cpPath=''
 						break
 			else:
@@ -219,24 +219,24 @@ class MyFrame(wx.Frame):
 		if fileNames:
 			self.ProcessFiles(fileNames)
 		else:
-			print "No input set. Parser aborted..."
+			print("No input set. Parser aborted...")
 			self.SetStatusText("Parser aborted...")
-		
+
 	def ProcessFiles(self,fileNames):
 		self.SetStatusText("Parsing input files...")
 		parser=imsqtiv1.QTIParserV1(self.options)
 		parser.ProcessFiles(os.getcwd(),fileNames)
 		if self.options.cpPath:
-			print "Parsing complete"
+			print("Parsing complete")
 			self.SetStatusText("Creating content package...")
 			parser.DumpCP()
-			print "Migration completed..."
+			print("Migration completed...")
 			self.SetStatusText("")
 		else:
-			print "No output set. Parsing complete"
+			print("No output set. Parsing complete")
 			self.SetStatusText("Parsing complete (dry run)")
 		parser=None
-		
+
 	# ===============================
 	# toggles visibility of either
 	# file input option ctrls or
@@ -256,7 +256,7 @@ class MyFrame(wx.Frame):
 	# displays about box
 	#
 	def OnAbout(self, event):
-		msg=string.join(self.app.splashLog,'\n')
+		msg='\n'.join(self.app.splashLog)
 		dlg = wx.MessageDialog(self, msg,
 								"About Me", wx.OK | wx.ICON_INFORMATION)
 		dlg.ShowModal()
@@ -273,7 +273,7 @@ class MyFrame(wx.Frame):
 	#
 	def OnUCVars(self, event):
 		self.options.ucVars=abs(self.options.ucVars-1)
-		
+
 	# ===============================
 	# check / uncheckforcefibfloat option
 	#
@@ -284,7 +284,7 @@ class MyFrame(wx.Frame):
 	# displays DTD location entry box
 	#
 	def OnForceDTD(self, event):
-		
+
 		dlg = wx.TextEntryDialog(
 				self, 'Enter the full DTD location that needs to be used.\nLeave empty to use the location provided in the QTI File.',
 				'Override DTD location in QTI files', '')
@@ -294,15 +294,15 @@ class MyFrame(wx.Frame):
 		if dlg.ShowModal() == wx.ID_OK:
 			self.options.dtdDir = dlg.GetValue()
 			self.options.dtdDir=os.path.abspath(self.options.dtdDir)
-			print "DTD_LOCATION = "+self.options.dtdDir
+			print("DTD_LOCATION = "+self.options.dtdDir)
 
-		dlg.Destroy()	
+		dlg.Destroy()
 
 	# ===============================
 	# displays Language entry box
 	#
 	def OnForceLANG(self, event):
-		
+
 		dlg = wx.TextEntryDialog(
 				self, 'Enter the language code to use.\nLeave empty to use the one provided in the QTI File.',
 				'Override language in QTI files', '')
@@ -312,8 +312,8 @@ class MyFrame(wx.Frame):
 		if dlg.ShowModal() == wx.ID_OK:
 			self.options.lang = dlg.GetValue()
 
-		dlg.Destroy()	
-		
+		dlg.Destroy()
+
 	# ===============================
 	# check / uncheck noComment option
 	#
@@ -324,19 +324,19 @@ class MyFrame(wx.Frame):
 	# ===============================
 	# callback functions for browse buttons
 	#
-	def ffb1Callback(self, evt):				
-		print 'FileBrowseButton: %s\n' % evt.GetString()
-			
-	def dbb1Callback(self, evt):				
-		print 'DirBrowseButton: %s\n' % evt.GetString()	
-		
+	def ffb1Callback(self, evt):
+		print('FileBrowseButton: %s\n' % evt.GetString())
+
+	def dbb1Callback(self, evt):
+		print('DirBrowseButton: %s\n' % evt.GetString())
+
 	def dbb2Callback(self, evt):
 		self.options.cpPath=evt.GetString()
-		print 'CPOutBrowseButton: %s\n' % evt.GetString()	
+		print('CPOutBrowseButton: %s\n' % evt.GetString())
 
 	# ===============================
 	# let's go home
-	#	 
+	#
 	def TimeToQuit(self, event):
 		self.app.RestoreStdio()
 		sys.exit(1)
@@ -349,20 +349,20 @@ class MyFrame(wx.Frame):
 		# Force output to be visible
 		self.menu1.Check(ID_LOG, True)
 		self.app.RedirectStdio()
-		
+
 	def OnToggleRedirect(self, event):
 		if event.Checked():
 			self.app.RedirectStdio()
-			print "Log statements will be directed to this window.\n\n"
+			print("Log statements will be directed to this window.\n\n")
 		else:
 			self.app.RestoreStdio()
-			print "Log statements will be directed to this window.\n\n"
+			print("Log statements will be directed to this window.\n\n")
 
 # ==============================================================================
 
 def opj(path):
 	"""Convert paths to the platform-specific separator"""
-	return apply(os.path.join, tuple(path.split('/')))
+	return os.path.join(*tuple(path.split('/')))
 
 # ==============================================================================
 #
@@ -400,9 +400,9 @@ class MyApp(wx.App):
 		self.mainframe=None
 		self.fileNames=fileNames
 		wx.App.__init__(self,0)
-	
+
 	def SetMainFrame(self,mainframe):
-		print self.fileNames
+		print(self.fileNames)
 		self.mainframe=mainframe
 		# Turn on IO redirection
 		if self.fileNames:

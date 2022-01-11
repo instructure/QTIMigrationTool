@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 """Copyright (c) 2004-2008, University of Cambridge.
 
@@ -15,7 +15,7 @@ provided that the following conditions are met:
     copyright notice, this list of conditions, and the following
     disclaimer in the documentation and/or other materials provided with
     the distribution.
-    
+
  *  Neither the name of the University of Cambridge, nor the names of
     any other contributors to the software, may be used to endorse or
     promote products derived from this software without specific prior
@@ -34,8 +34,6 @@ MIGRATION_VERSION="2008-06-12"
 
 import os, sys
 from stat import *
-reload(sys)
-sys.setdefaultencoding('utf8')
 
 SPLASH_LOG=[
 "IMS QTIv1.2 to QTIv2.1 Migration Tool, by Steve Lay",
@@ -46,7 +44,7 @@ SPLASH_LOG=[
 "See README file for licensing information",
 "Version: %s"%MIGRATION_VERSION,
 ""
-]	
+]
 
 HELP_TEXT=[
 	"Usage: migrate.py [options] [--cpout=output directory] [input file|directory]",
@@ -75,10 +73,10 @@ if __name__ == '__main__':
 	try:
 		import imsqtiv1
 	except:
-		print "Problem loading extra modules in %s/lib"%wd
-		print " ...error was: %s (%s)"%(str(sys.exc_info()[0]),str(sys.exc_info()[1]))
+		print("Problem loading extra modules in %s/lib"%wd)
+		print(" ...error was: %s (%s)"%(str(sys.exc_info()[0]),str(sys.exc_info()[1])))
 		sys.exit(1)
-				
+
 	options=imsqtiv1.QTIParserV1Options()
 	fileNames=[]
 	OVERWRITE=False
@@ -121,13 +119,13 @@ if __name__ == '__main__':
 
 	if not options.dtdDir:
 		options.dtdDir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'schemas'))
-	
+
 	if options.cpPath and os.path.exists(options.cpPath):
 		if os.path.isdir(options.cpPath):
 			if OVERWRITE:
 				SPLASH_LOG.append("Warning: CP Directory already exists, overwriting.")
 			else:
-				reply=raw_input("Warning: CP Directory already exists, overwrite? (Yes/No)>")
+				reply=input("Warning: CP Directory already exists, overwrite? (Yes/No)>")
 				if reply.lower()!="yes":
 					options.cpPath=''
 		else:
@@ -141,20 +139,20 @@ if __name__ == '__main__':
 			SPLASH_LOG.append("Problem loading GUI module, defaulting to command-line operation")
 			SPLASH_LOG.append(" ...error was: %s (%s)"%(str(sys.exc_info()[0]),str(sys.exc_info()[1])))
 			NO_GUI=1
-	
+
 	if NO_GUI:
 		for line in SPLASH_LOG:
-			print line
+			print(line)
 		parser=imsqtiv1.QTIParserV1(options)
 		parser.ProcessFiles(os.getcwd(),fileNames)
 		parser.DumpCP()
 	else:
-		print "Application is active..."
-		print "Do not close this window because it will also close the GUI!"
+		print("Application is active...")
+		print("Do not close this window because it will also close the GUI!")
 		app = gui.MyApp(SPLASH_LOG,options,fileNames)
-		app.MainLoop()		
+		app.MainLoop()
 
 	filenames=None
 	parser=None
 	sys.exit(0)
-	
+

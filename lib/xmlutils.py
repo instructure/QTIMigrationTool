@@ -13,7 +13,7 @@ provided that the following conditions are met:
     copyright notice, this list of conditions, and the following
     disclaimer in the documentation and/or other materials provided with
     the distribution.
-    
+
  *  Neither the name of the University of Cambridge, nor the names of
     any other contributors to the software, may be used to endorse or
     promote products derived from this software without specific prior
@@ -28,7 +28,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
 import string
-import htmlentitydefs
+import html.entities
 
 NMTOKEN_CHARS=string.ascii_letters+string.digits+"_-.:"
 NMSTART_CHARS=string.ascii_letters+"_"
@@ -60,7 +60,7 @@ def EncodeComment (src):
 	return src.replace('--','- - ')
 
 def RelativeURL (uri):
-	test=string.split(uri,':')
+	test=uri.split(':')
 	if len(test)>1:
 		if not test[0][0] in string.ascii_letters:
 			return 1
@@ -81,9 +81,9 @@ def EncodePathSegment (pathSegment):
 			warn=1
 			newPathSegment=newPathSegment+"?"
 		else:
-			newPathSegment=newPathSegment+'%'+string.zfill(hex(ord(c))[2:],2)
+			newPathSegment=newPathSegment+'%'+hex(ord(c))[2:].zfill(2)
 	if warn:
-		print "Warning: replacing unicode character in path name: "+pathSegment
+		print("Warning: replacing unicode character in path name: "+pathSegment)
 	return newPathSegment
 
 def DecodePathSegment (pathSegment):
@@ -118,9 +118,9 @@ class XMLParser:
 				'amp':'&',
 				'lt':'<',
 				'gt':'>',
-				'nbsp':unichr(160)				
+				'nbsp':chr(160)
 				}
-		
+
 	def TokenizeString(self,input):
 		self.input=input
 		self.pos=0
@@ -135,7 +135,7 @@ class XMLParser:
 					# may return '<' if no name followed
 					tag=self.ParseTag()
 				if chars:
-					tokens.append(string.join(chars,''))
+					tokens.append(''.join(chars))
 					chars=[]
 				tokens.append(tag)
 			elif self.ParseChar('&'):
@@ -144,17 +144,17 @@ class XMLParser:
 				chars.append(self.c)
 				self.Consume(1)
 		if chars:
-			tokens.append(string.join(chars,''))
+			tokens.append(''.join(chars))
 			chars=[]
 		return tokens
-	
+
 	def ParseTag(self):
 		tag={}
 		name=self.ParseName()
 		if not name:
 			return '<'
 		tag['.name']=name
-		while 1:
+		while True:
 			self.SkipSpace()
 			if not self.c:
 				raise XMLException("unexpected end of tag")
@@ -166,7 +166,7 @@ class XMLParser:
 					tag['.type']='EmptyElemTag'
 					break
 				else:
-					print self.input[self.pos:]
+					print(self.input[self.pos:])
 					raise XMLException("expected: end of tag")
 			else:
 				aName=self.ParseName()
@@ -179,7 +179,7 @@ class XMLParser:
 				aValue=self.ParseAttValue()
 				tag[aName]=aValue
 		return tag
-	
+
 	def ParseETag(self):
 		tag={}
 		tag['.name']=self.ParseName()
@@ -188,7 +188,7 @@ class XMLParser:
 		if not self.ParseChar('>'):
 			raise XMLException("unexpected end of tag")
 		return tag
-		
+
 	def ParseAttValue(self):
 		delim=None
 		value=[]
@@ -198,7 +198,7 @@ class XMLParser:
 			delim="'"
 		else:
 			raise XMLException("expected: AttValue")
-		while 1:
+		while True:
 			if not self.c:
 				raise XMLException("unexpected end of AttValue")
 			elif self.c==delim:
@@ -210,21 +210,21 @@ class XMLParser:
 			else:
 				value.append(self.c)
 				self.Consume(1)
-		return string.join(value,'')
-	
+		return ''.join(value)
+
 	def ParseReference (self):
 		if self.ParseChar('#'):
 			if self.ParseChar('x'):
-				value=unichr(int(self.ParseName(1),16))
+				value=chr(int(self.ParseName(1),16))
 			else:
-				value=unichr(int(self.ParseName(1)))
+				value=chr(int(self.ParseName(1)))
 		else:
 			name=self.ParseName()
-			value=self.entityMap.get(name.lower(),unichr(htmlentitydefs.name2codepoint.get(name.lower(),63)))
+			value=self.entityMap.get(name.lower(),chr(html.entities.name2codepoint.get(name.lower(),63)))
 		# forgive the lack of a semi-colon
 		self.ParseChar(';')
 		return value
-	
+
 	def ParseName (self,numbersAllowed=0):
 		name=[]
 		# Names end with a space, '>', '/>' or ';'
@@ -241,30 +241,30 @@ class XMLParser:
 					break
 			name.append(self.c)
 			self.Consume(1)
-		return string.join(name,'')
-	
+		return ''.join(name)
+
 	def SkipSpace (self):
 		while self.c:
 			if ord(self.c) in SCHARS:
 				self.Consume(1)
 			else:
 				break
-	
+
 	def ParseChar (self,c):
 		if self.c==c:
 			self.Consume(1)
 			return 1
 		else:
 			return 0
-			
+
 	def Consume(self,nChars):
 		self.pos+=nChars
 		self.c=self.input[self.pos:self.pos+1]
-		
-		
 
 
 
 
-		
+
+
+
 

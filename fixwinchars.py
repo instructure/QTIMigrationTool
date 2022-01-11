@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 """Copyright (c) 2008, University of Cambridge.
 
@@ -15,7 +15,7 @@ provided that the following conditions are met:
     copyright notice, this list of conditions, and the following
     disclaimer in the documentation and/or other materials provided with
     the distribution.
-    
+
  *  Neither the name of the University of Cambridge, nor the names of
     any other contributors to the software, may be used to endorse or
     promote products derived from this software without specific prior
@@ -60,7 +60,7 @@ CharFixMap={
 	0x9E:"&#x17E;",
 	0x9F:"&#x178;",
 	}
-	
+
 def FixFile(fname,asciiMode,forceMode=0):
 	f=file(fname,"rb")
 	header=f.read(4)
@@ -82,7 +82,7 @@ def FixFile(fname,asciiMode,forceMode=0):
 			fix+=1
 	if not fix:
 		return
-	print "Fixing %i chars in file: %s"%(fix,fname)
+	print("Fixing %i chars in file: %s"%(fix,fname))
 	output=[]
 	for c in data:
 		cout=CharFixMap.get(ord(c),c)
@@ -90,12 +90,12 @@ def FixFile(fname,asciiMode,forceMode=0):
 			cout="&#x%2X;"%ord(c)
 		output.append(cout)
 		if c!=cout:
-			print "chr(0x%2X) -> %s"%(ord(c),cout)
-	outStr=string.join(output,'')
+			print("chr(0x%2X) -> %s"%(ord(c),cout))
+	outStr=''.join(output)
 	f=file(fname,"wb")
 	f.write(outStr)
 	f.close()
-	
+
 if __name__ == '__main__':
 	fileNames=[]
 	asciiMode=0

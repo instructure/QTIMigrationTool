@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 """Copyright (c) 2004-2008, University of Cambridge.
 
@@ -15,7 +15,7 @@ provided that the following conditions are met:
     copyright notice, this list of conditions, and the following
     disclaimer in the documentation and/or other materials provided with
     the distribution.
-    
+
  *  Neither the name of the University of Cambridge, nor the names of
     any other contributors to the software, may be used to endorse or
     promote products derived from this software without specific prior
@@ -35,16 +35,16 @@ MIGRATION_VERSION="Version: 2008-06-??"
 from types import *
 import string
 import os, sys, re
-from xml.sax import handler, SAXParseException 
+from xml.sax import handler, SAXParseException
 from lxml import etree, sax
-import StringIO
+import io
 from random import randint
 try:
 	import vobject
 	GOT_VOBJECT=1
 except:
 	GOT_VOBJECT=0
-	
+
 RESPONSE_PREFIX="RESPONSE_"
 OUTCOME_PREFIX="OUTCOME_"
 FEEDBACK_PREFIX="FEEDBACK_"
@@ -74,8 +74,8 @@ class QTIParserV1Options:
 		self.cpPath=''
 		self.prepend_path=None
 		self.create_error_files=None
-		
-		
+
+
 # QTIException Class
 # ------------------
 #
@@ -83,7 +83,7 @@ class QTIException:
 	def __init__ (self,msg,param=None):
 		if param:
 			self.msg=msg+": "+param
-	
+
 	def __str__(self):
 		return self.msg
 
@@ -124,7 +124,7 @@ class QTIObjectV1:
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.ParseAttributes(attrs)
-		
+
 	def ParseAttributes (self,attrs):
 		for aName in attrs.keys():
 			if aName[:4]=='xml:':
@@ -137,7 +137,7 @@ class QTIObjectV1:
 				f(attrs[aName])
 			elif not (aName=='xmlns' or ':' in aName):
 				# suppress warnings about any schema or namespace magic
-				print "Unknown or unsupported attribute: "+aName
+				print("Unknown or unsupported attribute: "+aName)
 
 	def ReadYesNo (self,value,default):
 		if value.lower()=="yes":
@@ -145,20 +145,20 @@ class QTIObjectV1:
 		elif value.lower()=="no":
 			return 0
 		else:
-			print 'Warning: bad value for yes/no, ignoring "'+value+'"'
+			print('Warning: bad value for yes/no, ignoring "'+value+'"')
 
 	def ReadFloat (self,value,default):
 		try:
 			return float(value)
 		except:
-			print 'Warning: bad number for attribute, ignoring "'+value+'"'
+			print('Warning: bad number for attribute, ignoring "'+value+'"')
 			return default
 
 	def ReadInteger (self,value,default):
 		try:
 			return int(value)
 		except:
-			print 'Warning: bad integer for attribute, ignoring "'+value+'"'
+			print('Warning: bad integer for attribute, ignoring "'+value+'"')
 			return default
 
 	def ReadIdentifier (self,value,prefix="ID-"):
@@ -170,7 +170,7 @@ class QTIObjectV1:
 			self.PrintWarning('Warning: removing period from identifier "%s"'%value)
 			value=value.replace('.','_')
 		return value
-	
+
 	def CheckNMTOKEN (self,token,prefix):
 		token = token.strip()
 		unchecked=0
@@ -193,11 +193,11 @@ class QTIObjectV1:
 		if bad:
 			self.PrintWarning('Warning: replacing bad NMTOKEN "%s" with "%s"'%(token,newtoken))
 		return newtoken
-	
+
 	def ReadView (self,value):
 		view=value.strip().lower()
 		if view!='all':
-			if VIEWMAP.has_key(view):
+			if view in VIEWMAP:
 				new_view=VIEWMAP[view]
 				if new_view!=view:
 					self.PrintWarning('Warning: changing '+view+' to '+new_view)
@@ -205,25 +205,24 @@ class QTIObjectV1:
 			else:
 				self.PrintWarning('Warning: ignoring unknown view ('+view+')')
 		return view
-			
+
 	def ConvertAreaCoords (self,shape,value):
 		# Code fixed up to be much more generous about use of strange separators.
 		# Mixed comma and space seen in the wild!
-		#coordStrs=string.split(string.join(string.split(value),''),',')
 		coords=[]
 		vStr=[]
 		sep=0
 		for c in value:
 			if c in "0123456789.":
 				if sep and vStr:
-					coords.append(int(string.join(vStr,'')))
+					coords.append(int(''.join(vStr)))
 					sep=0
 					vStr=[]
 				vStr.append(c)
 			else:
 				sep=1
 		if vStr:
-			coords.append(int(string.join(vStr,'')))
+			coords.append(int(''.join(vStr)))
 		if shape=='rect':
 			if len(coords)<4:
 				self.PrintWarning("Error: not enough coordinates for rectangle, padding with zeros")
@@ -237,32 +236,32 @@ class QTIObjectV1:
 				while len(coords)<4:
 					coords.append(0)
 			if coords[2]==coords[3]:
-				self.PrintWarning("Warning: ellipse conversion assumes pixel-centred coordinates, watch out for off-by-one errors")	
-				r=coords[2]/2 # centre-pixel coordinate model again
+				self.PrintWarning("Warning: ellipse conversion assumes pixel-centred coordinates, watch out for off-by-one errors")
+				r=coords[2]//2 # centre-pixel coordinate model again
 				coords=[coords[0],coords[1],r]
 				shape='circle'
 			else:
 				self.PrintWarning("Warning: ellipse shape is deprecated in version 2")
-				coords=[coords[0],coords[1],coords[2]/2,coords[3]/2]
+				coords=[coords[0],coords[1],coords[2]//2,coords[3]//2]
 		return shape,coords
-	
+
 	def AddData (self,data):
 		data=data.strip()
 		if data:
-			print "Ignoring data: "+XMLString(data)
-	
+			print("Ignoring data: "+XMLString(data))
+
 	def CloseObject (self):
 		pass
-	
+
 	def GetRoot (self):
 		if not self.parent:
 			return self
 		else:
 			return self.parent.GetRoot()
-	
+
 	def GetParser (self):
 		return self.GetRoot().parser
-		
+
 	def GetItemV1 (self):
 		assert self.parent,QTIException(eNoParentItem)
 		return self.parent.GetItemV1()
@@ -274,7 +273,7 @@ class QTIObjectV1:
 	def GetInstructureHelperContainer(self):
 		assert self.parent,QTIException(eNoParentMDContainer)
 		return self.parent.GetInstructureHelperContainer()
-	
+
 	def SniffRenderHotspot (self):
 		if self.parent:
 			return self.parent.SniffRenderHotspot()
@@ -283,7 +282,7 @@ class QTIObjectV1:
 
 	def PrintWarning (self, warning, force=0):
 		if not self.parent:
-			print warning
+			print(warning)
 		else:
 			self.parent.PrintWarning(warning,force)
 
@@ -292,7 +291,7 @@ class QTIObjectV1:
 			if do_assert:
 				raise QTIException(eInvalidStructure,tag)
 			else:
-				print "Tag (%s) in unexpected location - parent: (%s)" % (tag, self.parent)
+				print("Tag (%s) in unexpected location - parent: (%s)" % (tag, self.parent))
 			return False
 		return True
 
@@ -305,7 +304,7 @@ class Manifest(QTIObjectV1):
 		self.files={}
 		self.path=None
 		self.cp=None
-	
+
 	def SetPath (self,path):
 		if self.path is None:
 			self.path=path
@@ -317,7 +316,7 @@ class Manifest(QTIObjectV1):
 	def AddCPFile (self,uri):
 		if uri[-4:].lower() in ['.xml', '.dat', '.qti']:
 			return uri
-		if self.files.has_key(uri):
+		if uri in self.files:
 			# We've already added this file to the content package
 			return self.files[uri]
 		cpf=CPFile()
@@ -333,7 +332,7 @@ class Manifest(QTIObjectV1):
 		# The base URI of this XML file is self.path
 		# resolve URI to make it a full path
 		path,discard=os.path.split(self.path)
-		segments=string.split(uri,'/')
+		segments=uri.split('/')
 		for segment in segments:
 			if segment==".":
 				continue
@@ -345,7 +344,7 @@ class Manifest(QTIObjectV1):
 
 	def update_file_path(self, path):
 		if len(self.files) == 1:
-			uri = self.files.values()[0]
+			uri = list(self.files.values())[0]
 			if uri != path:
 				self.resource.update_file_path(uri, path, self.GetRoot().ResolveURI(uri))
 
@@ -390,11 +389,11 @@ class File(QTIObjectV1):
 #
 class Unsupported(QTIObjectV1):
 	"""Unsupport QTI object"""
-	
+
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		if not isinstance(parent,Unsupported):
-			print "Unsupported element <"+name+">"
+			print("Unsupported element <"+name+">")
 
 	def AddData (self,data):
 		pass
@@ -413,14 +412,14 @@ class Skipped(QTIObjectV1):
 	def AddData (self,data):
 		pass
 
-		
+
 # QuesTestInterop
 # ---------------
 #
 class QuesTestInterop(QTIObjectV1):
 	"""
 	<!ELEMENT questestinterop (qticomment? , (objectbank | assessment | (section | item)+))>
-	"""	
+	"""
 	def __init__(self,name,attrs,parent):
 		QTIObjectV1.__init__(self,name,attrs,parent)
 		self.path=None
@@ -428,16 +427,16 @@ class QuesTestInterop(QTIObjectV1):
 		self.parser=None
 		self.resources=[]
 		self.description=None
-		
+
 	def SetCP (self,cp):
 		self.cp=cp
-		
+
 	def SetPath (self,path):
 		self.path=path
-	
+
 	def SetParser (self,parser):
 		self.parser=parser
-		
+
 	def SetLOMDescription (self,desc):
 		self.description=desc
 
@@ -449,19 +448,19 @@ class QuesTestInterop(QTIObjectV1):
 
 	def GetBankName(self):
 		return self.GetBankId
-		
+
 	def AddResource (self,resource):
 		self.resources.append(resource)
 		self.cp.AddResource(resource)
 
 	def AddSection (self,id):
 		pass
-	
+
 	def ResolveURI (self,uri):
 		# The base URI of this XML file is self.path
 		# resolve URI to make it a full path
 		path,discard=os.path.split(self.path)
-		segments=string.split(uri,'/')
+		segments=uri.split('/')
 		for segment in segments:
 			if segment==".":
 				continue
@@ -470,7 +469,7 @@ class QuesTestInterop(QTIObjectV1):
 			else:
 				path=os.path.join(path,DecodePathSegment(segment))
 		return path
-	
+
 	def CloseObject (self):
 		if len(self.resources)==1 and self.description:
 			# A description of the questestinterop object when it only contains one object is probably misplaced
@@ -478,15 +477,15 @@ class QuesTestInterop(QTIObjectV1):
 			self.resources[0].GetLOM().GetGeneral().AddDescription(self.description)
 		elif self.description:
 			self.cp.GetLOM().GetGeneral().AddDescription(self.description)
-		
-		
+
+
 # QTIComment
 # ----------
 #
 class QTIComment(QTIObjectV1):
 	"""
 	<!ELEMENT qticomment (#PCDATA)>
-	
+
 	<!ATTLIST qticomment  xml:lang CDATA  #IMPLIED >
 	"""
 	def __init__(self,name,attrs,parent):
@@ -494,7 +493,7 @@ class QTIComment(QTIObjectV1):
 		self.lang=None
 		# appears almost everywhere, no point in checking
 		QTIObjectV1.__init__(self,name,attrs,parent)
-	
+
 	def SetAttribute_xml_lang (self,lang):
 		self.lang=lang
 
@@ -503,9 +502,9 @@ class QTIComment(QTIObjectV1):
 			self.GetRoot().SetLOMDescription(LOMLangString(self.data,self.lang))
 		else:
 			self.PrintWarning('Warning: ignoring qticomment')
-			
+
 	def AddData (self,data):
-		self.data=self.data+data	
+		self.data=self.data+data
 
 
 # QTIMetadataContainer
@@ -514,13 +513,13 @@ class QTIComment(QTIObjectV1):
 class QTIMetadataContainer(QTIObjectV1):
 	def GetMDContainer(self):
 		return self
-		
+
 	def SetTitle(self,title):
 		pass
 
 	def AddKeyword(self,keyword):
 		pass
-	
+
 	def AddDescription(self,description):
 		pass
 
@@ -529,10 +528,10 @@ class QTIMetadataContainer(QTIObjectV1):
 
 	def SetStatus(self,source,value):
 		pass
-	
+
 	def AddEducationalContext(self,context,lomValue):
 		pass
-		
+
 	def AddEducationalDifficulty(self,difficulty,lomValue):
 		pass
 
@@ -563,26 +562,26 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		self.bb_max_score=None
 		self.points_possible=None
 		self.calculated=None
-	
+
 	def GetInstructureHelperContainer(self):
 		return self
-	
+
 	def set_calculated(self, c):
 		self.calculated = c
 		self.SetQuestionType("Calculated")
-		
+
 	def SetMaxAttempts(self,attempts):
 		if isinstance(self, QTIObjectBank): return
 		if not self.sessionControl: self.sessionControl = ItemSessionControl()
 		self.sessionControl.SetMaxAttempts(attempts)
-	
+
 	def SetShowFeedback(self, show):
 		if not self.sessionControl: self.sessionControl = ItemSessionControl()
 		self.sessionControl.SetShowFeedback(show)
-		
+
 	def SetWhichAttemptToGrade(self, which):
 		self.whichAttemptToGrade = which
-		
+
 	def SetShowTotalScore(self, show):
 		self.showTotalScore = show
 
@@ -598,14 +597,14 @@ class InstructureHelperContainer(QTIMetadataContainer):
 
 	def SetAssessmentQuestionIdentiferref(self, ref):
 		self.AddMetaField("assessment_question_identifierref", ref)
-	
+
 	def SetAssessmentType(self, type):
 		self.assessmentType = type
-	
+
 	def StartMatchingList(self):
 		if not self.instructureMetadata: self.instructureMetadata = InstructureMetadata()
 		self.instructureMetadata.StartMatchingList()
-	
+
 	def AddMatchingItem(self, item):
 		self.instructureMetadata.AddMatchingItem(item)
 
@@ -617,7 +616,7 @@ class InstructureHelperContainer(QTIMetadataContainer):
 	def SetBBObjectID(self, id):
 		self.SetAttribute_ident(id)
 		self.bb_id = id
-	
+
 	def SetBBAssessmentType(self, type):
 		""" Possible values for BB8: Test, Pool, Survey
 		"""
@@ -625,10 +624,10 @@ class InstructureHelperContainer(QTIMetadataContainer):
 
 	def SetBBQuestionType(self, type):
 		"""These are the possible BB8 values:
-		Multiple Choice, Calculated, Numeric, Either/Or, Essay, 
-		File Upload, Fill in the Blank Plus, Fill in the Blank, 
-		Hot Spot, Jumbled Sentence, Matching, Multiple Answer, 
-		Multiple Choice, Opinion Scale, Ordering, Quiz Bowl, 
+		Multiple Choice, Calculated, Numeric, Either/Or, Essay,
+		File Upload, Fill in the Blank Plus, Fill in the Blank,
+		Hot Spot, Jumbled Sentence, Matching, Multiple Answer,
+		Multiple Choice, Opinion Scale, Ordering, Quiz Bowl,
 		Short Response, True/False
 		"""
 		self.bb_question_type = type
@@ -640,7 +639,7 @@ class InstructureHelperContainer(QTIMetadataContainer):
 		"""
 		self.question_type = type
 		self.AddMetaField("question_type", type)
-	
+
 	def SetBBMaxScore(self, max):
 		self.bb_max_score = max
 		self.AddMetaField("max_score", max)
@@ -661,7 +660,7 @@ class QTIObjectBank(InstructureHelperContainer):
 		self.CheckLocation((QuesTestInterop),"<objectbank>")
 		self.PrintWarning('Warning: objectbank not supported, looking inside for items')
 		self.ParseAttributes(attrs)
-		
+
 	def SetAttribute_ident (self,id):
 		self.question_bank = id
 
@@ -679,7 +678,7 @@ class QTIObjectBank(InstructureHelperContainer):
 
 	def AddSection (self,id):
 		pass
-		
+
 # mat_extension
 # -------------
 #
@@ -698,14 +697,14 @@ class WCTMatExtension(QTIObjectV1):
 	def add_formula(self, formula):
 		self.GetCalculated()
 		self.calc.formula = formula
-		
+
 	def AppendElement(self, data):
 		self.parent.AppendElement(data)
 
 	def CloseObject(self):
 		if self.calc:
 			self.GetInstructureHelperContainer().set_calculated(self.calc)
-		
+
 
 ## D2L Calculated classes
 
@@ -741,7 +740,7 @@ class D2LMinvalue(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.set_min(self.data)
@@ -790,7 +789,7 @@ class BBMatFormattedText(QTIObjectV1):
 		self.data=self.data.strip()
 		self.parent.AppendElement(xhtml_text(self.data))
 
-		
+
 # webct:ContentObject
 # -------------
 #
@@ -857,22 +856,22 @@ class WCTCalculatedAnswer(QTIObjectV1):
 		self.calc = self.ihc.calculated
 		self.CheckLocation((ItemProcExtension),"<calculated>")
 		self.ParseAttributes(attrs)
-	
+
 	def SetAttribute_webct_precision(self, precision):
 		self.calc.answer_scale = precision
-	
+
 	def SetAttribute_webct_toleranceType(self, type):
 		self.calc.answer_tolerance_type = type
-	
+
 	def SetAttribute_webct_tolerance(self, tol):
 		self.calc.answer_tolerance = tol
-		
+
 	def AddRule(self, rule):
 		if rule.identifier and rule.identifier == "SCORE":
 			if rule.expression and rule.expression.arguments:
 				if rule.expression.arguments[1]:
 					self.ihc.SetBBMaxScore(rule.expression.arguments[1].value)
-		
+
 # calculated
 # -------------
 #
@@ -884,16 +883,16 @@ class CalculatedNode(QTIObjectV1):
 		self.GetInstructureHelperContainer().SetBBQuestionType("Calculated")
 		self.CheckLocation((ItemProcExtension, WCTMatExtension),"<calculated>")
 		self.calc = Calculated()
-	
+
 	def add_var(self, var):
 		self.calc.add_var(var)
-		
+
 	def add_var_set(self, var):
 		self.calc.add_var_set(var)
 
 	def add_formula (self, formula):
 		self.calc.formula = formula
-	
+
 	def CloseObject(self):
 		self.GetInstructureHelperContainer().set_calculated(self.calc)
 
@@ -908,7 +907,7 @@ class CalculatedFormula(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.CheckLocation((CalculatedNode, CalculatedFormulas, WCTMatExtension, RespcondExtension),"<formula>")
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
 
@@ -947,14 +946,14 @@ class BB8AnswerScale(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.CheckLocation((CalculatedNode),"<answer_scale>")
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.calc.answer_scale = self.data
-		
+
 # answer_tolerance
 # -------------
 #
@@ -966,17 +965,17 @@ class BB8AnswerTolerance(QTIObjectV1):
 		self.data=""
 		self.CheckLocation((CalculatedNode),"<answer_tolerance>")
 		self.ParseAttributes(attrs)
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def SetAttribute_type(self, type):
 		self.parent.calc.answer_tolerance_type = type
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.calc.answer_tolerance = self.data
-		
+
 # unit_points_percent
 # -------------
 #
@@ -987,14 +986,14 @@ class BB8UnitPointsPercent(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.CheckLocation((CalculatedNode),"<unit_points_percent>")
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.calc.unit_points_percent = self.data
-		
+
 # unit_required
 # -------------
 #
@@ -1005,14 +1004,14 @@ class BB8UnitRequired(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.CheckLocation((CalculatedNode),"<unit_required>")
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.calc.unit_required = self.data
-		
+
 # unit_value
 # -------------
 #
@@ -1023,14 +1022,14 @@ class BB8UnitValue(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.CheckLocation((CalculatedNode),"<unit_value>")
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.calc.unit_value = self.data
-		
+
 # unit_case_sensitive
 # -------------
 #
@@ -1041,14 +1040,14 @@ class BB8UnitCaseSensitive(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.CheckLocation((CalculatedNode),"<unit_case_sensitive>")
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.calc.unit_case_sensitive = self.data
-		
+
 # partial_credit_points_percent
 # -------------
 #
@@ -1059,14 +1058,14 @@ class BB8PartialCreditPointsPercent(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.CheckLocation((CalculatedNode),"<partial_credit_points_percent>")
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.calc.partial_credit_points_percent = self.data
-		
+
 # partial_credit_tolerance
 # -------------
 #
@@ -1078,13 +1077,13 @@ class BB8PartialCreditTolerance(QTIObjectV1):
 		self.data=""
 		self.CheckLocation((CalculatedNode),"<partial_credit_tolerance>")
 		self.ParseAttributes(attrs)
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def SetAttribute_type(self, type):
 		self.parent.calc.partial_credit_tolerance_type = type
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.calc.partial_credit_tolerance = self.data
@@ -1099,7 +1098,7 @@ class BB8Vars(QTIObjectV1):
 		self.parent=parent
 		self.CheckLocation((CalculatedNode),"<vars>")
 		self.calc = parent.calc
-	
+
 	def add_var(self, var):
 		self.calc.add_var(var)
 
@@ -1113,10 +1112,10 @@ class BB8VarSets(QTIObjectV1):
 		self.parent=parent
 		self.CheckLocation((CalculatedNode),"<var_sets>")
 		self.calc = parent.calc
-	
+
 	def add_var_set(self, var):
 		self.calc.add_var_set(var)
-		
+
 # var_set
 # -------------
 #
@@ -1128,19 +1127,19 @@ class CalculatedVarSet(QTIObjectV1):
 		self.CheckLocation((BB8VarSets, CalculatedNode),"<var_set>")
 		self.var_set = VarSet()
 		self.ParseAttributes(attrs)
-	
+
 	def SetAttribute_ident(self, iden):
 		self.var_set.ident = iden
-	
+
 	def add_var(self, var):
 		self.var_set.add_var(var)
-	
+
 	def set_answer(self, answer):
 		self.var_set.answer=answer
-	
+
 	def CloseObject (self):
 		self.parent.add_var_set(self.var_set)
-		
+
 # var
 # -------------
 #
@@ -1153,28 +1152,28 @@ class BB8Var(QTIObjectV1):
 		self.CheckLocation((CalculatedVarSet, BB8Vars),"<var>")
 		self.var = Var()
 		self.ParseAttributes(attrs)
-	
+
 	def SetAttribute_name(self, name):
 		self.var.name = name
-	
+
 	def SetAttribute_scale(self, scale):
 		self.var.scale = scale
-	
+
 	def set_min(self, min):
 		self.var.min = min
-	
+
 	def set_max(self, max):
 		self.var.max = max
-	
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data and not self.data == "":
 			self.var.data = self.data
 		self.parent.add_var(self.var)
-		
+
 # var
 # -------------
 #
@@ -1187,29 +1186,29 @@ class WCTVar(QTIObjectV1):
 		self.CheckLocation((CalculatedNode, CalculatedVarSet),"<var>")
 		self.var = Var()
 		self.ParseAttributes(attrs)
-	
+
 	def SetAttribute_webct_name(self, name):
 		self.var.name = name
-	
+
 	def SetAttribute_webct_precision(self, scale):
 		self.var.scale = scale
-	
+
 	def SetAttribute_webct_min(self, min):
 		self.var.min = min
-	
+
 	def SetAttribute_webct_max(self, max):
 		self.var.max = max
-	
+
 	def SetAttribute_webct_value(self, value):
 		self.var.data = value
-	
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.parent.add_var(self.var)
 
-		
+
 # min
 # -------------
 #
@@ -1220,14 +1219,14 @@ class BB8Min(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.CheckLocation((BB8Var),"<min>")
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.set_min(self.data)
-		
+
 # max
 # -------------
 #
@@ -1238,14 +1237,14 @@ class BB8Max(QTIObjectV1):
 		self.parent=parent
 		self.data=""
 		self.CheckLocation((BB8Var),"<max>")
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.set_max(self.data)
-		
+
 # answer
 # -------------
 #
@@ -1258,20 +1257,20 @@ class CalculatedAnswer(QTIObjectV1):
 		self.value = None
 		self.CheckLocation((CalculatedVarSet),"<answer>")
 		self.ParseAttributes(attrs)
-		
+
 	def SetAttribute_webct_value(self, value):
 		self.value = value
 		self.parent.set_answer(value)
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		if self.value: return
 		self.data=self.data.strip()
 		self.parent.set_answer(self.data)
 
-				
+
 # webct:matching_ext_flow
 # -------------
 #
@@ -1281,17 +1280,17 @@ class WCTMatchingExtFlow(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		QTIObjectV1.__init__(self,name,attrs,parent)
 		self.GetInstructureHelperContainer().StartMatchingList()
-		
+
 	def SetAttribute_rshuffle (self,id):
 		pass
-		
+
 	def SetAttribute_rhidden (self,id):
 		pass
-		
+
 	def SetAttribute_labelType (self,id):
 		pass
-	
-				
+
+
 # webct:matching_text_ext
 # -------------
 #
@@ -1301,26 +1300,26 @@ class WCTMatchingTextExt(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		QTIObjectV1.__init__(self,name,attrs,parent)
 		self.label = None
-		
+
 	def SetAttribute_rshuffle (self,id):
 		pass
-		
+
 	def SetAttribute_label (self,label):
 		pass
-	
+
 	def SetAttribute_xml_lang (self,lang):
 		self.language=lang
-	
+
 	def AppendElement (self,element):
 		self.GetInstructureHelperContainer().AddMatchingItem(element.text.strip())
-	
+
 # QTIAssessment
 # -------------
 #
 class QTIAssessment(InstructureHelperContainer):
 	"""
 	<!ELEMENT assessment (qticomment? , duration? , qtimetadata* , objectives* , assessmentcontrol* , rubric* , presentation_material? , outcomes_processing* , assessproc_extension? , assessfeedback* , selection_ordering? , reference? , (sectionref | section)+)>
-	
+
 	<!ATTLIST assessment  %I_Ident;
 						   %I_Title;
 						   xml:lang CDATA  #IMPLIED >
@@ -1345,8 +1344,8 @@ class QTIAssessment(InstructureHelperContainer):
 			self.SetAttribute_ident(CURRENT_FILE_NAME)
 		elif not self.assessment.identifier:
 			self.SetAttribute_ident("%s" % randint(1,100000))
-		if attrs.has_key('ident'):
-			print '-- Converting item id="'+attrs['ident']+'" --'
+		if 'ident' in attrs:
+			print('-- Converting item id="'+attrs['ident']+'" --')
 		if not self.assessment.language and self.parser.options.lang:
 			self.assessment.SetLanguage(self.parser.options.lang)
 		# Set the name of the file
@@ -1355,12 +1354,12 @@ class QTIAssessment(InstructureHelperContainer):
 			# Reserve space for our preferred file name
 			self.fName=cp.GetUniqueFileName(os.path.join("assessmentTests",self.resource.id+".xml"))
 		self.files={}
-		
+
 	def SetAttribute_ident (self,value):
 		if self.assessment.identifier: return
 		if ':' in value:
-			print "Warning: assessment identifier with colon: replaced with hyphen when making resource identifier."
-			value=string.join(string.split(value,':'),'-')
+			print("Warning: assessment identifier with colon: replaced with hyphen when making resource identifier.")
+			value='-'.join(value.split(':'))
 		value = self.resource.SetIdentifier(value)
 		self.assessment.SetIdentifier(value)
 		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
@@ -1369,10 +1368,10 @@ class QTIAssessment(InstructureHelperContainer):
 
 	def SetAttribute_title (self,value):
 		self.assessment.SetTitle(value)
-	
+
 	def SetAttribute_xml_lang (self,lang):
 		self.assessment.SetLanguage(lang)
-		
+
 	def GenerateQTIMetadata(self):
 		self.resource.GetQTIMD()
 
@@ -1380,7 +1379,7 @@ class QTIAssessment(InstructureHelperContainer):
 		InstructureHelperContainer.SetBBAssessmentType(self,type)
 		if type == 'Pool':
 			self.question_bank = self.assessment.title
-		
+
 	def GenerateInstructureMetadata(self):
 		"""This is the metadata that will appear in the manifest file.
 		"""
@@ -1391,13 +1390,13 @@ class QTIAssessment(InstructureHelperContainer):
 		if self.bb_max_score: iMD.AddMetaField("max_score", self.bb_max_score)
 		if self.bb_id: iMD.AddMetaField("bb8_object_id", self.bb_id)
 		if self.bb_assessment_type: iMD.AddMetaField("bb8_assessment_type", self.bb_assessment_type)
-		
+
 	def SetDuration(self, duration):
 		self.assessment.SetTimeLimit(duration)
-		
+
 	def AddSection(self, section):
 		self.assessment.AddSection(section)
-		
+
 	def GetItemV1 (self):
 		return self
 
@@ -1406,17 +1405,17 @@ class QTIAssessment(InstructureHelperContainer):
 
 	def GetBankName(self):
 		return self.assessment.title
-	
+
 	def DeclareOutcome (self,decvar):
 		self.PrintWarning("Outcomes not supported on assessments: identifier: %s, type: %s, min: %s, max: %s" % (decvar.identifier,decvar.baseType, decvar.min, decvar.max))
-		
+
 	def PrintWarning (self,warning,force=0):
-		if not self.warnings.has_key(warning):
+		if warning not in self.warnings:
 			self.msg=self.msg+warning+'\n'
 			self.warnings[warning]=1
 		if force:
 			self.parent.PrintWarning(warning,1)
-	
+
 	def CloseObject (self):
 		if self.bb_assessment_type == 'Pool':
 			# All the questions get the pool's name so we don't need a pool object
@@ -1430,13 +1429,13 @@ class QTIAssessment(InstructureHelperContainer):
 		# Add the resource to the root thing - and therefore the content package
 		self.GetRoot().AddResource(self.resource)
 		# Adding a resource to a cp may cause it to change identifier, but we don't mind.
-		f=StringIO.StringIO()
+		f=io.StringIO()
 		f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
 		if not self.parser.options.noComment:
 			f.write('<!--\n')
 			f.write(EncodeComment(self.msg))
 			f.write('\t-->\n\n')
-		
+
 		self.assessment.SetItemSessionControl(self.sessionControl)
 		self.assessment.WriteXML(f)
 		cpf=CPFile()
@@ -1444,15 +1443,15 @@ class QTIAssessment(InstructureHelperContainer):
 		cpf.SetData(f.getvalue())
 		f.close()
 		self.resource.AddFile(cpf,1)
-	
-	
+
+
 # QTISection
 # ----------
 #
 class QTISection(InstructureHelperContainer):
 	"""
 	<!ELEMENT section (qticomment? , duration? , qtimetadata* , objectives* , sectioncontrol* , sectionprecondition* , sectionpostcondition* , rubric* , presentation_material? , outcomes_processing* , sectionproc_extension? , sectionfeedback* , selection_ordering? , reference? , (itemref | item | sectionref | section)*)>
-	
+
 	<!ATTLIST section  %I_Ident;
 			%I_Title;
 			xml:lang CDATA  #IMPLIED >
@@ -1476,32 +1475,32 @@ class QTISection(InstructureHelperContainer):
 
 	def SetAttribute_title (self,value):
 		self.section.SetTitle(value)
-	
+
 	def SetAttribute_visible(self, visible):
 		self.section.SetVisible(visible)
 
 	def SetDuration(self, duration):
 		#todo: if it's a testPart it can be set...
 		pass
-	
+
 	def AddSection(self, section):
 		self.section.AddSection(section)
-		
+
 	def SetOrderType (self,value):
 		self.section.SetOrderType(value)
-		
+
 	def SetSelectionNumber(self, value):
 		self.section.SetSelectionNumber(value)
 
 	def AddSelectionExtension(self, key, value):
 		self.section.AddSelectionExtension(key, value)
-	
+
 	def SetSequenceType(self, value):
 		self.section.SetSequenceType(value)
-		
+
 	def SetOutcomeWeights(self, weights):
 		self.section.SetOutcomeWeights(weights)
-		
+
 	def AddItemReference(self, ref, fName, weight=None, label=None):
 		self.section.AddItemReference(ref, fName, weight, label)
 
@@ -1516,13 +1515,13 @@ class QTISection(InstructureHelperContainer):
 			return self.section.title
 		else:
 			return self.parent.GetBankName()
-		
+
 	def GetItemV1 (self):
 		return self
-	
+
 	def DeclareOutcome (self,decvar):
 		self.PrintWarning("Outcomes not supported on section: identifier: %s, type: %s, min: %s, max: %s" % (decvar.identifier,decvar.baseType, decvar.min, decvar.max))
-	
+
 	def CloseObject (self):
 		self.section.ProcessReferences()
 		self.parent.AddSection(self.section)
@@ -1548,26 +1547,26 @@ class SelectionOrdering(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def SetOrderType (self,value):
 		if self.process: self.parent.SetOrderType(value)
-	
+
 	def SetSelectionNumber(self, value):
 		if self.process: self.parent.SetSelectionNumber(value)
 
 	def AddSelectionExtension(self, key, value):
 		if self.process: self.parent.AddSelectionExtension(key, value)
-	
+
 	def SetSequenceType(self, value):
 		if self.process: self.parent.SetSequenceType(value)
-		
+
 	def SetAttribute_sequence_type (self,value):
 		self.SetSequenceType(value)
-	
+
 	def CloseObject (self):
 		pass
-	
-	
+
+
 # Order
 # --------
 #
@@ -1583,11 +1582,11 @@ class Order(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-		
+
 	def SetAttribute_order_type (self,value):
 		self.parent.SetOrderType(value)
-	
-	
+
+
 # Selection
 # --------
 #
@@ -1603,17 +1602,17 @@ class Selection(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-		
+
 	def SetSelectionNumber(self, value):
 		self.parent.SetSelectionNumber(value)
 
 	def AddSelectionExtension(self, key, value):
 		self.parent.AddSelectionExtension(key, value)
-		
+
 	def SetAttribute_sequence_type (self,value):
 		self.parent.SetSequenceType(value)
-	
-	
+
+
 # SelectionNumber
 # --------
 #
@@ -1628,7 +1627,7 @@ class SelectionNumber(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-		
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data: self.parent.SetSelectionNumber(self.data)
@@ -1747,10 +1746,10 @@ class OutcomesProcessing(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-		
+
 	def AddWeight(self, id, weight):
 		self.outcome_weights[id] = weight
-		
+
 	def CloseObject (self):
 		if isinstance(self.parent, QTISection):
 			self.parent.SetOutcomeWeights(self.outcome_weights)
@@ -1771,13 +1770,13 @@ class ObjectsCondition(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-		
+
 	def SetItemWeight(self, weight):
 		self.item_weight = weight
-		
+
 	def SetItemIdentity(self, id):
 		self.item_identity = id
-		
+
 	def CloseObject (self):
 		if isinstance(self.parent, OutcomesProcessing) and self.item_identity and self.item_weight:
 			self.parent.AddWeight(self.item_identity, self.item_weight)
@@ -1799,18 +1798,18 @@ class OutcomesMetaData(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-		
+
 	def SetSelectionNumber(self, value):
 		self.parent.SetSelectionNumber(value)
-		
+
 	def SetAttribute_mdname (self,value):
 		self.mdname = value
-		
+
 	def CloseObject(self):
 		self.data=self.data.strip()
 		if self.mdname and self.mdname.lower() == "ident":
 			if ':' in self.data:
-				self.data=string.join(string.split(self.data,':'),'-')
+				self.data='-'.join(self.data.split(':'))
 			self.parent.SetItemIdentity(CPResource.FixIdentifier(self.data))
 
 # ObjectsParameter
@@ -1829,18 +1828,18 @@ class ObjectsParameter(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-		
+
 	def SetSelectionNumber(self, value):
 		self.parent.SetSelectionNumber(value)
-		
+
 	def SetAttribute_pname (self,value):
 		self.pname = value
-		
+
 	def CloseObject(self):
 		self.data=self.data.strip()
 		if self.pname and self.pname.lower() == "qmd_weighting":
 			self.parent.SetItemWeight(self.data)
-		
+
 # ItemRef
 # --------
 #
@@ -1866,12 +1865,12 @@ class ItemRef(QTIObjectV1):
 
 	def SetWeight (self, weight):
 		self.weight = weight
-		
+
 	def SetAttribute_linkrefid (self,value):
 		self.linkrefid = value
 		if ':' in value:
-			print "Warning: item identifier with colon: replaced with hyphen when making resource identifier."
-			value=string.join(string.split(value,':'),'-')
+			print("Warning: item identifier with colon: replaced with hyphen when making resource identifier.")
+			value='-'.join(value.split(':'))
 		self.clean_linkrefid = CPResource.FixIdentifier(value)
 
 	def CloseObject(self):
@@ -1921,7 +1920,7 @@ class QTIItem(InstructureHelperContainer):
                  %I_Ident;
                  %I_Title;
                  xml:lang    CDATA  #IMPLIED >
-	""" 
+	"""
 
 	def __init__(self,name,attrs,parent):
 		InstructureHelperContainer.__init__(self)
@@ -1946,8 +1945,8 @@ class QTIItem(InstructureHelperContainer):
 		self.outcomes={}
 		self.max=None
 		self.interactions={}
-		if attrs.has_key('ident'):
-			print '-- Converting item id="'+attrs['ident']+'" --'
+		if 'ident' in attrs:
+			print('-- Converting item id="'+attrs['ident']+'" --')
 		self.warnings={}
 		self.msg=""
 		self.ParseAttributes(attrs)
@@ -1965,7 +1964,7 @@ class QTIItem(InstructureHelperContainer):
 			self.files = files_parent.files
 		else:
 			self.files={}
-	
+
 	def SetAttribute_maxattempts (self,value):
 		self.PrintWarning("Warning: maxattempts can not be controlled at item level, ignored: maxattempts='"+value+"'")
 		self.PrintWarning("Note: in future, maxattempts will probably be controllable at assessment or assessment section level")
@@ -1977,8 +1976,8 @@ class QTIItem(InstructureHelperContainer):
 	def SetAttribute_ident (self,value):
 		if self.item.identifier: return
 		if ':' in value:
-			print "Warning: item identifier with colon: replaced with hyphen when making resource identifier."
-			value=string.join(string.split(value,':'),'-')
+			print("Warning: item identifier with colon: replaced with hyphen when making resource identifier.")
+			value='-'.join(value.split(':'))
 		value = self.resource.SetIdentifier(value);
 		self.item.SetIdentifier(value);
 		self.resource.GetLOM().GetGeneral().AddIdentifier(LOMIdentifier(None,value))
@@ -1987,29 +1986,29 @@ class QTIItem(InstructureHelperContainer):
 
 	def SetAttribute_title (self,value):
 		self.item.SetTitle(value)
-	
+
 	def SetAttribute_xml_lang (self,lang):
 		self.item.SetLanguage(lang)
 
 	def GetItemV1 (self):
 		return self
-		
+
 	def UniqueVarName (self,base):
 		trynum=1
-		while 1:
-			tryname=base+string.zfill(trynum,2)
-			if self.variables.has_key(tryname):
+		while True:
+			tryname=base+str(trynum).zfill(2)
+			if tryname in self.variables:
 				trynum=trynum+1
 				if trynum>99:
 					raise QTIException(eTooManySimilarVariables,base)
 			else:
 				return tryname
-	
+
 	def DeclareResponse (self,identifier,cardinality,baseType,default=None):
 		if not identifier: identifier = 'no_id'
-		if self.responses.has_key(identifier):
+		if identifier in self.responses:
 			self.PrintWarning('Warning: duplicate response identifier: %s' % identifier)
-		if self.variables.has_key(identifier):
+		if identifier in self.variables:
 			self.PrintWarning('Warning: duplicate variable name, renaming response "'+identifier+'"')
 			self.responses[identifier]=self.UniqueVarName(identifier)
 		else:
@@ -2020,11 +2019,11 @@ class QTIItem(InstructureHelperContainer):
 		self.item.DeclareVariable(declaration)
 		self.variables[self.responses[identifier]]=declaration
 		return self.responses[identifier]
-		
+
 	def DeclareFakeResponse (self,identifier,cardinality,baseType):
-		if self.responses.has_key(identifier):
+		if identifier in self.responses:
 			raise QTIException(eDuplicateResponse,identifier)
-		if self.variables.has_key(identifier):
+		if identifier in self.variables:
 			self.PrintWarning('Warning: duplicate variable name, renaming response "'+identifier+'"')
 			self.responses[identifier]=self.UniqueVarName(identifier)
 		else:
@@ -2033,9 +2032,9 @@ class QTIItem(InstructureHelperContainer):
 		self.item.DeclareVariable(declaration)
 		self.variables[self.responses[identifier]]=declaration
 		return self.responses[identifier]
-		
+
 	def GetResponse (self,identifier):
-		if self.responses.has_key(identifier):
+		if identifier in self.responses:
 			return self.variables[self.responses[identifier]]
 		else:
 			return None
@@ -2049,17 +2048,17 @@ class QTIItem(InstructureHelperContainer):
 		response=self.GetResponse(identifier)
 		if response:
 			responseID=response.GetIdentifier()
-			if self.interactions.has_key(responseID):
+			if responseID in self.interactions:
 				return self.interactions[responseID]
 			else:
 				raise QTIException(eUnboundResponse,identifier)
 		else:
-			return None	
+			return None
 
 	def GenerateQTIMetadata(self):
 		qtiMD=self.resource.GetQTIMD()
 		qtiMD.SetItemTemplate(0)
-		qtiMD.SetComposite(len(self.responses.keys())>1)
+		qtiMD.SetComposite(len(self.responses)>1)
 		for interaction in self.interactions.values():
 			if isinstance(interaction,ChoiceInteraction):
 				qtiMD.AddInteractionType("choiceInteraction")
@@ -2080,13 +2079,13 @@ class QTIItem(InstructureHelperContainer):
 			elif isinstance(interaction,SliderInteraction):
 				qtiMD.AddInteractionType("sliderInteraction")
 			else:
-				print 'Warning: unexpected interaction type (whoops): %s!'%repr(interaction)
+				print('Warning: unexpected interaction type (whoops): %s!'%repr(interaction))
 		if self.item.HasModalFeedback():
 			qtiMD.SetFeedbackType('nonadaptive')
 		else:
 			qtiMD.SetFeedbackType('none')
-		
-	
+
+
 	def GenerateInstructureMetadata(self):
 		"""This is the metadata that is listed on the manifest file
 		"""
@@ -2095,17 +2094,17 @@ class QTIItem(InstructureHelperContainer):
 		if self.question_type: iMD.AddMetaField("question_type", self.question_type)
 
 	# Methods used in resprocessing
-	
+
 	def ResetResprocessing (self):
 		if self.outcomes:
 			self.PrintWarning("Warning: multiple <resprocessing> not supported, combining them into one.")
 		self.item.ResetResponseProcessing()
 
 	def DeclareOutcome (self,decvar):
-		if self.outcomes.has_key(decvar.identifier):
+		if decvar.identifier in self.outcomes:
 			self.PrintWarning("Warning: multiple <outcomes> with same identifier, using last one.")
-		if self.variables.has_key(decvar.identifier):
-			print 'Warning: duplicate variable name, renaming outcome "'+decvar.identifier+'"'
+		if decvar.identifier in self.variables:
+			print('Warning: duplicate variable name, renaming outcome "'+decvar.identifier+'"')
 			self.outcomes[decvar.identifier]=self.UniqueVarName(decvar.identifier)
 		else:
 			self.outcomes[decvar.identifier]=decvar.identifier
@@ -2119,14 +2118,14 @@ class QTIItem(InstructureHelperContainer):
 		if not self.declareFeedback:
 			self.item.DeclareVariable(OutcomeDeclaration('FEEDBACK','multiple','identifier'))
 			self.declareFeedback=1
-		
+
 	def GetOutcome (self,identifier):
-		if self.outcomes.has_key(identifier):
+		if identifier in self.outcomes:
 			return self.variables[self.outcomes[identifier]][0]
 		else:
 			self.PrintWarning('Warning: reference to undeclared outcome, auto-declaring "%s" as type float'%identifier)
-			if self.variables.has_key(identifier):
-				print 'Warning: duplicate variable name, renaming outcome "'+identifier+'"'
+			if identifier in self.variables:
+				print('Warning: duplicate variable name, renaming outcome "'+identifier+'"')
 				self.outcomes[identifier]=self.UniqueVarName(identifier)
 			else:
 				self.outcomes[identifier]=identifier
@@ -2134,17 +2133,17 @@ class QTIItem(InstructureHelperContainer):
 			self.item.DeclareVariable(declaration)
 			self.variables[self.outcomes[identifier]]=(declaration,None)
 			return declaration
-	
+
 	def AddDescription(self,description):
 		self.resource.GetLOM().GetGeneral().AddDescription(LOMLangString(description,self.item.language))
-		
+
 	def SetTitle(self,title):
 		if self.item.title:
 			# If the item has a title, we have to use it in the metadata
 			self.AddDescription(title)
 		else:
 			self.resource.GetLOM().GetGeneral().SetTitle(LOMLangString(title,self.item.language))
-		
+
 	def AddEducationalDescription (self,description):
 		if not self.educationalMetadata:
 			self.educationalMetadata=LOMEducational()
@@ -2169,7 +2168,7 @@ class QTIItem(InstructureHelperContainer):
 		if not self.educationalMetadata:
 			self.educationalMetadata=LOMEducational()
 		self.educationalMetadata.SetDifficulty(source,value)
-		
+
 	def SetMaximumScore(self,max):
 		self.max=max
 
@@ -2178,22 +2177,22 @@ class QTIItem(InstructureHelperContainer):
 
 	def SetToolVendor(self,vendor):
 		self.resource.GetQTIMD().SetToolVendor(vendor)
-		
+
 	def SetDuration(self, duration):
 		#todo: add comment warning
 		pass
-		
+
 	def SetStatus(self,source,value):
 		source=LOMLangString(source,'x-none')
 		value=LOMLangString(value,'x-none')
 		self.resource.GetLOM().GetLifecycle().SetStatus(source,value)
-		
+
 	def AddContributor(self,contributor):
 		self.resource.GetLOM().GetLifecycle().AddContributor(contributor)
-	
+
 	def AddCPFile (self,uri, prepend_path=None):
-		uri = string.replace(uri, "%%LINKPATH%%", "")
-		if self.files.has_key(uri):
+		uri = uri.replace("%%LINKPATH%%", "")
+		if uri in self.files:
 			# We've already added this file to the content package
 			return self.files[uri]
 		cpf=CPFile()
@@ -2224,7 +2223,7 @@ class QTIItem(InstructureHelperContainer):
 		#Add reference to parent if it's a section
 		if isinstance(self.parent,QTISection):
 			self.parent.AddItemReference(self.resource.id, self.fName, None, self.resource.label)
-			
+
 		# Check devvar min/max constraints
 		rp=self.item.GetResponseProcessing()
 		for outcome in self.outcomes.keys():
@@ -2241,7 +2240,7 @@ class QTIItem(InstructureHelperContainer):
 					val2=BaseValueOperator('float',str(decvar.min))
 				ifTest.SetExpression(LTOperator(var,val1))
 				ifTest.AddResponseRule(SetOutcomeValue(declaration.GetIdentifier(),val2))
-				rp.AddResponseRule(condition)			
+				rp.AddResponseRule(condition)
 			if decvar and decvar.max:
 				condition=ResponseCondition()
 				ifTest=condition.GetResponseIf()
@@ -2257,10 +2256,10 @@ class QTIItem(InstructureHelperContainer):
 				rp.AddResponseRule(condition)
 		# Check maximum score
 		if self.max:
-			if len(self.outcomes.keys())!=1:
+			if len(self.outcomes)!=1:
 				self.PrintWarning("Warning: qmd_maximumscore ignored for %s, multiple (or zero) outcomes declared"%self.item.identifier)
 			else:
-				declaration,decvar=self.variables[self.outcomes.values()[0]]
+				declaration,decvar=self.variables[list(self.outcomes.values())[0]]
 				declaration.SetNormalMaximum(self.max)
 		# If we defined educational metadata, it needs to be added to the resource now
 		if self.educationalMetadata:
@@ -2272,11 +2271,11 @@ class QTIItem(InstructureHelperContainer):
 		self.GenerateInstructureMetadata()
 		if self.instructureMetadata: self.item.SetInstructureMetadata(self.instructureMetadata)
 		if self.calculated: self.item.SetCalculated(self.calculated)
-		
+
 		# Add the resource to the root thing - and therefore the content package
 		self.GetRoot().AddResource(self.resource)
 		# Adding a resource to a cp may cause it to change identifier, but we don't mind.
-		f=StringIO.StringIO()
+		f=io.StringIO()
 		f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
 		if not self.parser.options.noComment:
 			f.write('<!--\n')
@@ -2288,9 +2287,9 @@ class QTIItem(InstructureHelperContainer):
 		cpf.SetData(f.getvalue())
 		f.close()
 		self.resource.AddFile(cpf,1)
-		
+
 	def PrintWarning (self,warning,force=0):
-		if not self.warnings.has_key(warning):
+		if warning not in self.warnings:
 			self.msg=self.msg+warning+'\n'
 			self.warnings[warning]=1
 		if force:
@@ -2355,7 +2354,7 @@ class ItemProcExtension(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 
@@ -2368,7 +2367,7 @@ class BBBase(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
@@ -2519,7 +2518,7 @@ class D2LIntroMessage(D2LBase):
 class Vocabulary(QTIObjectV1):
 	"""
 	<!ELEMENT vocabulary (#PCDATA)>
-	
+
 	<!ATTLIST vocabulary  %I_Uri;
 						   %I_EntityRef;
 						   vocab_type  CDATA  #IMPLIED >
@@ -2534,23 +2533,23 @@ class Vocabulary(QTIObjectV1):
 		self.CheckLocation((QTIMetadata),"<vocabulary>")
 		self.ParseAttributes(attrs)
 		self.PrintWarning("Warning: qtimetadata vocabulary is ignored")
-		
+
 	def SetAttribute_uri (self,value):
 		self.uri=value
-	
+
 	def SetAttribute_entityref (self,value):
 		self.entityRef=value
-		
+
 	def SetAttribute_vocab_type (self,value):
 		self.vocabType=value
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		pass
-	
-	
+
+
 # QMDMaximumscore
 # ---------------
 #
@@ -2566,7 +2565,7 @@ class QMDMaximumscore(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.ReadFloat(self.data.strip(),None)
 		if self.data is not None:
@@ -2591,11 +2590,11 @@ QMDDifficultyMap={
 	"difficult":1,
 	"very difficult":1
 	}
-	
+
 class QMDLevelOfDifficulty(QTIObjectV1):
 	"""
 	<!ELEMENT qmd_levelofdifficulty (#PCDATA)>
-	
+
 	IMS Definition says: The options are: "Pre-school", "School" or "HE/FE", "Vocational" and "Professional Development"
 	so we bind this value to the "Context" in LOM if one of the QTI or LOM defined terms have been used, otherwise,
 	we bind to Difficulty, as this seems to be more common usage.
@@ -2608,15 +2607,15 @@ class QMDLevelOfDifficulty(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip().lower()
 		if self.data is not None:
 			value=QMDLevelOfDifficultyMap.get(self.data,None)
 			if value:
 				self.GetMDContainer().AddEducationalContext(value[0],value[1])
-			else:				
-				self.GetMDContainer().AddEducationalDifficulty(self.data,QMDDifficultyMap.has_key(self.data))
+			else:
+				self.GetMDContainer().AddEducationalDifficulty(self.data,self.data in QMDDifficultyMap)
 
 
 # QMDKeywords
@@ -2634,9 +2633,9 @@ class QMDKeywords(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
-		self.data=string.split(self.data,',')
+		self.data=self.data.split(',')
 		for keyword in self.data:
 			k=keyword.strip()
 			if k:
@@ -2658,7 +2657,7 @@ class QMDDomain(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
@@ -2681,7 +2680,7 @@ class QMDTopic(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
@@ -2703,7 +2702,7 @@ class QMDDescription(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
@@ -2725,7 +2724,7 @@ class QMDTitle(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
@@ -2756,13 +2755,13 @@ class QMDContributor(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
-		if self.GetParser().options.vobject:				
+		if self.GetParser().options.vobject:
 			names=self.data.strip().split(',')
 			if names:
 				contributor=LOMContribute()
-				if LOMContributorMap.has_key(self.role):
+				if self.role in LOMContributorMap:
 					contributor.SetRole(LOMLangString("LOMv1.0","x-none"),LOMLangString(self.role,"x-none"))
 				else:
 					contributor.SetRole(LOMLangString("None","x-none"),LOMLangString(self.role,"x-none"))
@@ -2796,7 +2795,7 @@ class QMDOrganisation(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		if self.GetParser().options.vobject:
 			name=self.data.strip()
@@ -2832,7 +2831,7 @@ class QMDToolVendor(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
@@ -2851,11 +2850,11 @@ QMDStatusMap={
 	'normal':'QTIv1',
 	'retired':'QTIv1'
 	}
-	
+
 class QMDStatus(QTIObjectV1):
 	"""
 	<!ELEMENT qmd_status (#PCDATA)>
-	
+
 	Specification says: "Experimental", "Normal" or "Retired"
 	"""
 	def __init__(self,name,attrs,parent):
@@ -2866,7 +2865,7 @@ class QMDStatus(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
@@ -2876,7 +2875,7 @@ class QMDStatus(QTIObjectV1):
 
 # QMDItemType
 # -----------
-#	
+#
 class QMDItemType(QTIObjectV1):
 	"""
 	<!ELEMENT qmd_itemtype (#PCDATA)>
@@ -2891,7 +2890,7 @@ class QMDItemType(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
@@ -2910,7 +2909,7 @@ class CanvasBase(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
@@ -2997,14 +2996,14 @@ class WCTBase(QTIObjectV1):
 
 # WCTShowFeedback
 # -----------
-#	
+#
 class WCTShowFeedback(WCTBase):
 	"""
 	<!ELEMENT wct_results_showFeedback (#PCDATA)>
 	"""
 	def __init__(self,name,attrs,parent):
 		WCTBase.__init__(self, name, attrs, parent)
-	
+
 	def CloseObject (self):
 		WCTBase.CloseObject(self)
 		if self.data:
@@ -3012,14 +3011,14 @@ class WCTShowFeedback(WCTBase):
 
 # WCTShowTotalScore
 # -----------
-#	
+#
 class WCTShowTotalScore(WCTBase):
 	"""
 	<!ELEMENT wct_results_showtotalscore (#PCDATA)>
 	"""
 	def __init__(self,name,attrs,parent):
 		WCTBase.__init__(self, name, attrs, parent)
-	
+
 	def CloseObject (self):
 		WCTBase.CloseObject(self)
 		if self.data:
@@ -3027,14 +3026,14 @@ class WCTShowTotalScore(WCTBase):
 
 # WCTMaxAttempts
 # -----------
-#	
+#
 class WCTMaxAttempts(WCTBase):
 	"""
 	<!ELEMENT wct_attempt_attemptsallowed (#PCDATA)>
 	"""
 	def __init__(self,name,attrs,parent):
 		WCTBase.__init__(self, name, attrs, parent)
-	
+
 	def CloseObject (self):
 		WCTBase.CloseObject(self)
 		if self.data:
@@ -3042,14 +3041,14 @@ class WCTMaxAttempts(WCTBase):
 
 # WCTWhichAttemptToGrade
 # -----------
-#	
+#
 class WCTWhichAttemptToGrade(WCTBase):
 	"""
 	<!ELEMENT wct_results_scoring (#PCDATA)>
 	"""
 	def __init__(self,name,attrs,parent):
 		WCTBase.__init__(self, name, attrs, parent)
-	
+
 	def CloseObject (self):
 		WCTBase.CloseObject(self)
 		if self.data:
@@ -3144,14 +3143,14 @@ class WCTCalcText(WCTCustomText):
 
 # QMDAssessmentType
 # -----------
-#	
+#
 class QMDAssessmentType(WCTBase):
 	"""
 	<!ELEMENT qmd_assessmenttype (#PCDATA)>
 	"""
 	def __init__(self,name,attrs,parent):
 		WCTBase.__init__(self, name, attrs, parent)
-	
+
 	def CloseObject (self):
 		WCTBase.CloseObject(self)
 		if self.data:
@@ -3160,7 +3159,7 @@ class QMDAssessmentType(WCTBase):
 class QMDTimeLimit(QMDItemType):
 	def __init__(self,name,attrs,parent):
 		QMDItemType.__init__(self, name, attrs, parent)
-		
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		if self.data:
@@ -3234,7 +3233,7 @@ class CCProfile(CCBase):
 # qmd_topic
 # qmd_weighting
 # qmd_material
-# qmd_typeofsolution 
+# qmd_typeofsolution
 #
 MDFieldMap={
 	'maximumscore':QMDMaximumscore,
@@ -3287,7 +3286,7 @@ MDFieldMap={
 class QTIMetadataField(QTIObjectV1):
 	"""
 	<!ELEMENT qtimetadatafield (fieldlabel , fieldentry)>
-	
+
 	<!ATTLIST qtimetadatafield  xml:lang CDATA  #IMPLIED >
 	"""
 	def __init__(self,name,attrs,parent):
@@ -3308,15 +3307,15 @@ class QTIMetadataField(QTIObjectV1):
 
 	def SetEntry(self,value):
 		self.entry=value
-	
+
 	def CloseObject (self):
-		if MDFieldMap.has_key(self.label):
+		if self.label in MDFieldMap:
 			mdf=MDFieldMap[self.label](self.label,{},self)
 			mdf.AddData(self.entry)
 			mdf.CloseObject()
 		else:
 			self.PrintWarning("Unmapped metadata field: %s=%s"%(self.label,self.entry),1)
-		
+
 
 # FieldLabel
 # ----------
@@ -3329,7 +3328,7 @@ class FieldLabel(QTIObjectV1):
 		self.parent=parent
 		self.CheckLocation((QTIMetadataField),"<fieldlabel>")
 		self.data=""
-	
+
 	def AddData (self,data):
 		self.data=self.data+data
 
@@ -3348,13 +3347,13 @@ class FieldEntry(QTIObjectV1):
 		self.parent=parent
 		self.CheckLocation((QTIMetadataField),"<fieldentry>")
 		self.data=""
-	
+
 	def AddData (self,data):
 		self.data=self.data+data
 
 	def CloseObject (self):
 		self.parent.SetEntry(self.data.strip())
-	
+
 
 # Duration
 # --------
@@ -3371,19 +3370,19 @@ class Duration(QTIObjectV1):
 
 	def AddData (self,data):
 		self.data=self.data+data
-	
+
 	def CloseObject (self):
 		self.data=self.data.strip()
 		self.parent.SetDuration(self.data)
 
-				
+
 # ItemControl
 # -----------
 #
 class ItemControl(QTIObjectV1):
 	"""
 	<!ELEMENT itemcontrol (qticomment?)>
-	
+
 	<!ATTLIST itemcontrol  %I_FeedbackSwitch;
 							%I_HintSwitch;
 							%I_SolutionSwitch;
@@ -3395,14 +3394,14 @@ class ItemControl(QTIObjectV1):
 		self.CheckLocation((QTIItem),"<itemcontrol>")
 		self.PrintWarning("Warning: itemcontrol is currently outside the scope of version 2")
 
-				
+
 # Presentation
 # ------------
 #
 class Presentation(QTIObjectV1):
 	"""
 	<!ELEMENT presentation (qticomment? , (flow | (material | response_lid | response_xy | response_str | response_num | response_grp | response_extension)+))>
-	
+
 	<!ATTLIST presentation  %I_Label;
 							 xml:lang CDATA  #IMPLIED
 							 %I_Y0;
@@ -3415,16 +3414,16 @@ class Presentation(QTIObjectV1):
 		self.CheckLocation((QTIItem),"<presentation>")
 		self.body=self.parent.item.GetItemBody()
 		self.ParseAttributes(attrs)
-		
+
 	def SetAttribute_label (self,value):
 		self.body.SetLabel(value)
-		
+
 	def SetAttribute_xml_lang (self,value):
 		self.body.SetLanguage(value)
 
 	def SetAttribute_y0 (self,value):
 		self.PrintWarning("Warning: discarding y0 coordinate on presentation")
-								
+
 	def SetAttribute_x0 (self,value):
 		self.PrintWarning("Warning: discarding x0 coordinate on presentation")
 
@@ -3436,7 +3435,7 @@ class Presentation(QTIObjectV1):
 
 	def GetFlowLevel (self):
 		return 0
-	
+
 	def AppendElement (self,element):
 		if isinstance(element,Block):
 			self.body.AppendBlock(element)
@@ -3448,7 +3447,7 @@ class Presentation(QTIObjectV1):
 class Rubric(QTIObjectV1):
 	"""
 	<!ELEMENT rubric (qticomment? , (material+ | flow_mat+))>
-	
+
 	<!ATTLIST rubric  %I_View; >
 	"""
 	def __init__(self,name,attrs,parent):
@@ -3464,29 +3463,29 @@ class Rubric(QTIObjectV1):
 		else:
 			self.rubric=RubricBlock()
 			self.rubric.AppendView(self.view)
-			
+
 	def SetAttribute_view (self,value):
 		self.view=self.ReadView(value)
-	
+
 	def GetFlowLevel (self):
 		return 0
-	
+
 	def AppendElement (self,element):
 		if isinstance(element,Block):
 			self.rubric.AppendElement(element)
-	
+
 	def CloseObject (self):
 		if isinstance(self.parent,QTIItem):
 			self.parent.item.GetItemBody().AppendBlock(self.rubric)
 		elif isinstance(self.parent, QTIAssessment):
-			buffer=StringIO.StringIO()
+			buffer=io.StringIO()
 			self.rubric.WriteXML(buffer)
 			value = buffer.getvalue()
 			if len(value) > 0:
 				self.parent.AddMetaField("assessment_rubric_html", value)
 		else:
 			self.PrintWarning("Warning: ignoring assessment or section rubric")
-	
+
 
 # Objectives
 # ----------
@@ -3494,7 +3493,7 @@ class Rubric(QTIObjectV1):
 class Objectives(QTIObjectV1):
 	"""
 	<!ELEMENT objectives (qticomment? , (material+ | flow_mat+))>
-	
+
 	<!ATTLIST objectives  %I_View; >
 	"""
 	def __init__(self,name,attrs,parent):
@@ -3512,17 +3511,17 @@ class Objectives(QTIObjectV1):
 
 	def SetAttribute_view (self,value):
 		self.view=self.ReadView(value)
-			
+
 	def GetFlowLevel (self):
 		return 0
-	
+
 	def AppendElement (self,element):
 		if isinstance(element,Block):
 			if self.rubric:
 				self.rubric.AppendElement(element)
 			else:
 				self.objectives.append(element)
-	
+
 	def CloseObject (self):
 		if isinstance(self.parent,QTIItem):
 			if self.rubric:
@@ -3534,7 +3533,7 @@ class Objectives(QTIObjectV1):
 				self.GetMDContainer().AddEducationalDescription(objectivesStr)
 		else:
 			self.PrintWarning("Warning: ignoring assessment or section objectives")
-			
+
 
 # FlowV1
 # ------
@@ -3542,7 +3541,7 @@ class Objectives(QTIObjectV1):
 class FlowV1(QTIObjectV1):
 	"""
 	<!ELEMENT flow (qticomment? , (flow | material | material_ref | response_lid | response_xy | response_str | response_num | response_grp | response_extension)+)>
-	
+
 	<!ATTLIST flow  %I_Class; >
 	"""
 	def __init__(self,name,attrs,parent):
@@ -3556,13 +3555,13 @@ class FlowV1(QTIObjectV1):
 		else:
 			self.flow_level=0
 		self.children=[]
-		
+
 	def SetAttribute_class (self,value):
 		self.flowclass=value
 
 	def AppendElement (self,element):
 		self.children.append(element)
-	
+
 	def GetFlowLevel (self):
 		return self.flow_level
 
@@ -3575,7 +3574,7 @@ class FlowV1(QTIObjectV1):
 			self.div_container.AppendElement(element)
 		else:
 			self.parent.AppendElement(element)
-	
+
 	def AppendHTMLContainer (self,content, is_text=False):
 		container=xhtml_div()
 		container.escaped = True
@@ -3592,7 +3591,7 @@ class FlowV1(QTIObjectV1):
 		for child in self.children:
 			if isinstance(child,HTML) and not child.escaped:
 				if not buffer:
-					buffer=StringIO.StringIO()
+					buffer=io.StringIO()
 				if isinstance(child,xhtml_text):
 					buffer.write(child.ExtractText())
 					if isinstance(child, just_text):
@@ -3609,14 +3608,14 @@ class FlowV1(QTIObjectV1):
 		if self.div_container:
 			self.parent.AppendElement(self.div_container)
 
-		
+
 # FlowMat
 # -------
 #
 class FlowMat(FlowV1):
 	"""
 	<!ELEMENT flow_mat (qticomment? , (flow_mat | material | material_ref)+)>
-	
+
 	<!ATTLIST flow_mat  %I_Class; >
 	"""
 	def __init__(self,name,attrs,parent):
@@ -3629,15 +3628,15 @@ class FlowMat(FlowV1):
 		self.flow_level=parent.GetFlowLevel()+1
 		self.div_container=None
 		self.children=[]
-		
-		
+
+
 # Material
 # --------
 #
 class Material(QTIObjectV1):
 	"""
 	<!ELEMENT material (qticomment? , (mattext | matemtext | matimage | mataudio | matvideo | matapplet | matapplication | matref | matbreak | mat_extension)+ , altmaterial*)>
-	
+
 	<!ATTLIST material  %I_Label;
 			xml:lang CDATA  #IMPLIED >
 	"""
@@ -3664,20 +3663,20 @@ class Material(QTIObjectV1):
 		else:
 			self.flowFlag=0
 		self.children=[]
-				
+
 	def SetAttribute_label (self,value):
 		self.label=value
-	
+
 	def SetAttribute_xml_lang (self,lang):
 		self.language=lang
-	
+
 	def AppendElement (self,element):
 		if self.elide:
 			self.parent.AppendElement(element)
 		else:
 			assert not (element is None)
 			self.children.append(element)
-	
+
 	def CloseObject (self):
 		if not self.elide:
 			spanFlag=1
@@ -3723,16 +3722,16 @@ class MatThing(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		# material, altmaterial, reference
 		self.CheckLocation((Material, WCTMatchingTextExt),"<"+name+">")
-		
+
 	def SetAttribute_label (self,value):
 		self.label=value
-	
+
 	def SetAttribute_uri (self,value):
 		self.uri=value.lstrip('/')
-	
+
 	def SetAttribute_entityref (self,value):
 		self.entityRef=value
-		
+
 	def AddData (self,data):
 		self.data=self.data+data
 
@@ -3750,10 +3749,10 @@ class MatThing(QTIObjectV1):
 		if self.height:
 			element.SetHeight(self.height)
 		return element
-	
+
 	def AddCPFile (self):
 		self.uri=self.GetItemV1().AddCPFile(self.uri,self.prepend_path)
-		
+
 	def MakeImage (self):
 		element=xhtml_img()
 		self.AddCPFile()
@@ -3770,7 +3769,7 @@ class MatThing(QTIObjectV1):
 		#print tokens
 		stack=[]
 		for t in tokens:
-			if type(t) is DictType:
+			if isinstance(t, DictType):
 				# a tag
 				if t['.type']=='EmptyElemTag' or (t['.name'].lower() in ['hr','br','img'] and t['.type']=='STag'):
 					# an empty tag
@@ -3851,27 +3850,27 @@ class MatThing(QTIObjectV1):
 				if not newElement.classid:
 					newElement.SetClass(attrs.get('class',None))
 				newElement.SetLanguage(attrs.get('xml:lang',None))
-				newElement.SetLabel(attrs.get('label',None))				
+				newElement.SetLabel(attrs.get('label',None))
 			if self.htmlData:
 				if self.htmlElement:
 					self.htmlElement.AppendElement(xhtml_text(self.htmlData))
 				else:
-					self.parent.AppendElement(xhtml_text(self.htmlData))				
+					self.parent.AppendElement(xhtml_text(self.htmlData))
 				self.htmlData=""
 			if self.htmlElement:
 				self.htmlStack.append(self.htmlElement)
 			self.htmlElement=newElement
-	
+
 	def characters(self,ch):
 		self.htmlData=self.htmlData+ch
-		
+
 	def endElement(self,name):
 		lcName=name.lower()
 		if lcName=="qtihtml":
 			if self.htmlData:
 				self.parent.AppendElement(xhtml_text(self.htmlData))
 				self.htmlData=""
-		else:	
+		else:
 			if self.htmlData:
 				self.htmlElement.AppendElement(xhtml_text(self.htmlData))
 				self.htmlData=""
@@ -3882,7 +3881,7 @@ class MatThing(QTIObjectV1):
 			else:
 				self.parent.AppendElement(self.htmlElement)
 				self.htmlElement=None
-		
+
 
 #
 # MatEmText
@@ -3891,7 +3890,7 @@ class MatThing(QTIObjectV1):
 class MatEmText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 	"""
 	<!ELEMENT matemtext (#PCDATA)>
-	
+
 	<!ATTLIST matemtext  texttype    CDATA  'text/plain'
 						  %I_Label;
 						  %I_CharSet;
@@ -3909,23 +3908,23 @@ class MatEmText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 		if not self.type:
 			self.type="text/plain"
 		self.htmlData=""
-				
+
 	def SetAttribute_texttype (self,value):
 		self.type=value
-		
+
 	def SetAttribute_charset (self,value):
 		if value.lower()!='ascii-us':
 			self.PrintWarning('Warning: charset attribute no longer supported: ignored charset="'+value+'"')
 
 	def SetAttribute_xml_space (self,value):
 		self.space=value
-			
+
 	def SetAttribute_xml_lang (self,lang):
 		self.language=lang
 
 	def SetAttribute_y0 (self,value):
 		self.PrintWarning("Warning: discarding y0 coordinate on matemtext")
-								
+
 	def SetAttribute_x0 (self,value):
 		self.PrintWarning("Warning: discarding x0 coordinate on matemtext")
 
@@ -3944,13 +3943,13 @@ class MatEmText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 			element=self.MakeObject()
 		else:
 			element=self.MakeText()
-		if element:			
+		if element:
 			self.parent.AppendElement(element)
 
 	def MakeText (self):
 		if self.type=='text/plain':
 #			if self.space.lower()!='preserve':
-#				self.data=string.join(string.split(self.data.strip()),' ')
+#				self.data=''.join(self.data.strip()).split(' ')
 			element=SimpleInline('em')
 			element.AppendElement(xhtml_text(self.data))
 			if self.label or self.language:
@@ -3993,13 +3992,13 @@ class MatEmText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 
 	def startElement(self,name,attrs):
 		pass
-	
+
 	def characters(self,ch):
 		self.htmlData=self.htmlData+ch
-		
+
 	def endElement(self,name):
 		pass
-		
+
 
 # MatText
 # -------
@@ -4009,7 +4008,7 @@ HTML_PATTERN_HINTS={'<br>':'<br/>',
 	'<hr>':'<hr/>',
 	'<HR>':'<HR/>',
 	'&nbsp;':'&#xA0;'}
-	
+
 class MatText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 	"""
 	<!ELEMENT mattext (#PCDATA)>
@@ -4034,23 +4033,23 @@ class MatText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 		self.htmlElements=[]
 		self.htmlElement=None
 		self.htmlData=""
-				
+
 	def SetAttribute_texttype (self,value):
 		self.type=value
-		
+
 	def SetAttribute_charset (self,value):
 		if value.lower()!='ascii-us':
 			self.PrintWarning('Warning: charset attribute no longer supported: ignored charset="'+value+'"')
 
 	def SetAttribute_xml_space (self,value):
 		self.space=value
-			
+
 	def SetAttribute_xml_lang (self,lang):
 		self.language=lang
 
 	def SetAttribute_y0 (self,value):
 		self.PrintWarning("Warning: discarding y0 coordinate on mattext")
-								
+
 	def SetAttribute_x0 (self,value):
 		self.PrintWarning("Warning: discarding x0 coordinate on mattext")
 
@@ -4068,7 +4067,7 @@ class MatText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 			element=self.MakeObject()
 		else:
 			element=self.MakeText()
-		if element:			
+		if element:
 			self.parent.AppendElement(element)
 
 	def MakeText (self):
@@ -4084,7 +4083,7 @@ class MatText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 				element=span
 		elif self.type=='text/html':
 			self.characters(self.data)
-			self.endElement('qtihtml')				
+			self.endElement('qtihtml')
 			element=None
 		elif self.type=='text/rtf':
 			p=RTFParser()
@@ -4096,14 +4095,14 @@ class MatText(MatThing, handler.ContentHandler, handler.ErrorHandler):
 				self.PrintWarning("Warning: offending text/rtf will be left undecoded")
 				self.characters(self.data)
 			element=None
-			self.endElement('qtihtml')				
+			self.endElement('qtihtml')
 		else:
 			self.PrintWarning('Unknown text type: ignored mattext with texttype="%s" treated as text/plain'%self.type)
 			self.characters(self.data)
 			self.endElement('qtihtml')
 			element=None
 		return element
-	
+
 
 # RawMaterial
 # -----------
@@ -4122,7 +4121,7 @@ class RawMaterial(QTIObjectV1):
 
 	def AddData (self,data):
 		self.parent.AddData(data)
-	
+
 	def CloseObject (self):
 		self.parent.AddData("</%s>"%self.name)
 
@@ -4132,7 +4131,7 @@ class RawMaterial(QTIObjectV1):
 class MatApplication(MatThing):
 	"""
 	<!ELEMENT matapplication (#PCDATA)>
-	
+
 	<!ATTLIST matapplication  apptype
 						 %I_Apptype;
 						 %I_Label;
@@ -4155,7 +4154,7 @@ class MatApplication(MatThing):
 
 	def SetAttribute_embedded (self,value):
 		self.embedded=value
-	
+
 	def CloseObject (self):
 		element=None
 		if self.entityRef:
@@ -4229,7 +4228,7 @@ class MatImage(MatThing):
 class MatAudio(MatThing):
 	"""
 	<!ELEMENT mataudio (#PCDATA)>
-	
+
 	<!ATTLIST mataudio  audiotype   CDATA  'audio/base'
 						 %I_Label;
 						 %I_Uri;
@@ -4241,13 +4240,13 @@ class MatAudio(MatThing):
 		if not self.type:
 			self.type="audio/base"
 		self.embedded='base64'
-		
+
 	def SetAttribute_audiotype (self,value):
 		self.type=value
-		
+
 	def SetAttribute_embedded (self,value):
 		self.embedded=value
-		
+
 	def CloseObject (self):
 		element=None
 		if self.entityRef:
@@ -4256,7 +4255,7 @@ class MatAudio(MatThing):
 			self.PrintWarning("Unsupported: inclusion of inline audio data")
 		else:
 			element=self.MakeObject()
-		if element:			
+		if element:
 			self.parent.AppendElement(element)
 
 
@@ -4270,10 +4269,10 @@ class MatBreak(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.ParseAttributes(attrs)
-	
+
 	def CloseObject (self):
 		self.parent.AppendElement(xhtml_br())
-			
+
 
 # ResponseThing
 # -------------
@@ -4303,13 +4302,13 @@ class ResponseThing(QTIObjectV1):
 			self.flowFlag=1
 		else:
 			self.flowFlag=0
-				
+
 	def SetAttribute_rcardinality (self,value):
 		self.cardinality=value.lower()
-	
+
 	def SetAttribute_rtiming (self,value):
 		self.timing=self.ReadYesNo(value,0)
-	
+
 	def SetAttribute_ident (self,value):
 		value = D2L_IDENTIFIER_REPLACER.sub('', value)
 		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
@@ -4317,10 +4316,10 @@ class ResponseThing(QTIObjectV1):
 	def SetAttribute_respident (self,value):
 		value = D2L_IDENTIFIER_REPLACER.sub('', value)
 		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
-	
+
 	def GetFlowLevel (self):
 		return self.parent.GetFlowLevel()
-	
+
 	def AppendElement (self,element):
 		if self.interaction:
 			self.postChildren.append(element)
@@ -4332,14 +4331,14 @@ class ResponseThing(QTIObjectV1):
 
 	def SetInteraction (self,interaction):
 		self.interaction=interaction
-	
+
 	def SetDefault (self,default):
 		self.default=default
-	
+
 	def GetIndexedIdentifier(self):
 		self.index=self.index+1
 		return self.identifier+'_INDEX_'+str(self.index)
-		
+
 	def CloseObject (self):
 		if self.index:
 			for child in self.preChildren:
@@ -4391,7 +4390,7 @@ class ResponseThing(QTIObjectV1):
 class ResponseLID(ResponseThing):
 	"""
 	<!ELEMENT response_lid ((material | material_ref)? , (render_choice | render_hotspot | render_slider | render_fib | render_extension) , (material | material_ref)?)>
-	
+
 	<!ATTLIST response_lid  %I_Rcardinality;
 							 %I_Rtiming;
 							 %I_Ident; >
@@ -4407,7 +4406,7 @@ class ResponseLID(ResponseThing):
 class ResponseXY(ResponseThing):
 	"""
 	<!ELEMENT response_xy ((material | material_ref)? , (render_choice | render_hotspot | render_slider | render_fib | render_extension) , (material | material_ref)?)>
-	
+
 	<!ATTLIST response_xy  %I_Rcardinality;
 							%I_Rtiming;
 							%I_Ident; >
@@ -4415,7 +4414,7 @@ class ResponseXY(ResponseThing):
 	def __init__(self,name,attrs,parent):
 		ResponseThing.__init__(self,name,attrs,parent)
 		self.baseType="point"
-	
+
 
 # ResponseStr
 # -----------
@@ -4423,7 +4422,7 @@ class ResponseXY(ResponseThing):
 class ResponseStr(ResponseThing):
 	"""
 	<!ELEMENT response_str ((material | material_ref)? , (render_choice | render_hotspot | render_slider | render_fib | render_extension) , (material | material_ref)?)>
-	
+
 	<!ATTLIST response_str  %I_Rcardinality;
 							 %I_Ident;
 							 %I_Rtiming; >
@@ -4439,11 +4438,11 @@ class ResponseStr(ResponseThing):
 class ResponseNum(ResponseThing):
 	"""
 	<!ELEMENT response_num ((material | material_ref)? , (render_choice | render_hotspot | render_slider | render_fib | render_extension) , (material | material_ref)?)>
-	
+
 	<!ATTLIST response_num  numtype         (Integer | Decimal | Scientific )  'Integer'
 							 %I_Rcardinality;
 							 %I_Ident;
-							 %I_Rtiming; >	
+							 %I_Rtiming; >
 	"""
 	def __init__(self,name,attrs,parent):
 		ResponseThing.__init__(self,name,attrs,parent)
@@ -4456,7 +4455,7 @@ class ResponseNum(ResponseThing):
 		else:
 			self.PrintWarning("Warning: unrecognized numtype treated as float ("+value+")")
 			self.baseType="float"
-	
+
 	def SetBaseType (self,value):
 		self.baseType=value
 
@@ -4467,7 +4466,7 @@ class ResponseNum(ResponseThing):
 class ResponseGrp(ResponseThing):
 	"""
 	<!ELEMENT response_grp ((material | material_ref)? , (render_choice | render_hotspot | render_slider | render_fib | render_extension) , (material | material_ref)?)>
-	
+
 	<!ATTLIST response_grp  %I_Rcardinality;
 							 %I_Ident;
 							 %I_Rtiming; >
@@ -4475,7 +4474,7 @@ class ResponseGrp(ResponseThing):
 	def __init__(self,name,attrs,parent):
 		ResponseThing.__init__(self,name,attrs,parent)
 		self.baseType="pair"
-	
+
 
 
 # RenderThing
@@ -4492,13 +4491,13 @@ class RenderThing(QTIObjectV1):
 		# response_lid, response_xy, response_str, response_num, response_grp
 		self.CheckLocation((ResponseThing),"<render_choice>")
 		self.ParseAttributes(attrs)
-		
+
 	def SetAttribute_minnumber (self,value):
 		self.PrintWarning('Warning: minnumber attribute no no longer supported on render_*')
-	
+
 	def GetFlowLevel (self):
 		return self.parent.GetFlowLevel()
-	
+
 	def AppendElement (self,element):
 		if self.labels:
 			self.postChildren.append(element)
@@ -4511,18 +4510,18 @@ class RenderThing(QTIObjectV1):
 			self.PrintWarning("Error: deleting material between response_labels")
 			self.postChildren=[]
 		self.labels.append(label)
-	
+
 	def GetLabelThing (self):
 		return self.labelThing
 
-		
+
 # RenderChoice
 # ------------
 #
 class RenderChoice(RenderThing):
 	"""
 	<!ELEMENT render_choice ((material | material_ref | response_label | flow_label)* , response_na?)>
-	
+
 	<!ATTLIST render_choice  shuffle      (Yes | No )  'No'
 							  %I_MinNumber;
 							  %I_MaxNumber; >
@@ -4545,13 +4544,13 @@ class RenderChoice(RenderThing):
 				self.labelThing=SimpleAssociableChoice
 		else:
 			self.parent.BadInteraction(name)
-		
+
 	def SetAttribute_shuffle (self,value):
 		self.shuffle=self.ReadYesNo(value,0)
 
 	def SetAttribute_maxnumber (self,value):
 		self.max=self.ReadInteger(value,None)
-		
+
 	def CloseObject (self):
 		for child in self.preChildren:
 			self.parent.AppendElement(child)
@@ -4582,7 +4581,7 @@ class RenderChoice(RenderThing):
 class RenderHotspot(RenderThing):
 	"""
 	<!ELEMENT render_hotspot ((material | material_ref | response_label | flow_label)* , response_na?)>
-	
+
 	<!ATTLIST render_hotspot  %I_MaxNumber;
 							   %I_MinNumber;
 							   showdraw     (Yes | No )  'No' >
@@ -4604,14 +4603,14 @@ class RenderHotspot(RenderThing):
 				self.interactionThing=SelectPointInteraction
 		else:
 			self.BadInteraction(name)
-			
+
 	def SetAttribute_maxnumber (self,value):
 		self.max=self.ReadInteger(value,None)
 
 	def SetAttribute_showdraw (self,value):
-		self.showdraw=self.ReadYesNo(value,0)			
+		self.showdraw=self.ReadYesNo(value,0)
 		if self.showdraw:
-			self.PrintWarning('Warning: ignoring showdraw="Yes", what did you really want to happen?') 
+			self.PrintWarning('Warning: ignoring showdraw="Yes", what did you really want to happen?')
 
 	def SniffRenderHotspot (self):
 		return self
@@ -4637,7 +4636,7 @@ class RenderHotspot(RenderThing):
 				if self.max:
 					interaction.SetMaxChoices(self.max)
 				for choice in self.labels:
-					interaction.AddChoice(choice)				
+					interaction.AddChoice(choice)
 			elif self.interactionThing==GraphicOrderInteraction:
 				interaction=GraphicOrderInteraction()
 				for choice in self.labels:
@@ -4661,7 +4660,7 @@ class RenderHotspot(RenderThing):
 class RenderSlider(RenderThing):
 	"""
 	<!ELEMENT render_slider ((material | material_ref | response_label | flow_label)* , response_na?)>
-	
+
 	<!ATTLIST render_slider  orientation  (Horizontal | Vertical )  'Horizontal'
 							  lowerbound  CDATA  #REQUIRED
 							  upperbound  CDATA  #REQUIRED
@@ -4709,22 +4708,22 @@ class RenderSlider(RenderThing):
 
 	def SetAttribute_lowerbound (self,value):
 		self.lowerbound=self.ReadFloat(value,0)
-	
+
 	def SetAttribute_upperbound (self,value):
 		self.upperbound=self.ReadFloat(value,0)
-	
+
 	def SetAttribute_step (self,value):
 		self.step=self.ReadFloat(value,None)
-	
+
 	def SetAttribute_startval (self,value):
 		self.default=self.ReadFloat(value,0)
-	
+
 	def SetAttribute_steplabel (self,value):
 		self.steplabel=self.ReadYesNo(value,0)
-	
+
 	def SetAttribute_maxnumber (self,value):
 		self.PrintWarning('Warning: maxnumber attribute meaningless on <render_slider>')
-		
+
 	def CloseObject (self):
 		for child in self.preChildren:
 			self.parent.AppendElement(child)
@@ -4755,7 +4754,7 @@ class RenderSlider(RenderThing):
 class RenderFib(RenderThing):
 	"""
 	<!ELEMENT render_fib ((material | material_ref | response_label | flow_label)* , response_na?)>
-	
+
 	<!ATTLIST render_fib  encoding    CDATA  'UTF_8'
 						   fibtype      (String | Integer | Decimal | Scientific )  'String'
 						   rows        CDATA  #IMPLIED
@@ -4782,7 +4781,7 @@ class RenderFib(RenderThing):
 		if isinstance(self.parent,(ResponseNum,ResponseStr)):
 			# may change later!
 			self.interactionThing=ExtendedTextInteraction
-			self.labelThing=StringType
+			self.labelThing=str
 			if isinstance(self.parent,ResponseNum):
 				if self.fibtype!=self.parent.baseType:
 					self.PrintWarning('Warning: fibtype does not match enclosing <response_num>, assuming float')
@@ -4805,7 +4804,7 @@ class RenderFib(RenderThing):
 	def SetAttribute_encoding (self,value):
 		if value.upper()!='UTF_8':
 			self.PrintWarning('Warning: encoding attribute of render_fib not supported, ignored "'+value+'"')
-	
+
 	def SetAttribute_fibtype (self,value):
 		v=value.strip().lower()
 		if v=='string':
@@ -4819,10 +4818,10 @@ class RenderFib(RenderThing):
 
 	def SetAttribute_rows (self,value):
 		self.rows=self.ReadInteger(value,0)
-	
+
 	def SetAttribute_columns (self,value):
 		self.columns=self.ReadInteger(value,0)
-		
+
 	def SetAttribute_maxchars (self,value):
 		self.PrintWarning('Warning: maxchars on render_fib no longer strictly enforced.')
 		self.maxchars=self.ReadInteger(value,0)
@@ -4830,13 +4829,13 @@ class RenderFib(RenderThing):
 	def SetAttribute_prompt (self,value):
 		self.PrintWarning('Warning: prompt style on render_fib no longer supported, converted to style class')
 		self.classid=value.strip()
-		
+
 	def SetAttribute_minnumber (self,value):
 		self.PrintWarning('Warning: minimum response no longer supported, ignoring minnumber="'+value+'"')
-	
+
 	def SetAttribute_maxnumber (self,value):
 		self.max=self.ReadInteger(value,None)
-		
+
 	def SetAttribute_charset (self,value):
 		if value.lower()!='ascii-us':
 			self.PrintWarning('Warning: charset attribute no longer supported: ignored charset="'+value+'"')
@@ -4847,7 +4846,7 @@ class RenderFib(RenderThing):
 	def AppendLabel (self,label):
 		self.children.append(label)
 		self.labels.append(label)
-			
+
 	def CloseObject (self):
 		if self.interactionThing:
 			if self.labels and len(self.children)>len(self.labels):
@@ -4903,7 +4902,7 @@ class RenderFib(RenderThing):
 				if self.classid:
 					interaction.SetClass(self.classid)
 				self.parent.SetInteraction(interaction)
-				
+
 
 # ResponseLabel
 # -------------
@@ -4911,7 +4910,7 @@ class RenderFib(RenderThing):
 class ResponseLabel(QTIObjectV1):
 	"""
 	<!ELEMENT response_label (#PCDATA | qticomment | material | material_ref | flow_mat)*>
-	
+
 	<!ATTLIST response_label  rshuffle     (Yes | No )  'Yes'
 							   rarea        (Ellipse | Rectangle | Bounded )  'Ellipse'
 							   rrange       (Exact | Range )  'Exact'
@@ -4934,10 +4933,10 @@ class ResponseLabel(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		# flow_label, render_choice, render_hotspot, render_slider, render_fib
 		self.CheckLocation((FlowLabel,RenderThing),"<response_label>")
-	
+
 	def SetAttribute_rshuffle (self,value):
 		self.rshuffle=self.ReadYesNo(value,1)
-	
+
 	def SetAttribute_rarea (self,value):
 		shape=value.strip().lower()
 		if shape=='rectangle':
@@ -4948,22 +4947,22 @@ class ResponseLabel(QTIObjectV1):
 			self.shape='poly'
 		else:
 			raise QTIException(eUnknownShape)
-	
+
 	def SetAttribute_rrange (self,value):
 		if value.lower()!='exact':
 			self.PrintWarning('Warning: rrange is no longer supported, ignored "'+value+'"')
-	
+
 	def SetAttribute_labelrefid (self,value):
 		self.PrintWarning("Warning: labelrefid is no longer supported in version 2, ignored "+value)
-	
+
 	def SetAttribute_ident (self,value):
 		value = D2L_IDENTIFIER_REPLACER.sub('', value)
 		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
 
 	def SetAttribute_match_group (self,value):
-		value=string.join(string.split(value),'')
-		self.matchGroup=string.split(value,',')
-	
+		value=''.join(value.split())
+		self.matchGroup=value.split(',')
+
 	def SetAttribute_match_max (self,value):
 		self.matchMax=self.ReadInteger(value,None)
 
@@ -4972,7 +4971,7 @@ class ResponseLabel(QTIObjectV1):
 
 	def AppendElement (self,element):
 		self.children.append(element)
-	
+
 	def AddData (self,data):
 		self.data=self.data+data
 
@@ -5024,7 +5023,7 @@ class ResponseLabel(QTIObjectV1):
 			if labelStr:
 				choice.SetHotspotLabel(labelStr)
 			self.parent.AppendLabel(choice)
-		elif self.labelThing==StringType:
+		elif self.labelThing==str:
 			self.parent.AppendLabel(self.identifier)
 		else:
 			self.PrintWarning('Warning: ignoring <response_label iden="'+self.identifier+'">')
@@ -5036,7 +5035,7 @@ class ResponseLabel(QTIObjectV1):
 class FlowLabel(QTIObjectV1):
 	"""
 	<!ELEMENT flow_label (qticomment? , (flow_label | response_label)+)>
-	
+
 	<!ATTLIST flow_label  %I_Class; >
 	"""
 	def __init__(self,name,attrs,parent):
@@ -5045,16 +5044,16 @@ class FlowLabel(QTIObjectV1):
 		# flow_label, render_choice, render_hotspot, render_slider, render_fib
 		self.CheckLocation((RenderThing,FlowLabel),"<flow_label>")
 		self.PrintWarning("Warning: flow_label is no longer supported in version 2, ignoring")
-	
+
 	def SetAttribute_class (self,value):
 		pass
 
 	def GetFlowLevel (self):
 		return self.parent.GetFlowLevel()
-	
+
 	def AppendLabel (self,label):
 		self.parent.AppendLabel(label)
-			
+
 	def GetLabelThing (self):
 		return self.parent.GetLabelThing()
 
@@ -5065,7 +5064,7 @@ class FlowLabel(QTIObjectV1):
 class ItemFeedback(QTIObjectV1):
 	"""
 	<!ELEMENT itemfeedback ((flow_mat | material) | solution | hint)+>
-	
+
 	<!ATTLIST itemfeedback  %I_View;
 							 %I_Ident;
 							 %I_Title; >
@@ -5079,24 +5078,24 @@ class ItemFeedback(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		# item
 		self.CheckLocation((QTIItem),"<itemfeedback>")
-		
+
 	def SetAttribute_view (self,value):
 		if not (value.lower() in ['all','candidate']):
 			self.PrintWarning("Warning: discarding view on feedback ("+value+")")
-	
+
 	def SetAttribute_ident (self,value):
 		self.identifier = value
 		self.feedback.SetIdentifier(self.ReadIdentifier(value,FEEDBACK_PREFIX))
-	
+
 	def SetAttribute_title (self,value):
 		self.feedback.SetTitle(value)
-	
+
 	def GetFlowLevel (self):
 		return 0
-	
+
 	def AppendElement (self,element):
-		self.feedback.AppendElement(element)			
-	
+		self.feedback.AppendElement(element)
+
 	def CloseObject (self):
 		self.GetItemV1().item.AddModalFeedback(self.feedback)
 
@@ -5107,7 +5106,7 @@ class ItemFeedback(QTIObjectV1):
 class Solution(QTIObjectV1):
 	"""
 	<!ELEMENT solution (qticomment? , solutionmaterial+)>
-	
+
 	<!ATTLIST solution  %I_FeedbackStyle; >
 	"""
 	def __init__(self,name,attrs,parent):
@@ -5123,16 +5122,16 @@ class Solution(QTIObjectV1):
 			solclass='solution'
 		self.PrintWarning('Warning: solution material is being replaced by div with class="'+solclass+'"')
 		self.div.SetClass(solclass)
-		
+
 	def SetAttribute_feedbackstyle (self,value):
 		self.feedbackstyle=value.strip().lower()
-	
+
 	def GetFlowLevel (self):
 		return 0
-		
+
 	def AppendElement (self,element):
 		self.div.AppendElement(element)
-	
+
 	def CloseObject (self):
 		self.parent.AppendElement(self.div)
 
@@ -5149,21 +5148,21 @@ class SolutionMaterial(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		# solution
 		self.CheckLocation((Solution),"<solutionmaterial>")
-	
+
 	def GetFlowLevel (self):
 		return 0
-		
+
 	def AppendElement (self,element):
 		self.parent.AppendElement(element)
 
-	
+
 # Hint
 # ----
 #
 class Hint(QTIObjectV1):
 	"""
 	<!ELEMENT hint (qticomment? , hintmaterial+)>
-	
+
 	<!ATTLIST hint  %I_FeedbackStyle; >
 	"""
 	def __init__(self,name,attrs,parent):
@@ -5179,16 +5178,16 @@ class Hint(QTIObjectV1):
 			hintclass='hint'
 		self.PrintWarning('Warning: hint material is being replaced by div with class="'+hintclass+'"')
 		self.div.SetClass(hintclass)
-		
+
 	def SetAttribute_feedbackstyle (self,value):
 		self.feedbackstyle=value.strip().lower()
-	
+
 	def GetFlowLevel (self):
 		return 0
-		
+
 	def AppendElement (self,element):
 		self.div.AppendElement(element)
-	
+
 	def CloseObject (self):
 		if self.in_correct_location:
 			self.parent.AppendElement(self.div)
@@ -5206,10 +5205,10 @@ class HintMaterial(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		# hint
 		self.CheckLocation((Hint),"<hintmaterial>")
-	
+
 	def GetFlowLevel (self):
 		return 0
-		
+
 	def AppendElement (self,element):
 		self.parent.AppendElement(element)
 
@@ -5220,7 +5219,7 @@ class HintMaterial(QTIObjectV1):
 class ResProcessing(QTIObjectV1):
 	"""
 	<!ELEMENT resprocessing (qticomment? , outcomes , (respcondition | itemproc_extension)+)>
-	
+
 	<!ATTLIST resprocessing  %I_ScoreModel; >
 	"""
 	def __init__(self,name,attrs,parent):
@@ -5232,7 +5231,7 @@ class ResProcessing(QTIObjectV1):
 		self.rp=parent.item.GetResponseProcessing()
 		self.continueMode=1
 		self.rpAddPoint=self.rp
-		
+
 	def SetAttribute_scoremodel (self,value):
 		self.PrintWarning('Warning: scoremodel not supported, ignoring "'+value+'"')
 
@@ -5258,13 +5257,13 @@ class ResProcessing(QTIObjectV1):
 				self.rpAddPoint=rc
 			else:
 				rcElseIf=ResponseElseIf()
-				rcElseIf.SetExpression(expression)	
+				rcElseIf.SetExpression(expression)
 				for rule in rules:
 					rcElseIf.AddResponseRule(rule)
 				self.rpAddPoint.AddResponseElseIf(rcElseIf)
-		self.continueMode=continueFlag						
+		self.continueMode=continueFlag
 
-		
+
 # Outcomes
 # --------
 #
@@ -5275,7 +5274,7 @@ class Outcomes(QTIObjectV1):
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
 		self.ParseAttributes(attrs)
-		# resprocessing, outcomes_processing, 
+		# resprocessing, outcomes_processing,
 		self.CheckLocation((OutcomesProcessing,ResProcessing),"<outcomes>")
 
 
@@ -5285,14 +5284,14 @@ class Outcomes(QTIObjectV1):
 class DecVar(QTIObjectV1):
 	"""
 	<!ELEMENT decvar (#PCDATA)>
-	
+
 	<!ATTLIST decvar  %I_VarName;
-					   vartype     (Integer | 
-									String | 
-									Decimal | 
-									Scientific | 
-									Boolean | 
-									Enumerated | 
+					   vartype     (Integer |
+									String |
+									Decimal |
+									Scientific |
+									Boolean |
+									Enumerated |
 									Set )  'Integer'
 					   defaultval CDATA  #IMPLIED
 					   minvalue   CDATA  #IMPLIED
@@ -5313,12 +5312,12 @@ class DecVar(QTIObjectV1):
 		self.CheckLocation((Outcomes),"<decvar>")
 		if self.min or self.max:
 			self.PrintWarning('Warning: min/max constraint on outcome will generate additional rules in responseProcessing')
-			
+
 	def SetAttribute_varname (self,value):
 		self.identifier=self.ReadIdentifier(value,OUTCOME_PREFIX)
 		if self.GetParser().options.ucVars:
 			self.identifier=self.identifier.upper()
-	
+
 	def SetAttribute_vartype (self,value):
 		lcvalue=value.lower()
 		if lcvalue in ('integer','string','boolean'):
@@ -5332,19 +5331,19 @@ class DecVar(QTIObjectV1):
 			self.baseType='identifier'
 		else:
 			self.PrintWarning('Error: bad value for decvar, ignored decvar="'+value+'"')
-		
+
 	def SetAttribute_defaultval (self,value):
 		self.default=value
-	
+
 	def SetAttribute_minvalue (self,value):
 		self.min=self.ReadFloat(value,0)
-	
+
 	def SetAttribute_maxvalue (self,value):
 		self.max=self.ReadFloat(value,1)
 
 	def SetAttribute_members (self,value):
 		self.PrintWarning('Warning: enumerated members no longer supported, ignoring "'+value+'"')
-		
+
 	def SetAttribute_cutvalue (self,value):
 		self.PrintWarning('Warning: cutvalue on outcome will be ignored.')
 
@@ -5360,17 +5359,17 @@ class DecVar(QTIObjectV1):
 		if self.identifier is None:
 			self.identifier="SCORE"
 		self.GetItemV1().DeclareOutcome(self)
-		
+
 # InterpretVar
 # ------------
 #
 class InterpretVar(QTIObjectV1):
 	"""
 	<!ELEMENT interpretvar (material | material_ref)>
-	
+
 	<!ATTLIST interpretvar  %I_View;
 							 %I_VarName; >
-	
+
 	"""
 	def __init__(self,name,attrs,parent):
 		self.parent=parent
@@ -5379,19 +5378,19 @@ class InterpretVar(QTIObjectV1):
 		self.interpretation=""
 		# outcomes
 		self.CheckLocation((Outcomes),"<interpretvar>")
-	
+
 	def SetAttribute_varname (self,value):
 		self.identifier=self.ReadIdentifier(value,OUTCOME_PREFIX)
 		if self.GetParser().options.ucVars:
 			self.identifier=self.identifier.upper()
-	
+
 	def SetAttribute_view (self,view):
 		if view.strip().lower()!='all':
 			self.PrintWarning('Warning: view restriction on outcome interpretation no longer supported ('+view+')')
-	
+
 	def AppendElement (self,element):
 		self.interpretation=self.interpretation+element.ExtractText()
-	
+
 	def CloseObject (self):
 		outcome=self.GetItemV1().GetOutcome(self.identifier)
 		outcome.SetInterpretation(self.interpretation)
@@ -5403,7 +5402,7 @@ class InterpretVar(QTIObjectV1):
 class RespCondition(QTIObjectV1):
 	"""
 	<!ELEMENT respcondition (qticomment? , conditionvar , setvar* , displayfeedback* , respcond_extension?)>
-	
+
 	<!ATTLIST respcondition  %I_Continue;
 							  %I_Title; >
 	"""
@@ -5415,7 +5414,7 @@ class RespCondition(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		# resprocessing
 		self.CheckLocation((ResProcessing),"<respcondition>")
-				
+
 	def SetAttribute_continue (self,value):
 		self.continueFlag=self.ReadYesNo(value,0)
 
@@ -5424,10 +5423,10 @@ class RespCondition(QTIObjectV1):
 
 	def AddExpression (self,expression):
 		self.expression=expression
-	
+
 	def AddRule (self,rule):
 		self.rules.append(rule)
-	
+
 	def CloseObject (self):
 		self.parent.AddRespCondition(self.expression,self.rules,self.continueFlag)
 
@@ -5481,7 +5480,7 @@ class Tolerance(QTIObjectV1):
 class SetVar(QTIObjectV1):
 	"""
 	<!ELEMENT setvar (#PCDATA)>
-	
+
 	<!ATTLIST setvar  %I_VarName;
 					   action     (Set | Add | Subtract | Multiply | Divide )  'Set' >
 	"""
@@ -5493,7 +5492,7 @@ class SetVar(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		# respcondition
 		self.CheckLocation((RespCondition, WCTCalculatedAnswer),"<setvar>")
-			
+
 	def SetAttribute_varname (self,value):
 		self.identifier=self.ReadIdentifier(value,OUTCOME_PREFIX)
 		if self.GetParser().options.ucVars:
@@ -5501,7 +5500,7 @@ class SetVar(QTIObjectV1):
 
 	def SetAttribute_action (self,value):
 		self.action=value.lower()
-	
+
 	def AddData (self,data):
 		self.value=self.value+data
 
@@ -5537,7 +5536,7 @@ class SetVar(QTIObjectV1):
 class DisplayFeedback(QTIObjectV1):
 	"""
 	<!ELEMENT displayfeedback (#PCDATA)>
-	
+
 	<!ATTLIST displayfeedback  feedbacktype  (Response | Solution | Hint )  'Response'
 								%I_LinkRefId; >
 	"""
@@ -5548,13 +5547,13 @@ class DisplayFeedback(QTIObjectV1):
 		# respcondition, outcomes_feedback_test
 		self.CheckLocation((RespCondition),"<displayfeedback>")
 
-	def SetAttribute_feedbacktype (self,value):		
+	def SetAttribute_feedbacktype (self,value):
 		if value.lower()!='response':
 			self.PrintWarning("Warning: feedbacktype is unused and is being discarded ("+value+")")
-	
+
 	def SetAttribute_linkrefid (self,value):
 		self.identifier=self.ReadIdentifier(value,FEEDBACK_PREFIX)
-	
+
 	def CloseObject (self):
 		varExpression=VariableOperator("FEEDBACK")
 		mExpression=MultipleOperator()
@@ -5562,8 +5561,8 @@ class DisplayFeedback(QTIObjectV1):
 		mExpression.AddExpression(BaseValueOperator('identifier',self.identifier))
 		self.parent.AddRule(SetOutcomeValue("FEEDBACK",mExpression))
 		self.GetItemV1().DeclareFeedback()
-		
-	
+
+
 # ConditionVar
 # ------------
 #
@@ -5577,10 +5576,10 @@ class ConditionVar(QTIObjectV1):
 		self.ParseAttributes(attrs)
 		# respcondition
 		self.CheckLocation((RespCondition),"<conditionvar>")
-	
+
 	def AddExpression (self,expression):
 		self.expressions.append(expression)
-	
+
 	def CloseObject (self):
 		if len(self.expressions)>1:
 			# implicit and
@@ -5608,14 +5607,14 @@ class AndOperatorV1(QTIObjectV1):
 		self.operator=AndOperator()
 		# conditionvar, and, or, not
 		self.CheckLocation((RespCondition,ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<and>")
-	
+
 	def AddExpression (self,expression):
 		self.operator.AddExpression(expression)
 
 	def CloseObject (self):
 		self.parent.AddExpression(self.operator)
 
-		
+
 # OrOperatorV1
 # ------------
 #
@@ -5629,7 +5628,7 @@ class OrOperatorV1(QTIObjectV1):
 		self.operator=OrOperator()
 		# conditionvar, and, or, not
 		self.CheckLocation((RespCondition,ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<or>")
-	
+
 	def AddExpression (self,expression):
 		self.operator.AddExpression(expression)
 
@@ -5650,7 +5649,7 @@ class NotOperatorV1(QTIObjectV1):
 		self.expressions=[]
 		# conditionvar, and, or, not
 		self.CheckLocation((RespCondition,ConditionVar,AndOperatorV1,OrOperatorV1,NotOperatorV1),"<not>")
-	
+
 	def AddExpression (self,expression):
 		self.expressions.append(expression)
 
@@ -5668,7 +5667,7 @@ class NotOperatorV1(QTIObjectV1):
 			self.PrintWarning("Warning: replacing empty <not> with Null operator")
 			self.parent.AddExpression(NullOperator())
 
-		
+
 # OtherOperator
 # -------------
 #
@@ -5685,7 +5684,7 @@ class OtherOperatorV1(QTIObjectV1):
 	def AddData (self,data):
 		# We ignore the data in <other> as it is sometimes put there for compatibility with other systems.
 		pass
-	
+
 	def CloseObject (self):
 		self.PrintWarning("Warning: replacing <other/> with the base value true - what did you want me to do??")
 		self.parent.AddExpression(BaseValueOperator('boolean','true'))
@@ -5697,9 +5696,9 @@ class OtherOperatorV1(QTIObjectV1):
 class Unanswered(QTIObjectV1):
 	"""
 	<!ELEMENT unanswered (#PCDATA)>
-	
+
 	<!ATTLIST unanswered  %I_RespIdent; >
-	
+
 	Similar to the var* tests, but we replace unanswered with an isNull operator.
 	"""
 	def __init__(self,name,attrs,parent):
@@ -5711,7 +5710,7 @@ class Unanswered(QTIObjectV1):
 
 	def SetAttribute_respident (self,value):
 		self.identifier=self.ReadIdentifier(value,RESPONSE_PREFIX)
-	
+
 	def CloseObject (self):
 		response=self.GetItemV1().GetResponse(self.identifier)
 		if response:
@@ -5744,10 +5743,10 @@ class VarThing(QTIObjectV1):
 		if self.GetInstructureHelperContainer().question_type == 'fillInMultiple':
 			if not self.GetItemV1().GetResponse(self.identifier):
 				self.GetItemV1().DeclareResponse(self.identifier,'single','string')
-	
+
 	def SetAttribute_index (self,value):
 		self.index=self.ReadInteger(value,None)
-	
+
 	def AddData (self,data):
 		self.value=self.value+data
 
@@ -5770,7 +5769,7 @@ class VarThing(QTIObjectV1):
 			self.varExpression=NullOperator()
 			self.varCardinality='single'
 			self.varBaseType='identifier'
-				
+
 	def MakeSingleValue (self,baseType):
 		# sort out lexical representation of point and pair values before constructing
 		# the base value operator in future.
@@ -5782,18 +5781,18 @@ class VarThing(QTIObjectV1):
 		if self.identifier:
 			self.valExpression.SetIdentifier(self.identifier)
 		self.valCardinality='single'
-		
-	
+
+
 # VarEqual
 # --------
 #
 class VarEqual(VarThing):
 	"""
 	<!ELEMENT varequal (#PCDATA)>
-	
+
 	<!ATTLIST varequal  %I_Case;
 						 %I_RespIdent;
-						 %I_Index; >	
+						 %I_Index; >
 	"""
 	def __init__(self,name,attrs,parent):
 		self.caseFlag=0
@@ -5801,7 +5800,7 @@ class VarEqual(VarThing):
 
 	def SetAttribute_case (self,value):
 		self.caseFlag=self.ReadYesNo(value,0)
-	
+
 	def CloseObject (self):
 		self.MakeVariableExpression()
 		self.MakeSingleValue(self.varBaseType)
@@ -5834,15 +5833,15 @@ class VarEqual(VarThing):
 				raise QTIException(eUnimplementedOperator,"varequal("+self.varBaseType+")")
 			expression=MemberOperator(self.valExpression,self.varExpression)
 		self.parent.AddExpression(expression)
-		
-	
+
+
 # VarLT
 # -----
 #
 class VarLT(VarThing):
 	"""
 	<!ELEMENT varlt (#PCDATA)>
-	
+
 	<!ATTLIST varlt  %I_RespIdent;
 					   %I_Index; >
 	"""
@@ -5875,7 +5874,7 @@ class VarLT(VarThing):
 class VarLTE(VarThing):
 	"""
 	<!ELEMENT varlte (#PCDATA)>
-	
+
 	<!ATTLIST varlte  %I_RespIdent;
 					  %I_Index; >
 	"""
@@ -5902,14 +5901,14 @@ class VarLTE(VarThing):
 		self.parent.AddExpression(expression)
 
 
-	
+
 # VarGT
 # -----
 #
 class VarGT(VarThing):
 	"""
 	<!ELEMENT vargt (#PCDATA)>
-	
+
 	<!ATTLIST vargt  %I_RespIdent;
 					   %I_Index; >
 	"""
@@ -5942,7 +5941,7 @@ class VarGT(VarThing):
 class VarGTE(VarThing):
 	"""
 	<!ELEMENT vargte (#PCDATA)>
-	
+
 	<!ATTLIST vargte  %I_RespIdent;
 					   %I_Index; >
 	"""
@@ -5975,7 +5974,7 @@ class VarGTE(VarThing):
 class VarSubset(VarThing):
 	"""
 	<!ELEMENT varsubset (#PCDATA)>
-	
+
 	<!ATTLIST varsubset  %I_RespIdent;
 						  setmatch     (Exact | Partial )  'Exact'
 						  %I_Index; >
@@ -5988,8 +5987,8 @@ class VarSubset(VarThing):
 		if value.lower()=='partial':
 			self.exactmatch=0
 		elif value.lower()!='exact':
-			self.PrintWarning('Warning: unrecognized setmatch value "'+value+'"') 
-	
+			self.PrintWarning('Warning: unrecognized setmatch value "'+value+'"')
+
 	def CloseObject (self):
 		if self.index:
 			self.PrintWarning("Warning: ignoring index on varsubset")
@@ -6017,7 +6016,7 @@ class VarSubset(VarThing):
 				expression=ContainsOperator(self.varExpression,self.valExpression)
 		if expression:
 			self.parent.AddExpression(expression)
-		
+
 
 
 # VarSubtring
@@ -6026,7 +6025,7 @@ class VarSubset(VarThing):
 class VarSubstring(VarThing):
 	"""
 	<!ELEMENT varsubstring (#PCDATA)>
-	
+
 	<!ATTLIST varsubstring  %I_Index;
 							 %I_RespIdent;
 							 %I_Case; >
@@ -6037,7 +6036,7 @@ class VarSubstring(VarThing):
 
 	def SetAttribute_case (self,value):
 		self.caseFlag=self.ReadYesNo(value,0)
-	
+
 	def CloseObject (self):
 		self.MakeVariableExpression()
 		self.MakeSingleValue(self.varBaseType)
@@ -6058,7 +6057,7 @@ class VarSubstring(VarThing):
 class VarInside(VarThing):
 	"""
 	<!ELEMENT varinside (#PCDATA)>
-	
+
 	<!ATTLIST varinside  areatype     (Ellipse | Rectangle | Bounded )  #REQUIRED
 						  %I_RespIdent;
 						  %I_Index; >
@@ -6077,14 +6076,14 @@ class VarInside(VarThing):
 			self.shape='poly'
 		else:
 			raise QTIException(eUnknownShape)
-	
+
 	def CloseObject (self):
 		# This is the clever bit, got hunt down the interaction bound to this response
 		self.shape,coords=self.ConvertAreaCoords(self.shape,self.value)
 		self.MakeVariableExpression()
 		self.parent.AddExpression(InsideOperator(self.varExpression,self.shape,coords))
-		
-	
+
+
 # QTIParserV1 Class
 # -----------------
 #
@@ -6313,7 +6312,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 
 	def startElementNS (self, name, qname, attrs):
 		if attrs:
-			attrs = dict([(self.parseName(k), v) for k, v in attrs.items()])
+			attrs = { self.parseName(k): v for k, v in attrs.items() }
 		self.startElement(self.parseName(name), attrs)
 
 	def endElementNS (self, name, qname):
@@ -6332,7 +6331,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 		for fileName in files:
 			path=os.path.join(basepath,fileName)
 			if os.path.isdir(path):
-				print "Processing directory: : "+path
+				print("Processing directory: : "+path)
 				children=os.listdir(path)
 				# see if there is an imsmanifest and process it first
 				# The order of the rest doesn't mater
@@ -6343,12 +6342,12 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 						break
 				self.ProcessFiles(path,children)
 			elif fileName[-4:].lower() in ['.xml', '.dat', '.qti']:
-				print "Processing file: "+path
-				f=open(path,'r')
+				print("Processing file: "+path)
+				f=open(path,'rb')
 				try:
 					self.Parse(f,path)
 				except QTIException:
-					print sys.exc_info()[0]
+					print(sys.exc_info()[0])
 				finally:
 					f.close()
 
@@ -6369,22 +6368,22 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 			if tree.getroot():
 				sax.saxify(tree, self)
 			else:
-				print "ERROR: parsing %s"%path
+				print("ERROR: parsing %s"%path)
 		except (etree.XMLSyntaxError, SAXParseException):
 			if self.gotRoot:
-				print "WARNING: Error following final close tag ignored"
-				print str(sys.exc_info()[0])+": "+str(sys.exc_info()[1])
+				print("WARNING: Error following final close tag ignored")
+				print(str(sys.exc_info()[0])+": "+str(sys.exc_info()[1]))
 			else:
-				print "ERROR: parsing %s"%path
-				print "       ("+str(sys.exc_info()[0])+": "+str(sys.exc_info()[1])+")"
+				print("ERROR: parsing %s"%path)
+				print("       ("+str(sys.exc_info()[0])+": "+str(sys.exc_info()[1])+")")
 		self.currPath=None
 		CURRENT_FILE_NAME=None
 
 	def resolveEntity(self,publicID,systemID):
-		print "Resolving: PUBLIC %s SYSTEM %s"%(publicID,systemID)
+		print("Resolving: PUBLIC %s SYSTEM %s"%(publicID,systemID))
 		if self.options.dtdDir:
 			systemID=os.path.join(self.options.dtdDir,'ims_qtiasiv1p2.dtd')
-		print "Returning: %s"%systemID
+		print("Returning: %s"%systemID)
 		return systemID
 
 	def startElement(self, name, attrs):
@@ -6398,7 +6397,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 			# tags inside MatThing should have been escaped in CDATA sections
 			self.cObject=RawMaterial(name,attrs,parent)
 		else:
-			if self.elements.has_key(name):
+			if name in self.elements:
 				self.cObject=self.elements[name](name,attrs,parent)
 				if isinstance(self.cObject,QuesTestInterop):
 					self.cObject.SetCP(self.cp)
@@ -6438,7 +6437,7 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 			self.cObject=parent
 
 
-	
+
 """
 <?xml version='1.0' encoding='UTF-8' ?>
 
@@ -6483,15 +6482,15 @@ class QTIParserV1(handler.ContentHandler, handler.ErrorHandler):
 
 <!ENTITY % I_Ident " ident CDATA  #REQUIRED">
 
-<!ENTITY % I_View " view  (All | 
-          Administrator | 
-          AdminAuthority | 
-          Assessor | 
-          Author | 
-          Candidate | 
-          InvigilatorProctor | 
-          Psychometrician | 
-          Scorer | 
+<!ENTITY % I_View " view  (All |
+          Administrator |
+          AdminAuthority |
+          Assessor |
+          Author |
+          Candidate |
+          InvigilatorProctor |
+          Psychometrician |
+          Scorer |
           Tutor )  'All'">
 
 <!ENTITY % I_FeedbackSwitch " feedbackswitch  (Yes | No )  'Yes'">
