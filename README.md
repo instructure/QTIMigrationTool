@@ -39,11 +39,15 @@ Follow the source release installation instructions below.
 
 * Installing the Source
 
-To install the source distribution you will need a version 2 python interpreter
+To install the source distribution you will need a version 3 python interpreter
 to be installed on your system.  Python is available as a simple installer for
 most popular platforms, for more details see:
 
 http://www.python.org/
+
+You will also need the LXML package installed. You can get it with 
+`pip3 install lxml` or with your system's package manager, e.g.
+`apt-get install python3-lxml`.
 
 The GUI mode requires wxPython to be installed.  wxPython is available for
 Windows, Mac and Unix/Linux based systems.  The installation is straightforward
