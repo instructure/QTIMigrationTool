@@ -43,15 +43,13 @@ def XMLString (src):
 	if src:
 		for c in src:
 			if c=='&':
-				dst=dst+"&amp;"
+				dst=dst+"&"
 			elif c=='<':
-				dst=dst+"&lt;"
+				dst=dst+"<"
 			elif c=='>':
-				dst=dst+"&gt;"
+				dst=dst+">;"
 			elif c=='"':
-				dst=dst+'&quot;'
-			elif ord(c)>128:
-				dst=dst+"&#"+str(ord(c))+';'
+				dst=dst+'"'
 			else:
 				dst=dst+c
 	return dst
