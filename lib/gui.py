@@ -8,7 +8,7 @@ All Other Code is Copyright (c) 2004 - 2008, University of Cambridge.
 # --------------
 GUI_VERSION='Version: 2008-06-07'
 
-import	sys, os, time, string
+import	sys, os, time, string, re, shutil
 import	wx
 import  wx.adv
 import	wx.lib.filebrowsebutton as filebrowse
@@ -219,9 +219,39 @@ class MyFrame(wx.Frame):
 				self.options.cpPath=''
 		if fileNames:
 			self.ProcessFiles(fileNames)
+			self.FixMaxChoices(f'{self.options.cpPath}/assessmentItems')
 		else:
 			print("No input set. Parser aborted...")
 			self.SetStatusText("Parser aborted...")
+
+	def FixMaxChoices(self, AssessmentItems):
+		try:
+			os.mkdir(f'{AssessmentItems}_export')
+		except FileExistsError:
+			pass
+
+		files = [ file.path for file in os.scandir(AssessmentItems) if file.is_file()]
+		xml_files = [ xml for xml in files if xml.endswith('.xml') ]
+		for xml_file in xml_files:
+			question_xml = open(xml_file, 'r')
+			question_text = question_xml.read()
+			questions_text = self.ReplaceMaxChoices(question_text)
+			path = xml_file.replace(f'{AssessmentItems}/', '')
+			file = open(f'{AssessmentItems}_export/{path}', "a")
+			file.write(questions_text)
+			file.close()
+		shutil.rmtree(AssessmentItems)
+		os.rename(f'{AssessmentItems}_export', AssessmentItems)
+
+	def ReplaceMaxChoices(self, questionText):
+		item_body = re.findall(r'<itemBody>.*?</itemBody', questionText, re.DOTALL)[0]
+		response_cases = re.findall(r'<(responseIf>.*?</responseIf|responseElseIf>.*?</responseElseIf)', questionText, re.DOTALL)
+		amount_correct = 0
+		for response_case in response_cases:
+			if response_case.find('<variable identifier="MC"/>') != -1 and len(re.findall(r'<baseValue baseType="(integer|float)">1</baseValue>', response_case)) > 0:
+				amount_correct += 1
+		replacement = re.sub(r'maxChoices="."', f'maxChoices="{amount_correct}"', item_body)
+		return questionText.replace(item_body, replacement)
 
 	def ProcessFiles(self,fileNames):
 		self.SetStatusText("Parsing input files...")
