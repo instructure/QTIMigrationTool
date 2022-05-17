@@ -10,6 +10,7 @@ GUI_VERSION='Version: 2008-06-07'
 
 import	sys, os, time, string
 import	wx
+import  wx.adv
 import	wx.lib.filebrowsebutton as filebrowse
 
 import imsqtiv1
@@ -114,7 +115,7 @@ class MyFrame(wx.Frame):
 										buttonText = "Browse..",
 										startDirectory = os.getcwd(),
 										fileMask = wildcard,
-										fileMode = wx.OPEN,
+										fileMode = wx.FD_OPEN,
 										changeCallback = self.ffb1Callback)
 
 		radio1.SetValue(1)
@@ -370,11 +371,11 @@ def opj(path):
 #
 # Description: show the splashscreen during startup
 #
-class MySplashScreen(wx.SplashScreen):
+class MySplashScreen(wx.adv.SplashScreen):
 	def __init__(self):
 		bmp = wx.Image(opj("IMSLogo.bmp")).ConvertToBitmap()
-		wx.SplashScreen.__init__(self, bmp,
-								 wx.SPLASH_CENTRE_ON_SCREEN | wx.SPLASH_TIMEOUT,
+		wx.adv.SplashScreen.__init__(self, bmp,
+								 wx.adv.SPLASH_CENTRE_ON_SCREEN | wx.adv.SPLASH_TIMEOUT,
 								 3000, None, -1)
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 
